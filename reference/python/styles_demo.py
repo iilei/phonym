@@ -78,9 +78,10 @@ class Style:
         def step(q, syl):
             onset, nucleus, coda = parts[syl]
             harmony = (q.harmony or sa.harmony_class(nucleus)) if self.harmony else None
-            return sa.State(coda, harmony, onset, (bl.advance(q.tail, syl) or "") if bl else "",
+            return sa.State(coda, harmony, onset,
                             q.clusters + (onset in clusters) if self.max_clusters else 0,
-                            q.extras + (nucleus in extras) if self.max_extra_nuclei else 0)
+                            q.extras + (nucleus in extras) if self.max_extra_nuclei else 0,
+                            bl.advance_head(q.head, syl) if bl else None)
 
         def allowed(q, syl, is_last):
             onset, nucleus, coda = parts[syl]
@@ -95,7 +96,7 @@ class Style:
                 return False
             if self.max_extra_nuclei and nucleus in extras and q.extras >= self.max_extra_nuclei:
                 return False
-            if bl and bl.advance(q.tail, syl) is None:
+            if bl and is_last and bl.word_blocked(q.head, syl):
                 return False
             if self.harmony and q.harmony and sa.harmony_class(nucleus) not in (None, q.harmony):
                 return False

@@ -127,10 +127,7 @@ func (s *Style) stepper(inv syllableSet) stepFunc {
 				h = s.rules.class(p.nucleus)
 			}
 		}
-		tail, clusters, extras := "", 0, 0
-		if s.blocks != nil {
-			tail, _ = s.blocks.advance(q.tail, syl)
-		}
+		clusters, extras := 0, 0
 		if s.MaxClusters > 0 {
 			clusters = q.clusters
 			if len(p.onset) > 1 {
@@ -143,7 +140,13 @@ func (s *Style) stepper(inv syllableSet) stepFunc {
 				extras++
 			}
 		}
-		return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail, clusters: clusters, extras: extras}
+		head := deadHead
+		if s.blocks != nil {
+			head = s.blocks.advanceHead(q.head, syl)
+		}
+		return state{
+			coda: p.coda, harmony: h, onset: p.onset, head: head, clusters: clusters, extras: extras,
+		}
 	}
 }
 
@@ -160,7 +163,7 @@ func (s *Style) allower(inv syllableSet, end map[string]bool) allowFunc {
 			return false
 		case !s.shapeOK(&q, p, last, finalOnly):
 			return false
-		case s.blocked(q.tail, syl):
+		case last && s.blocks != nil && s.blocks.wordBlocked(q.head, syl):
 			return false
 		case s.Harmony && s.rules.harmonyClash(q.harmony, p.nucleus):
 			return false
@@ -190,15 +193,6 @@ func (s *Style) shapeOK(q *state, p parts, last bool, finalOnly map[string]bool)
 		return false
 	}
 	return true
-}
-
-// blocked reports whether syl would complete a blocklisted fragment after tail.
-func (s *Style) blocked(tail, syl string) bool {
-	if s.blocks == nil {
-		return false
-	}
-	_, ok := s.blocks.advance(tail, syl)
-	return !ok
 }
 
 // givenCapacity is the number of given names of a split style; nil means unlimited.

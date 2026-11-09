@@ -14,6 +14,8 @@ const (
 	maxEmptyLengths = 8
 	// parseCap caps the parse count: one parse is all that matters, two means ambiguous.
 	parseCap = 2
+	// deadHead marks a word that can no longer become a blocked word (not a letter).
+	deadHead = "!"
 )
 
 // startState is the state before the first syllable.
@@ -25,7 +27,7 @@ type (
 		coda     string // coda of the previous syllable; "^" before the first one
 		harmony  string // locked vowel class; "" while only neutral vowels were seen
 		onset    string // onset of the previous syllable; "" before the first one
-		tail     string // end of the word that could still grow into a blocked fragment
+		head     string // the word so far while it can still become a blocked word; deadHead after
 		clusters int    // onset clusters used so far in this word (styles that limit them)
 		extras   int    // extra nuclei used so far in this word (styles that limit them)
 	}

@@ -298,45 +298,7 @@ func ExampleEncode() {
 	short, _ := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp")
 	d, _ := phonym.Decode(name, "")
 	fmt.Println(name, short, d.ID, d.Release)
-	// Output: bago-vilzav bagezar 4711 1.1.0+crisp
-}
-
-func TestBlocklist(t *testing.T) {
-	t.Parallel()
-	fragments := phonym.BlockedFragments()
-	if len(fragments) == 0 {
-		t.Fatal("blocklist 1 is empty")
-	}
-	for slot, r := range phonym.Releases() {
-		fam := phonym.FamilyName(slot, 0)
-		for _, f := range fragments {
-			if d, err := phonym.Decode(f+"-"+fam, ""); err == nil {
-				t.Errorf("%s: blocked %q decoded as %s", r.Label, f, d.ID)
-			}
-		}
-	}
-	for i := range phonym.FamilyCapacity {
-		if name := phonym.FamilyAt(i); containsFragment(name, fragments) {
-			t.Fatalf("family name %q contains a blocked fragment", name)
-		}
-	}
-	for _, bad := range []string{"ab\n", "Fuck\n", "fu-k\n", "abc\nabc\n", "k\u00fcrv\n"} {
-		if err := phonym.ParseBlocklist(bad); err == nil {
-			t.Errorf("ParseBlocklist(%q) accepted", bad)
-		}
-	}
-	if err := phonym.ParseBlocklist("# comment\n\nabc\n"); err != nil {
-		t.Errorf("valid blocklist rejected: %v", err)
-	}
-}
-
-func containsFragment(word string, fragments []string) bool {
-	for _, f := range fragments {
-		if strings.Contains(word, f) {
-			return true
-		}
-	}
-	return false
+	// Output: bago-vunzov bagekir 4711 1.1.0+crisp
 }
 
 func TestSplitRule(t *testing.T) {
@@ -427,5 +389,67 @@ func TestFantasyShapes(t *testing.T) {
 		if strings.Contains(alien, "e") || count(alien, "zv", "kv", "tl", "kt") > 1 {
 			t.Fatalf("alien %q: e, or more than one cluster", alien)
 		}
+	}
+}
+
+// nearlyBlocked is the BLOCKLIST RULE, written independently: a word contains an
+// entry and has at most one letter besides it.
+func nearlyBlocked(word string, entries []string) bool {
+	for _, e := range entries {
+		if strings.Contains(word, e) && len(word)-len(e) <= 1 {
+			return true
+		}
+	}
+	return false
+}
+
+func TestBlocklist(t *testing.T) {
+	t.Parallel()
+	entries := phonym.BlockedEntries()
+	if len(entries) == 0 {
+		t.Fatal("blocklist 1 is empty")
+	}
+	for _, r := range phonym.Releases() {
+		for _, e := range entries {
+			if d, err := phonym.Decode(e, r.Label); err == nil {
+				t.Errorf("%s: blocked %q decoded as %s", r.Label, e, d.ID)
+			}
+		}
+	}
+	for i := range phonym.FamilyCapacity {
+		if name := phonym.FamilyAt(i); nearlyBlocked(name, entries) {
+			t.Fatalf("family name %q is blocked", name)
+		}
+	}
+	// names never break the rule, and an entry inside a longer word is allowed
+	longer := 0
+	for _, r := range phonym.Releases() {
+		for x := int64(0); x < 40000; x += 7 {
+			name, err := phonym.EncodeShort(big.NewInt(x), r.Label)
+			if err != nil {
+				break // fixed-shape releases overflow
+			}
+			for w := range strings.SplitSeq(name, "-") {
+				if nearlyBlocked(w, entries) {
+					t.Fatalf("%s: %q is blocked", r.Label, w)
+				}
+				for _, e := range entries {
+					if strings.Contains(w, e) {
+						longer++
+					}
+				}
+			}
+		}
+	}
+	if longer == 0 {
+		t.Error("no name contains an entry inside a longer word; the rule looks stricter than intended")
+	}
+	for _, bad := range []string{"ab\n", "Fuck\n", "fu-k\n", "abc\nabc\n", "=abc\n", "k\u00fcrv\n"} {
+		if err := phonym.ParseBlocklist(bad); err == nil {
+			t.Errorf("ParseBlocklist(%q) accepted", bad)
+		}
+	}
+	if err := phonym.ParseBlocklist("# comment\n\nabc\n"); err != nil {
+		t.Errorf("valid blocklist rejected: %v", err)
 	}
 }

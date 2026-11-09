@@ -15,11 +15,11 @@ const (
 	// Siblings (K) is the number of IDs that share a given name and differ in the family name.
 	Siblings = 64
 	// Slots is the number of release slots the family code provides.
-	Slots = 383
+	Slots = 384
 
 	familyLen      = 2
-	familyCapacity = 24572
-	familyStride   = 237 // round(Slots * 0.6180339887) = 237, already coprime to Slots (383 is prime)
+	familyCapacity = 24627
+	familyStride   = 239 // round(Slots * 0.6180339887) = 237, then the next value coprime to Slots
 	familyOffset   = 97
 	familyOnsets   = "bdfgklmnprstvzhjw"
 )
@@ -56,7 +56,6 @@ type familyRef struct{ slot, lo int }
 func family() *code {
 	familyOnce.Do(func() {
 		inv := inventory(familyOnsets, familyRules.nuclei, familyCodas)
-		byName := inv.parts
 		familyEnd = map[string]bool{}
 		for _, s := range inv.names {
 			for _, suf := range familySuffixes {
@@ -65,36 +64,7 @@ func family() *code {
 				}
 			}
 		}
-		step := func(q state, syl string) state {
-			p := byName[syl]
-			h := q.harmony
-			if h == "" {
-				h = familyRules.class(p.nucleus)
-			}
-			tail, _ := familyBlocklist.advance(q.tail, syl)
-			return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail}
-		}
-		// SHAPE RULE: CVC-CVC. The first syllable must be closed; "no two closed
-		// syllables in a row" does not apply inside family names.
-		allowed := func(q state, syl string, last bool) bool {
-			p := byName[syl]
-			switch {
-			case q.coda == "^" && p.coda == "":
-				return false
-			case last && !familyEnd[syl]:
-				return false
-			case familyBlocked(q.tail, syl):
-				return false
-			case familyRules.harmonyClash(q.harmony, p.nucleus):
-				return false
-			case p.onset == q.onset:
-				return false
-			case q.coda == "^" || q.coda == "":
-				return true
-			}
-			return familyRules.boundaryOK(q.coda, p.onset)
-		}
-		familyCode = newCode(inv, step, allowed)
+		familyCode = newCode(inv, familyStepper(inv), familyAllower(inv))
 		if got := familyCode.capacity(familyLen); got.Cmp(big.NewInt(familyCapacity)) != 0 {
 			panic(fmt.Sprintf("phonym: family capacity %s, want %d", got, familyCapacity))
 		}
@@ -103,10 +73,40 @@ func family() *code {
 	return familyCode
 }
 
-// familyBlocked reports whether syl would complete a blocklisted fragment after tail.
-func familyBlocked(tail, syl string) bool {
-	_, ok := familyBlocklist.advance(tail, syl)
-	return !ok
+// familyStepper returns the family code's transition function.
+func familyStepper(inv syllableSet) stepFunc {
+	return func(q state, syl string) state {
+		p := inv.parts[syl]
+		h := q.harmony
+		if h == "" {
+			h = familyRules.class(p.nucleus)
+		}
+		head := familyBlocklist.advanceHead(q.head, syl)
+		return state{coda: p.coda, harmony: h, onset: p.onset, head: head}
+	}
+}
+
+// familyAllower returns the family code's rule check. SHAPE RULE: CVC-CVC. The first
+// syllable must be closed; "no two closed syllables in a row" does not apply here.
+func familyAllower(inv syllableSet) allowFunc {
+	return func(q state, syl string, last bool) bool {
+		p := inv.parts[syl]
+		switch {
+		case q.coda == "^" && p.coda == "":
+			return false
+		case last && !familyEnd[syl]:
+			return false
+		case last && familyBlocklist.wordBlocked(q.head, syl):
+			return false
+		case familyRules.harmonyClash(q.harmony, p.nucleus):
+			return false
+		case p.onset == q.onset:
+			return false
+		case q.coda == "^" || q.coda == "":
+			return true
+		}
+		return familyRules.boundaryOK(q.coda, p.onset)
+	}
 }
 
 // familyName returns the family name of a release slot and sibling (0 <= lo < Siblings).

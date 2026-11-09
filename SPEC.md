@@ -30,7 +30,8 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 
 ## 3. State and rules
 
-- State: (previous coda, harmony class, previous onset, blocklist tail). Transition `step(q, syl)`.
+- State: (previous coda, harmony class, previous onset, blocklist head, cluster and
+  extra-nucleus counts). Transition `step(q, syl)`.
 - Position rules use the remaining length: the last syllable must be in END;
   `START` selects the initial inventory.
 
@@ -46,20 +47,28 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 
 Voiced consonants are `bdgvz`, voiceless ones `ptkfsh`.
 
-BLOCKLIST RULE (frozen): a blocklist is a versioned file of fragments
-(`blocklists/<n>.txt`: one per line, lowercase `a–z`, at least 3 letters, `#`
-comments). A syllable is not allowed if the word so far plus the syllable contains
-a fragment. The state therefore also keeps `tail`, the longest suffix of the word
-that is a proper prefix of some fragment: any fragment the next syllable completes
-starts inside `tail + syllable`, so checking that string is enough. The rule
-applies per word: separators reset it, so a fragment spanning two words is not
-blocked. Each style names one blocklist version; extending the list means a new
-file and new releases. `blocklists/1.txt` (315 fragments, 22 languages) applies to
-all releases and to the family code. It combines hand-curated fragments with ones
-adapted from LDNOOBW (CC BY 4.0): transliterated as a reader would say them,
-reduced to what phonym can spell, minimised, and reviewed by hand to remove
-ordinary words, names, misread transliterations and neutral or medical terms. The
-file's header records sources, commit, changes and its license (CC BY 4.0).
+BLOCKLIST RULE (frozen): a blocklist is a versioned file (`blocklists/<n>.txt`: one
+entry per line, lowercase `a–z`, at least 3 letters, `#` comments). A word of a name
+is not allowed if it contains an entry and has **at most one letter besides it**:
+the word is the entry, or the entry with one letter before or after it (`puta`,
+`aputa`, `putas` are blocked; `baputa`, `putaren` are not). The state keeps `head`,
+the word so far while it can still become such a word (a prefix of an entry, or one
+letter plus a prefix of an entry); a word's last syllable is not allowed if
+`head + syllable` is blocked. The rule applies per word: separators reset it. Each
+style names one blocklist version; extending the list means a new file and new
+releases.
+
+Policy for what is listed: sexual and kinky terms, body fluids, excretion and
+genitals, gore and violence, slurs and hate symbols. Not listed: plain pejoratives
+(`bonze`, idiot), religious swears, ordinary words and names, and misread
+transliterations.
+
+`blocklists/1.txt` (743 entries, 22 languages) applies to all releases and to the
+family code. It combines hand-curated entries with ones adapted from LDNOOBW (CC BY
+4.0): transliterated as a reader would say them, reduced to what some style can
+spell, and categorised by hand. It is not minimised: under this rule a longer entry
+is not covered by a shorter one it contains. The file's header records sources,
+commit, changes and its license (CC BY 4.0).
 
 ## 4. Name structure: given name(s) + family name
 
@@ -76,9 +85,9 @@ file's header records sources, commit, changes and its license (CC BY 4.0).
   (`x mod K`) stay adjacent, so sorting by given name then family name gives ID order.
 - The family code applies blocklist 1 once, at the freeze. A later blocklist can't
   reach family names; a slot whose names turn out offensive can only be retired.
-- Frozen constants: `K = 64`, `FAMILY_LEN = 2`, capacity 24,572, `SLOTS = 383`,
-  `STRIDE = 237`, `OFFSET = 97`.
-- Only `SLOTS · K = 24,512` family names are ever issued. The 60 names with a
+- Frozen constants: `K = 64`, `FAMILY_LEN = 2`, capacity 24,627, `SLOTS = 384`,
+  `STRIDE = 239`, `OFFSET = 97`.
+- Only `SLOTS · K = 24,576` family names are ever issued. The 51 names with a
   higher index are rejected when decoding (`UnsupportedFormat`); otherwise they
   would wrap around and act as second names for existing IDs.
 - GENERATION RULE (frozen): the family-name shape identifies the generation, and
@@ -228,7 +237,7 @@ identical names. The spec therefore never relies on language behaviour:
 
 1. **Constants are literals.** Values derived by a formula are written into the
    spec as numbers, and implementations use the literal. In particular
-   `STRIDE = 237` is frozen as a number; the golden-ratio formula
+   `STRIDE = 239` is frozen as a number; the golden-ratio formula
    (`round(SLOTS · 0.6180339887)`, then the next value coprime to `SLOTS`) is
    only a comment explaining its origin. No floating point anywhere in
    encoding or decoding.
@@ -279,8 +288,8 @@ Also required:
 1. ~~Short form~~: done, see section 8.
 2. ~~Slot retirement flag~~: done, see the RETIREMENT RULE in section 5.
 3. ~~Blocklist~~: done, see the BLOCKLIST RULE in section 3 (`blocklists/1.txt`,
-   315 fragments). Review the list before the freeze: after it, family names can't
-   be changed any more.
+   743 entries). Review the list before the freeze: after it, family
+   names can't be changed any more.
 4. Frozen copies for styles: in Go, released styles reference the generation-1
    rule tables (`rules1`) explicitly, separate from the family code's own copy.
    A rule change must come as a new rules table and new releases, never an edit.

@@ -121,8 +121,8 @@ func encodeChecked(t *testing.T, id *big.Int, label string, short bool) string {
 		t.Fatalf("full form %q is a proquint", name)
 	}
 	for w := range strings.SplitSeq(name, "-") {
-		if containsFragment(w, phonym.BlockedFragments()) {
-			t.Fatalf("%q contains a blocked fragment", name)
+		if nearlyBlocked(w, phonym.BlockedEntries()) {
+			t.Fatalf("%q has a blocked word", name)
 		}
 	}
 	return name

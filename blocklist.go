@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// minFragment is the shortest fragment a blocklist may contain.
-const minFragment = 3
+// minEntry is the shortest entry a blocklist may contain.
+const minEntry = 3
 
 var (
 	//go:embed blocklists/1.txt
@@ -17,35 +17,34 @@ var (
 	blocklist1 = mustBlocklist(blocklist1Text)
 )
 
-// blocklist holds fragments that must never appear inside a word (BLOCKLIST RULE).
+// blocklist holds entries a word of a name must not (nearly) be (BLOCKLIST RULE).
 //
-// A syllable is not allowed if the word so far plus the syllable contains a
-// fragment. The automaton state keeps tail, the longest suffix of the word that is
-// a proper prefix of some fragment: any fragment the next syllable completes starts
-// inside tail + syllable, so checking that string is enough.
+// A word is not allowed if it contains an entry and has at most one letter besides
+// it: the word is the entry, or the entry with one letter before or after it
+// ("puta", "aputa", "putas"; "baputa" is fine). The automaton state keeps head, the
+// word so far while it can still become such a word: a prefix of an entry, or one
+// letter plus a prefix of an entry. A word's last syllable is checked against it.
 type blocklist struct {
-	fragments map[string]bool
-	prefixes  map[string]bool
-	maxLen    int
+	entries  map[string]bool
+	prefixes map[string]bool // every prefix of every entry, the entry included
 }
 
-// parseBlocklist reads one fragment per line; blank lines and # comments are ignored.
+// parseBlocklist reads one entry per line; blank lines and # comments are ignored.
 func parseBlocklist(text string) (*blocklist, error) {
-	b := &blocklist{fragments: map[string]bool{}, prefixes: map[string]bool{}}
+	b := &blocklist{entries: map[string]bool{}, prefixes: map[string]bool{}}
 	for n, line := range strings.Split(text, "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		if len(line) < minFragment || strings.Trim(line, "abcdefghijklmnopqrstuvwxyz") != "" {
-			return nil, fmt.Errorf("line %d: %q is not %d+ letters a-z", n+1, line, minFragment)
+		if len(line) < minEntry || strings.Trim(line, "abcdefghijklmnopqrstuvwxyz") != "" {
+			return nil, fmt.Errorf("line %d: %q is not %d+ letters a-z", n+1, line, minEntry)
 		}
-		if b.fragments[line] {
-			return nil, fmt.Errorf("line %d: duplicate fragment %q", n+1, line)
+		if b.entries[line] {
+			return nil, fmt.Errorf("line %d: duplicate entry %q", n+1, line)
 		}
-		b.fragments[line] = true
-		b.maxLen = max(b.maxLen, len(line))
-		for i := 1; i < len(line); i++ {
+		b.entries[line] = true
+		for i := 1; i <= len(line); i++ {
 			b.prefixes[line[:i]] = true
 		}
 	}
@@ -61,20 +60,24 @@ func mustBlocklist(text string) *blocklist {
 	return b
 }
 
-// advance returns the tail after appending syl, and false if syl would complete a fragment.
-func (b *blocklist) advance(tail, syl string) (string, bool) {
-	w := tail + syl
-	for i := range len(w) {
-		for j := i + 1; j <= min(len(w), i+b.maxLen); j++ {
-			if b.fragments[w[i:j]] {
-				return "", false
-			}
-		}
+// advanceHead returns the head after appending syl: the word so far while it can
+// still become a blocked word, deadHead after.
+func (b *blocklist) advanceHead(head, syl string) string {
+	if head == deadHead {
+		return deadHead
 	}
-	for i := range len(w) { // longest suffix first
-		if b.prefixes[w[i:]] {
-			return w[i:], true
-		}
+	if w := head + syl; b.prefixes[w] || b.prefixes[w[1:]] {
+		return w
 	}
-	return "", true
+	return deadHead
+}
+
+// wordBlocked reports whether a word ending with syl after head is an entry, or an
+// entry with one letter before or after it.
+func (b *blocklist) wordBlocked(head, syl string) bool {
+	if head == deadHead {
+		return false
+	}
+	w := head + syl
+	return b.entries[w] || b.entries[w[1:]] || b.entries[w[:len(w)-1]]
 }

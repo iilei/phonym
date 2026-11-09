@@ -97,11 +97,11 @@ func WithRegistry(reg []Release, fn func()) {
 	fn()
 }
 
-// BlockedFragments returns the fragments of blocklist 1, sorted.
-func BlockedFragments() []string {
-	out := make([]string, 0, len(blocklist1.fragments))
-	for f := range blocklist1.fragments {
-		out = append(out, f)
+// BlockedEntries returns the entries of blocklist 1, sorted.
+func BlockedEntries() []string {
+	out := make([]string, 0, len(blocklist1.entries))
+	for e := range blocklist1.entries {
+		out = append(out, e)
 	}
 	slices.Sort(out)
 	return out

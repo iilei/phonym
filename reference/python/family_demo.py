@@ -37,7 +37,7 @@ F_BLOCKLIST = sa.BLOCKLIST1
 
 def family_step(q, syl):
     onset, nucleus, coda = F_PARTS[syl]
-    return sa.State(coda, q.harmony or F_HARMONY[nucleus], onset, F_BLOCKLIST.advance(q.tail, syl) or "")
+    return sa.State(coda, q.harmony or F_HARMONY[nucleus], onset, head=F_BLOCKLIST.advance_head(q.head, syl))
 
 
 # SHAPE RULE (frozen): every family name is CVC-CVC, i.e. 6 letters with a
@@ -63,7 +63,7 @@ def family_allowed(q, syl, is_last):
         return False
     if is_last and syl not in FAMILY_END:
         return False
-    if F_BLOCKLIST.advance(q.tail, syl) is None:
+    if is_last and F_BLOCKLIST.word_blocked(q.head, syl):
         return False
     if q.harmony and F_HARMONY[nucleus] not in (None, q.harmony):
         return False
