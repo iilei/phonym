@@ -1,0 +1,4 @@
+# LF everywhere, on every platform. The snapshots in testdata/ are a
+# byte-for-byte contract, so a CRLF checkout (e.g. Windows) must never happen.
+* text=auto eol=lf
+testdata/*.txt text eol=lf
