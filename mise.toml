@@ -1,0 +1,18 @@
+[tools]
+go = "1.25"
+
+[tasks.test]
+description = "Run Go tests (including the golden snapshots)"
+run = "go test ./..."
+
+[tasks.reference]
+description = "Check that the Python reference reproduces testdata"
+run = "python3 reference/python/snapshot.py --check"
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run ./..."
+
+[tasks.bump]
+description = "Bump Go module dependencies and verify"
+run = "go get -u ./... && go mod tidy && mise run test"

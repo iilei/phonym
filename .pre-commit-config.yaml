@@ -1,0 +1,47 @@
+repos:
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.6.1
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+        exclude: '\.go$|^testdata/'  # Go formatting is handled by gofmt; snapshots are generated
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=2048']  # testdata/family_snapshot.txt is ~1 MB
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v2.12.1
+    hooks:
+      - id: golangci-lint-full
+      - id: golangci-lint-fmt
+
+  - repo: local
+    hooks:
+      - id: go-vet
+        name: go vet
+        entry: go vet ./...
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: go-test
+        name: go test
+        entry: go test -short ./...
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: reference-snapshots
+        name: python reference matches testdata
+        entry: python3 reference/python/snapshot.py --check
+        language: system
+        files: '^(reference/python/.*\.py|testdata/.*)$'
+        pass_filenames: false
