@@ -14,7 +14,8 @@ var errStyle = errors.New("invalid style")
 // Style defines how given names sound and are shaped. Released styles are frozen:
 // a change needs a new release.
 type Style struct {
-	rules *rules
+	rules  *rules
+	blocks *blocklist // fragments that never appear inside a word; nil for none
 
 	// Name is the style's name, used in release labels ("soft").
 	Name string
@@ -39,7 +40,7 @@ func (s *Style) equal(o *Style) bool {
 	if s == nil || o == nil {
 		return s == o
 	}
-	return s.rules == o.rules && s.Name == o.Name && s.Onsets == o.Onsets &&
+	return s.rules == o.rules && s.blocks == o.blocks && s.Name == o.Name && s.Onsets == o.Onsets &&
 		slices.Equal(s.Codas, o.Codas) && slices.Equal(sortedCopy(s.EndSuffixes), sortedCopy(o.EndSuffixes)) &&
 		s.Harmony == o.Harmony && slices.Equal(s.Split, o.Split) && s.Joinable == o.Joinable
 }
@@ -94,7 +95,11 @@ func (s *Style) stepper(inv syllableSet) stepFunc {
 				h = s.rules.harmony[p.nucleus]
 			}
 		}
-		return state{coda: p.coda, harmony: h, onset: p.onset}
+		tail := ""
+		if s.blocks != nil {
+			tail, _ = s.blocks.advance(q.tail, syl)
+		}
+		return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail}
 	}
 }
 
@@ -104,6 +109,8 @@ func (s *Style) allower(inv syllableSet, end map[string]bool) allowFunc {
 		p := inv.parts[syl]
 		switch {
 		case last && !end[syl]:
+			return false
+		case s.blocked(q, syl):
 			return false
 		case s.Harmony && s.rules.harmonyClash(q.harmony, p.nucleus):
 			return false
@@ -116,6 +123,15 @@ func (s *Style) allower(inv syllableSet, end map[string]bool) allowFunc {
 		}
 		return s.rules.boundaryOK(q.coda, p.onset)
 	}
+}
+
+// blocked reports whether syl would complete a blocklisted fragment after state q.
+func (s *Style) blocked(q state, syl string) bool {
+	if s.blocks == nil {
+		return false
+	}
+	_, ok := s.blocks.advance(q.tail, syl)
+	return !ok
 }
 
 // givenCapacity is the number of given names of a split style; nil means unlimited.

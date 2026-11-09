@@ -32,31 +32,31 @@ var (
 	flowingCodas   = []string{""}
 
 	soft10 = &Style{
-		rules: rules1, Name: styleSoft, Onsets: "blmnrvdg", Codas: softCodas,
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdg", Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true,
 	}
 	crisp10 = &Style{
-		rules: rules1, Name: styleCrisp, Onsets: "bdfgkpstz", Codas: crispCodas,
+		rules: rules1, blocks: blocklist1, Name: styleCrisp, Onsets: "bdfgkpstz", Codas: crispCodas,
 		EndSuffixes: crispEndings, Harmony: false,
 	}
 	flowing10 = &Style{
-		rules: rules1, Name: styleFlowing, Onsets: "lmnrvsdt", Codas: flowingCodas,
+		rules: rules1, blocks: blocklist1, Name: styleFlowing, Onsets: "lmnrvsdt", Codas: flowingCodas,
 		EndSuffixes: flowingEndings, Harmony: true,
 	}
 	soft11 = &Style{
-		rules: rules1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true,
 	}
 	crisp11 = &Style{
-		rules: rules1, Name: styleCrisp, Onsets: "bdfgkpstzh", Codas: crispCodas,
+		rules: rules1, blocks: blocklist1, Name: styleCrisp, Onsets: "bdfgkpstzh", Codas: crispCodas,
 		EndSuffixes: crispEndings, Harmony: false,
 	}
 	flowing11 = &Style{
-		rules: rules1, Name: styleFlowing, Onsets: "lmnrvsdtjw", Codas: flowingCodas,
+		rules: rules1, blocks: blocklist1, Name: styleFlowing, Onsets: "lmnrvsdtjw", Codas: flowingCodas,
 		EndSuffixes: flowingEndings, Harmony: true,
 	}
 	soft12 = &Style{
-		rules: rules1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true, Split: []int{2, 2},
 	}
 

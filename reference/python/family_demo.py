@@ -32,9 +32,12 @@ assert not dead, f"suffixes matching no syllable: {dead}"
 assert not FAMILY_END & sa.END, f"overlap with given END: {FAMILY_END & sa.END}"
 
 
+F_BLOCKLIST = sa.BLOCKLIST1
+
+
 def family_step(q, syl):
     onset, nucleus, coda = F_PARTS[syl]
-    return sa.State(coda, q.harmony or F_HARMONY[nucleus], onset)
+    return sa.State(coda, q.harmony or F_HARMONY[nucleus], onset, F_BLOCKLIST.advance(q.tail, syl) or "")
 
 
 # SHAPE RULE (frozen): every family name is CVC-CVC, i.e. 6 letters with a
@@ -59,6 +62,8 @@ def family_allowed(q, syl, is_last):
     if q.coda == "^" and not coda:            # first syllable must be closed
         return False
     if is_last and syl not in FAMILY_END:
+        return False
+    if F_BLOCKLIST.advance(q.tail, syl) is None:
         return False
     if q.harmony and F_HARMONY[nucleus] not in (None, q.harmony):
         return False

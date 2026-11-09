@@ -3,6 +3,7 @@
 Names are syllable sequences accepted by a finite automaton. Encoding
 unranks a path through the automaton; decoding ranks it.
 """
+import os
 from bisect import bisect_right
 from itertools import accumulate, product
 from typing import NamedTuple
@@ -34,9 +35,50 @@ class State(NamedTuple):
     coda: str             # coda of previous syllable; "^" before the first one
     harmony: str | None   # locked vowel class, None while only neutrals seen
     onset: str            # onset of previous syllable; "" before the first one
+    tail: str = ""        # end of the word that could still grow into a blocked fragment
 
 
 START = State("^", None, "")
+
+
+# BLOCKLIST RULE (frozen): a syllable is not allowed if the word so far plus the
+# syllable contains a listed fragment. The state keeps `tail`, the longest suffix
+# of the word that is a proper prefix of some fragment; any fragment completed by
+# the next syllable starts inside tail + syllable, so checking that is enough.
+class Blocklist:
+    def __init__(self, fragments):
+        self.fragments = frozenset(fragments)
+        self.prefixes = frozenset(f[:i] for f in fragments for i in range(1, len(f)))
+        self.max_len = max(map(len, self.fragments), default=0)
+
+    @classmethod
+    def load(cls, path):
+        fragments = []
+        with open(path, encoding="ascii") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                assert line.isascii() and line.isalpha() and line.islower() and len(line) >= 3, line
+                fragments.append(line)
+        assert len(set(fragments)) == len(fragments), "duplicate fragments"
+        return cls(fragments)
+
+    def advance(self, tail: str, syl: str) -> str | None:
+        """New tail after appending syl, or None if a fragment would be completed."""
+        w = tail + syl
+        for i in range(len(w)):
+            for j in range(i + 1, min(len(w), i + self.max_len) + 1):
+                if w[i:j] in self.fragments:
+                    return None
+        for i in range(len(w)):                   # longest suffix first
+            if w[i:] in self.prefixes:
+                return w[i:]
+        return ""
+
+
+BLOCKLIST1 = Blocklist.load(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                         "..", "..", "blocklists", "1.txt"))
 
 
 def step(q: State, syl: str) -> State:

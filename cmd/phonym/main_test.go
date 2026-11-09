@@ -14,11 +14,11 @@ func TestCLI(t *testing.T) {
 		code int
 	}{
 		{[]string{"4711"}, "badil-durjav\n", 0},
-		{[]string{"encode", "-release", "1.1.0+crisp", "4711"}, "bago-voslav\n", 0},
-		{[]string{"-release", "1.1.0+crisp", "-short", "0x1267"}, "bagando\n", 0},
-		{[]string{"decode", "bago-voslav"}, "4711\t1.1.0+crisp\tfull\n", 0},
-		{[]string{"decode", "-release", "1.1.0+crisp", "-hex", "bagando"}, "0x1267\t1.1.0+crisp\tshort\n", 0},
-		{[]string{"decode", "bagando"}, "", 1},
+		{[]string{"encode", "-release", "1.1.0+crisp", "4711"}, "bago-vosnul\n", 0},
+		{[]string{"-release", "1.1.0+crisp", "-short", "0x1267"}, "bagasto\n", 0},
+		{[]string{"decode", "bago-vosnul"}, "4711\t1.1.0+crisp\tfull\n", 0},
+		{[]string{"decode", "-release", "1.1.0+crisp", "-hex", "bagasto"}, "0x1267\t1.1.0+crisp\tshort\n", 0},
+		{[]string{"decode", "bagasto"}, "", 1},
 		{[]string{"encode", "-1"}, "", 1},
 		{[]string{"releases"}, "  6  1.2.0+soft      2+2\n", 0},
 	}

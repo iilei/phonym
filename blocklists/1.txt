@@ -1,0 +1,49 @@
+# phonym blocklist 1 (frozen; a change is a new file, used by new releases)
+#
+# Fragments that must never appear inside a word of a name. One per line,
+# lowercase a-z, at least 3 letters; lines starting with # are comments.
+# Hand-curated for phonym (MIT, like the rest of the repository), transliterated
+# to phonym's letters: c->k, ck->k, sch/sh->s, doubled consonants single.
+# Very short fragments (dik, sik, kok, ...) are left out on purpose: they would
+# block far more harmless names than they protect.
+
+# English
+fuk
+kunt
+pusi
+slut
+wank
+rape
+penis
+dildo
+porno
+kike
+fagot
+niga
+niger
+# German
+neger
+fiken
+hure
+slampe
+# Spanish, Portuguese, Italian, Catalan
+puta
+puto
+merda
+pendejo
+kulo
+kazo
+stronzo
+# French
+merde
+pute
+salope
+# Slavic, Hungarian, Turkish
+huj
+jeb
+suka
+kurva
+kurwa
+orospu
+# History
+nazi

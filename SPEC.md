@@ -30,7 +30,7 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 
 ## 3. State and rules
 
-- State: (previous coda, harmony class, previous onset). Transition `step(q, syl)`.
+- State: (previous coda, harmony class, previous onset, blocklist tail). Transition `step(q, syl)`.
 - Position rules use the remaining length: the last syllable must be in END;
   `START` selects the initial inventory.
 
@@ -46,6 +46,17 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 
 Voiced consonants are `bdgvz`, voiceless ones `ptkfsh`.
 
+BLOCKLIST RULE (frozen): a blocklist is a versioned file of fragments
+(`blocklists/<n>.txt`: one per line, lowercase `a–z`, at least 3 letters, `#`
+comments). A syllable is not allowed if the word so far plus the syllable contains
+a fragment. The state therefore also keeps `tail`, the longest suffix of the word
+that is a proper prefix of some fragment: any fragment the next syllable completes
+starts inside `tail + syllable`, so checking that string is enough. The rule
+applies per word: separators reset it, so a fragment spanning two words is not
+blocked. Each style names one blocklist version; extending the list means a new
+file and new releases. `blocklists/1.txt` is hand-curated (own work, MIT) and
+applies to all releases and to the family code.
+
 ## 4. Name structure: given name(s) + family name
 
 - The family name is always the last word. It carries the release slot and the
@@ -59,11 +70,13 @@ Voiced consonants are `bdgvz`, voiceless ones `ptkfsh`.
   family name, and therefore a name, can never be a proquint.
 - Slot spreading: `slot' = (slot · STRIDE + OFFSET) mod SLOTS`; siblings
   (`x mod K`) stay adjacent, so sorting by given name then family name gives ID order.
-- Frozen constants: `K = 64`, `FAMILY_LEN = 2`, capacity 24,660, `SLOTS = 385`,
+- The family code applies blocklist 1 once, at the freeze. A later blocklist can't
+  reach family names; a slot whose names turn out offensive can only be retired.
+- Frozen constants: `K = 64`, `FAMILY_LEN = 2`, capacity 24,641, `SLOTS = 385`,
   `STRIDE = 239`, `OFFSET = 97`.
-- Only `SLOTS · K = 24,640` family names are ever issued. The 20 names with a
-  higher index are rejected when decoding (`UnsupportedFormat`); otherwise they
-  would wrap around and act as second names for existing IDs.
+- Only `SLOTS · K = 24,640` family names are ever issued. The 1 name with a
+  higher index is rejected when decoding (`UnsupportedFormat`); otherwise it
+  would wrap around and act as a second name for an existing ID.
 - GENERATION RULE (frozen): the family-name shape identifies the generation, and
   the generation is the semver major of every release. CVC-CVC is generation 1.
   A future generation must use a different shape (e.g. CVV-CVC), which
@@ -239,9 +252,9 @@ Also required:
 
 1. ~~Short form~~: done, see section 8.
 2. ~~Slot retirement flag~~: done, see the RETIREMENT RULE in section 5.
-3. Blocklist: Aho–Corasick match position in the state; sources LDNOOBW and
-   Wiktionary via kaikki.org (share-alike license). Vet all 24,660 family names
-   against the broadest list before the freeze.
+3. ~~Blocklist~~: done, see the BLOCKLIST RULE in section 3 (`blocklists/1.txt`,
+   34 fragments). Review and extend the list before the freeze: after it, family
+   names can't be changed any more.
 4. Frozen copies for styles: in Go, released styles reference the generation-1
    rule tables (`rules1`) explicitly, separate from the family code's own copy.
    A rule change must come as a new rules table and new releases, never an edit.

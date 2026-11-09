@@ -18,7 +18,7 @@ const (
 	Slots = 385
 
 	familyLen      = 2
-	familyCapacity = 24660
+	familyCapacity = 24641
 	familyStride   = 239 // round(Slots * 0.6180339887) = 238, then the next value coprime to Slots
 	familyOffset   = 97
 	familyOnsets   = "bdfgklmnprstvzhjw"
@@ -39,6 +39,9 @@ var (
 			{"s", "z"}: true, {"n", "m"}: true, {"r", "l"}: true, {"l", "r"}: true,
 		},
 	}
+
+	// familyBlocklist is checked once, when the family code is frozen.
+	familyBlocklist = blocklist1
 
 	familyOnce   sync.Once
 	familyCode   *code
@@ -68,7 +71,8 @@ func family() *code {
 			if h == "" {
 				h = familyRules.harmony[p.nucleus]
 			}
-			return state{coda: p.coda, harmony: h, onset: p.onset}
+			tail, _ := familyBlocklist.advance(q.tail, syl)
+			return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail}
 		}
 		// SHAPE RULE: CVC-CVC. The first syllable must be closed; "no two closed
 		// syllables in a row" does not apply inside family names.
@@ -78,6 +82,8 @@ func family() *code {
 			case q.coda == "^" && p.coda == "":
 				return false
 			case last && !familyEnd[syl]:
+				return false
+			case familyBlocked(q, syl):
 				return false
 			case familyRules.harmonyClash(q.harmony, p.nucleus):
 				return false
@@ -95,6 +101,12 @@ func family() *code {
 		familyInvert = int(new(big.Int).ModInverse(big.NewInt(familyStride), big.NewInt(Slots)).Int64())
 	})
 	return familyCode
+}
+
+// familyBlocked reports whether syl would complete a blocklisted fragment in a family name.
+func familyBlocked(q state, syl string) bool {
+	_, ok := familyBlocklist.advance(q.tail, syl)
+	return !ok
 }
 
 // familyName returns the family name of a release slot and sibling (0 <= lo < Siblings).

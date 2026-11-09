@@ -41,7 +41,7 @@ def render_family() -> str:
             index = fam.FAMILY.rank(fam.FAMILY.parse(name))
             body.append(f"{slot:>4}  {lo:>3}  {index:>5}  {name}")
     params = (f"length={fam.FAMILY_LEN} K={fam.K} slots={fam.VERSIONS} capacity={fam.CAP}"
-              f" stride={fam.STRIDE} offset={fam.OFFSET}")
+              f" stride={fam.STRIDE} offset={fam.OFFSET} blocklist1={blocklist_digest()}")
     return _table("phonym family code snapshot", params,
                   "slot   lo  index  name", "----  ---  -----  --------", body)
 
@@ -88,10 +88,18 @@ def render_names() -> str:
     holes = [i for i, r in enumerate(st.REGISTRY) if r.style is None]
     fmt = lambda xs: ",".join(map(str, xs)) or "none"
     params = (f"releases={len(st.REGISTRY)} retired={fmt(retired)} placeholders={fmt(holes)}"
-              f" ids={len(sample_ids())} K={fam.K} seed=20261109")
+              f" ids={len(sample_ids())} K={fam.K} seed=20261109 blocklist1={blocklist_digest()}")
     return _table("phonym name snapshot (short and full form)", params,
                   f"slot  release         id                                                                {'short':<{width}}  full",
                   "----  --------------  ----------------------------------------------------------------  " + "-" * width + "  " + "-" * 24, body)
+
+
+BLOCKLIST1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "blocklists", "1.txt")
+
+
+def blocklist_digest() -> str:
+    with open(BLOCKLIST1, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:16]
 
 
 TESTDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "testdata")

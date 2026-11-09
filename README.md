@@ -4,9 +4,9 @@ Pronounceable, versioned names for integers, and back.
 
 ```text
 4711        → badil-durjav            (1.1.0+soft)
-0x62e6b43   → manwudoma-durmav
-0x62e6b43   → besanzoso-vorjas        (1.1.0+crisp)
-4711        → bala-bema-wonzus        (1.2.0+soft, double given name)
+0x62e6b43   → malnagavel-durmav
+0x62e6b43   → besizohon-vosbov        (1.1.0+crisp)
+4711        → bala-bema-wordov        (1.2.0+soft, double given name)
 ```
 
 phonym maps every non-negative integer to a name made of a **given name** and a
@@ -22,18 +22,21 @@ by a frozen, versioned spec: [SPEC.md](SPEC.md).
 - **Names describe themselves.** The family name carries the *release*, the spec
   version the name was made with. `badil-durjav` decodes without any
   configuration, and a decoder can tell when a name is newer than it knows.
-- **Releases make the vocabulary evolvable.** Sound rules, styles and (planned)
-  blocklists change through new releases. Old names keep decoding; an ID can be
+- **Releases make the vocabulary evolvable.** Sound rules, styles and the
+  blocklist change through new releases. Old names keep decoding; an ID can be
   re-issued under a newer release and both names still decode to the same ID.
   A release can be retired: it stops issuing names, its names keep working.
 - **Real phonotactics.** Names come from a finite automaton over syllables with
   context-sensitive rules: vowel harmony, consonant clusters, voicing, no
   stuttering, chosen endings. Ranking over the automaton keeps the mapping exact
   and dense: no retries, no gaps, no bias.
+- **No swearwords.** A versioned blocklist of fragments (`blocklists/1.txt`)
+  keeps them out of every word, family names included. Extending it means new
+  releases; existing names keep decoding.
 - **Never a proquint.** Family names always have the shape CVC-CVC (6 letters),
   so a phonym name can never be mistaken for a proquint.
 - **Short form.** Where the release is known from context, the given name alone
-  (`bajoba`) is about as short as fixed-length schemes, and keeps growing past
+  (`bajogan`) is about as short as fixed-length schemes, and keeps growing past
   their limits.
 
 ## Install
@@ -46,10 +49,10 @@ go install github.com/iilei/phonym/cmd/phonym@latest
 
 ```sh
 phonym 4711                          # badil-durjav   (default release 1.1.0+soft)
-phonym -release 1.1.0+crisp 4711     # bago-voslav
-phonym -short 4711                   # bajoba
+phonym -release 1.1.0+crisp 4711     # bago-vosnul
+phonym -short 4711                   # bajogan
 phonym decode "Badil Durjav"         # 4711  1.1.0+soft  full
-phonym decode -release 1.1.0+soft bajoba
+phonym decode -release 1.1.0+soft bajogan
 phonym releases                      # list the registry
 ```
 
@@ -60,11 +63,11 @@ RULE in the spec.
 ## Library
 
 ```go
-name, err := phonym.EncodeUint64(4711, "1.1.0+crisp") // "bago-voslav"
-short, err := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp") // "bagando"
+name, err := phonym.EncodeUint64(4711, "1.1.0+crisp") // "bago-vosnul"
+short, err := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp") // "bagasto"
 
-d, err := phonym.Decode("bago-voslav", "")      // d.ID = 4711, d.Release = "1.1.0+crisp"
-d, err = phonym.Decode("bagando", "1.1.0+crisp") // short forms need the release
+d, err := phonym.Decode("bago-vosnul", "")      // d.ID = 4711, d.Release = "1.1.0+crisp"
+d, err = phonym.Decode("bagasto", "1.1.0+crisp") // short forms need the release
 ```
 
 Errors wrap one of `ErrInvalidName`, `ErrUnsupportedFormat`,

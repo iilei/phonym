@@ -76,17 +76,11 @@ description = "Install the git hooks from .pre-commit-config.yaml"
 run = "pre-commit install"
 
 [tasks."golden:check"]
-description = "Regenerate testdata/ from the Python reference and fail if anything changed or appeared"
-run = '''
-set -eu
-python3 reference/python/snapshot.py > /dev/null
-rm -rf reference/python/__pycache__
-if [ -n "$(git status --porcelain -- testdata)" ]; then
-  git status --short -- testdata
-  echo "testdata/ differs from the Python reference: run mise run golden:update and commit the result" >&2
-  exit 1
-fi
-'''
+description = "Check that the Python reference reproduces testdata/ byte for byte (writes nothing)"
+run = [
+  "python3 reference/python/snapshot.py --check",
+  "rm -rf reference/python/__pycache__",
+]
 
 [tasks."golden:update"]
 description = "Regenerate testdata/ from the Python reference, then check that the Go implementation agrees"

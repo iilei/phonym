@@ -49,8 +49,9 @@ func TestFamilySnapshot(t *testing.T) {
 			body = append(body, fmt.Sprintf("%4d  %3d  %5d  %s", slot, lo, phonym.FamilyIndex(name), name))
 		}
 	}
-	params := fmt.Sprintf("length=2 K=%d slots=%d capacity=%d stride=%d offset=%d",
-		phonym.Siblings, phonym.Slots, phonym.FamilyCapacity, phonym.FamilyStride, phonym.FamilyOffset)
+	params := fmt.Sprintf("length=2 K=%d slots=%d capacity=%d stride=%d offset=%d blocklist1=%s",
+		phonym.Siblings, phonym.Slots, phonym.FamilyCapacity, phonym.FamilyStride, phonym.FamilyOffset,
+		blocklistDigest(t))
 	got := table("phonym family code snapshot", params,
 		"slot   lo  index  name", "----  ---  -----  --------", body)
 	compareGolden(t, familyGolden, got)
@@ -90,8 +91,8 @@ func TestNamesSnapshot(t *testing.T) {
 		body = append(body, fmt.Sprintf("%4d  %-14s  %0*x  %-*s  %s",
 			r.slot, r.label, idWidth, r.id, width, r.short, r.full))
 	}
-	params := fmt.Sprintf("releases=%d retired=%s placeholders=%s ids=%d K=%d seed=%d",
-		len(releases), list(retired), list(holes), len(ids), phonym.Siblings, snapshotSeed)
+	params := fmt.Sprintf("releases=%d retired=%s placeholders=%s ids=%d K=%d seed=%d blocklist1=%s",
+		len(releases), list(retired), list(holes), len(ids), phonym.Siblings, snapshotSeed, blocklistDigest(t))
 	columns := fmt.Sprintf("slot  release         %-*s  %-*s  full", idWidth, "id", width, "short")
 	rule := "----  --------------  " + strings.Repeat("-", idWidth) + "  " + strings.Repeat("-", width) +
 		"  " + strings.Repeat("-", minNameWidth)
@@ -118,6 +119,11 @@ func encodeChecked(t *testing.T, id *big.Int, label string, short bool) string {
 	}
 	if !short && isProquint(name) {
 		t.Fatalf("full form %q is a proquint", name)
+	}
+	for w := range strings.SplitSeq(name, "-") {
+		if containsFragment(w, phonym.BlockedFragments()) {
+			t.Fatalf("%q contains a blocked fragment", name)
+		}
 	}
 	return name
 }
@@ -153,6 +159,17 @@ func sampleIDs(t *testing.T) []*big.Int {
 		t.Fatal("no sample ids in golden file")
 	}
 	return ids
+}
+
+// blocklistDigest is the start of the blocklist file's sha256, recorded in the snapshot headers.
+func blocklistDigest(t *testing.T) string {
+	t.Helper()
+	data, err := fs.ReadFile(os.DirFS("blocklists"), "1.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sum := sha256.Sum256(data)
+	return hex.EncodeToString(sum[:])[:16]
 }
 
 func table(title, params, columns, rule string, body []string) string {

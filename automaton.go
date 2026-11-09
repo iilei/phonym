@@ -25,6 +25,7 @@ type (
 		coda    string // coda of the previous syllable; "^" before the first one
 		harmony string // locked vowel class; "" while only neutral vowels were seen
 		onset   string // onset of the previous syllable; "" before the first one
+		tail    string // end of the word that could still grow into a blocked fragment
 	}
 
 	// succKey selects a successor list: the state, and whether the next syllable is the last.

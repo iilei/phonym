@@ -16,6 +16,9 @@ const (
 	soft12 = "1.2.0+soft"
 )
 
+// title upper-cases the first letter, like a display form.
+func title(w string) string { return strings.ToUpper(w[:1]) + w[1:] }
+
 func mustEncode(t *testing.T, id uint64, release string) string {
 	t.Helper()
 	name, err := phonym.EncodeUint64(id, release)
@@ -83,7 +86,7 @@ func TestShortForm(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if short != "muruboganva" {
+	if short != "mujunbawolan" {
 		t.Errorf("short form = %q", short)
 	}
 	if d := mustDecode(t, short, soft11); d.ID.Cmp(id) != 0 || !d.Short {
@@ -104,10 +107,10 @@ func TestShortForm(t *testing.T) {
 func TestSplitRelease(t *testing.T) {
 	t.Parallel()
 	name := mustEncode(t, 0xfffffff, soft12)
-	if name != "danla-gilmi-worfov" {
+	if name != "dangi-bari-wornav" {
 		t.Errorf("got %q", name)
 	}
-	for _, broken := range []string{"danlagilmi-worfov", "gilmi-worfov"} {
+	for _, broken := range []string{"dangibari-wornav", "bari-wornav"} {
 		if _, err := phonym.Decode(broken, ""); !errors.Is(err, phonym.ErrInvalidName) {
 			t.Errorf("%q: %v", broken, err)
 		}
@@ -120,23 +123,24 @@ func TestSplitRelease(t *testing.T) {
 func TestInputRule(t *testing.T) {
 	t.Parallel()
 	const want = 0xfffffff
-	fam := strings.TrimPrefix(mustEncode(t, want, soft12), "danla-gilmi-")
+	words := strings.Split(mustEncode(t, want, soft12), "-") // two given words, then the family name
+	g1, g2, fam := words[0], words[1], words[2]
 	accepted := map[string]string{
-		"hyphen U+2010":          "danla\u2010gilmi\u2010" + fam,
-		"non-breaking hyphen":    "danla\u2011gilmi\u2011" + fam,
-		"en dash":                "danla\u2013gilmi\u2013" + fam,
-		"em dash":                "danla\u2014gilmi\u2014" + fam,
-		"minus sign":             "danla\u2212gilmi\u2212" + fam,
-		"no-break space":         "danla\u00a0gilmi\u00a0" + fam,
-		"thin space":             "danla\u2009gilmi\u2009" + fam,
-		"narrow no-break space":  "danla\u202fgilmi\u202f" + fam,
-		"tab and doubled spaces": "danla\t gilmi  " + fam,
-		"middle dot":             "danla\u00b7gilmi\u00b7" + fam,
-		"underscore":             "danla_gilmi_" + fam,
-		"soft hyphen in a word":  "dan\u00adla-gil\u00admi-" + fam,
-		"zero-width chars":       "\ufeffdanla\u200b-gil\u200dmi-" + fam[:2] + "\u200c" + fam[2:],
-		"display form":           "Danla-Gilmi " + strings.ToUpper(fam[:1]) + fam[1:],
-		"upper case":             "  DANLA-GILMI-" + strings.ToUpper(fam) + "  ",
+		"hyphen U+2010":          g1 + "\u2010" + g2 + "\u2010" + fam,
+		"non-breaking hyphen":    g1 + "\u2011" + g2 + "\u2011" + fam,
+		"en dash":                g1 + "\u2013" + g2 + "\u2013" + fam,
+		"em dash":                g1 + "\u2014" + g2 + "\u2014" + fam,
+		"minus sign":             g1 + "\u2212" + g2 + "\u2212" + fam,
+		"no-break space":         g1 + "\u00a0" + g2 + "\u00a0" + fam,
+		"thin space":             g1 + "\u2009" + g2 + "\u2009" + fam,
+		"narrow no-break space":  g1 + "\u202f" + g2 + "\u202f" + fam,
+		"tab and doubled spaces": g1 + "\t " + g2 + "  " + fam,
+		"middle dot":             g1 + "\u00b7" + g2 + "\u00b7" + fam,
+		"underscore":             g1 + "_" + g2 + "_" + fam,
+		"soft hyphen in a word":  g1[:3] + "\u00ad" + g1[3:] + "-" + g2[:2] + "\u00ad" + g2[2:] + "-" + fam,
+		"zero-width chars":       "\ufeff" + g1 + "\u200b-" + g2[:2] + "\u200d" + g2[2:] + "-" + fam[:2] + "\u200c" + fam[2:],
+		"display form":           title(g1) + "-" + title(g2) + " " + title(fam),
+		"upper case":             "  " + strings.ToUpper(g1+"-"+g2+"-"+fam) + "  ",
 	}
 	for what, input := range accepted {
 		if d, err := phonym.Decode(input, ""); err != nil || d.ID.Uint64() != want {
@@ -144,17 +148,17 @@ func TestInputRule(t *testing.T) {
 		}
 	}
 	rejected := map[string]string{
-		"dot (reserved)":           "danla.gilmi-" + fam,
-		"plus (reserved)":          "danla-gilmi+" + fam,
-		"slash":                    "danla/gilmi-" + fam,
-		"apostrophe":               "dan'la-gilmi-" + fam,
-		"right single quote":       "dan\u2019la-gilmi-" + fam,
-		"cyrillic a":               "d\u0430nla-gilmi-" + fam,
-		"kelvin sign":              "danla-gilmi-" + "\u212a" + fam[1:],
-		"u with diaeresis":         "danla-gilmi-" + fam[:1] + "\u00fc" + fam[2:],
-		"combining diaeresis":      "danla-gilmi-" + fam[:2] + "\u0308" + fam[2:],
-		"digit":                    "danla-gilmi-" + fam + "2",
-		"soft hyphen as separator": "danla\u00adgilmi-" + fam,
+		"dot (reserved)":           g1 + "." + g2 + "-" + fam,
+		"plus (reserved)":          g1 + "-" + g2 + "+" + fam,
+		"slash":                    g1 + "/" + g2 + "-" + fam,
+		"apostrophe":               g1[:2] + "'" + g1[2:] + "-" + g2 + "-" + fam,
+		"right single quote":       g1[:2] + "\u2019" + g1[2:] + "-" + g2 + "-" + fam,
+		"cyrillic a":               "d\u0430" + g1[2:] + "-" + g2 + "-" + fam,
+		"kelvin sign":              g1 + "-" + g2 + "-" + "\u212a" + fam[1:],
+		"u with diaeresis":         g1 + "-" + g2 + "-" + fam[:1] + "\u00fc" + fam[2:],
+		"combining diaeresis":      g1 + "-" + g2 + "-" + fam[:2] + "\u0308" + fam[2:],
+		"digit":                    g1 + "-" + g2 + "-" + fam + "2",
+		"soft hyphen as separator": g1 + "\u00ad" + g2 + "-" + fam,
 		"family name only":         fam,
 		"proquint":                 "lusab-babad",
 		"empty":                    " - ",
@@ -168,7 +172,8 @@ func TestInputRule(t *testing.T) {
 
 func TestProquintFamilyShape(t *testing.T) {
 	t.Parallel()
-	for _, word := range []string{"babad", "lusab", "wuvnas"} { // proquints, and a leftover name
+	leftover := phonym.FamilyAt(phonym.Slots * phonym.Siblings) // capacity % Siblings names are never issued
+	for _, word := range []string{"babad", "lusab", leftover} {
 		if _, err := phonym.FamilyParse(word); !errors.Is(err, phonym.ErrUnsupportedFormat) {
 			t.Errorf("%q: %v", word, err)
 		}
@@ -290,5 +295,43 @@ func ExampleEncode() {
 	short, _ := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp")
 	d, _ := phonym.Decode(name, "")
 	fmt.Println(name, short, d.ID, d.Release)
-	// Output: bago-voslav bagando 4711 1.1.0+crisp
+	// Output: bago-vosnul bagasto 4711 1.1.0+crisp
+}
+
+func TestBlocklist(t *testing.T) {
+	t.Parallel()
+	fragments := phonym.BlockedFragments()
+	if len(fragments) == 0 {
+		t.Fatal("blocklist 1 is empty")
+	}
+	for slot, r := range phonym.Releases() {
+		fam := phonym.FamilyName(slot, 0)
+		for _, f := range fragments {
+			if d, err := phonym.Decode(f+"-"+fam, ""); err == nil {
+				t.Errorf("%s: blocked %q decoded as %s", r.Label, f, d.ID)
+			}
+		}
+	}
+	for i := range phonym.FamilyCapacity {
+		if name := phonym.FamilyAt(i); containsFragment(name, fragments) {
+			t.Fatalf("family name %q contains a blocked fragment", name)
+		}
+	}
+	for _, bad := range []string{"ab\n", "Fuck\n", "fu-k\n", "abc\nabc\n", "k\u00fcrv\n"} {
+		if err := phonym.ParseBlocklist(bad); err == nil {
+			t.Errorf("ParseBlocklist(%q) accepted", bad)
+		}
+	}
+	if err := phonym.ParseBlocklist("# comment\n\nabc\n"); err != nil {
+		t.Errorf("valid blocklist rejected: %v", err)
+	}
+}
+
+func containsFragment(word string, fragments []string) bool {
+	for _, f := range fragments {
+		if strings.Contains(word, f) {
+			return true
+		}
+	}
+	return false
 }

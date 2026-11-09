@@ -39,6 +39,8 @@ class Style:
     # "liwagivel" (split) or "baran-geven-ladan" (single word) are accepted.
     # See JOIN RULE below. Encoding is unaffected.
     joinable: bool = False
+    # blocklist: fragments that never appear inside a word (BLOCKLIST RULE).
+    blocklist: sa.Blocklist | None = None
 
     def build(self) -> sa.SyllableCode:
         parts = {o + n + c: (o, n, c)
@@ -51,14 +53,18 @@ class Style:
         clash = end & fam.FAMILY_END
         assert not clash, f"{self.name}: endings overlap family endings {clash}"
 
+        bl = self.blocklist
+
         def step(q, syl):
             onset, nucleus, coda = parts[syl]
             harmony = (q.harmony or sa.HARMONY[nucleus]) if self.harmony else None
-            return sa.State(coda, harmony, onset)
+            return sa.State(coda, harmony, onset, (bl.advance(q.tail, syl) or "") if bl else "")
 
         def allowed(q, syl, is_last):
             onset, nucleus, coda = parts[syl]
             if is_last and syl not in end:
+                return False
+            if bl and bl.advance(q.tail, syl) is None:
                 return False
             if self.harmony and q.harmony and sa.HARMONY[nucleus] not in (None, q.harmony):
                 return False
@@ -83,21 +89,21 @@ class Style:
 # Style definitions. Editing one changes its output, so it needs a new release.
 STYLES = {
     "soft":    Style("soft",    onsets="blmnrvdg",  codas=("", "n", "l"),
-                     end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True),
+                     end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1),
     "crisp":   Style("crisp",   onsets="bdfgkpstz", codas=("", "n", "r", "s"),
-                     end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False),
+                     end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False, blocklist=sa.BLOCKLIST1),
     "flowing": Style("flowing", onsets="lmnrvsdt",  codas=("",),
-                     end_suffixes=frozenset({"a", "o", "i"}), harmony=True),
+                     end_suffixes=frozenset({"a", "o", "i"}), harmony=True, blocklist=sa.BLOCKLIST1),
     # 1.1: extra onsets chosen to fit each style's feel
     "soft@1.1":    Style("soft",    onsets="blmnrvdgjw",  codas=("", "n", "l"),
-                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True),
+                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1),
     "crisp@1.1":   Style("crisp",   onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
-                         end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False),
+                         end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False, blocklist=sa.BLOCKLIST1),
     "flowing@1.1": Style("flowing", onsets="lmnrvsdtjw",  codas=("",),
-                         end_suffixes=frozenset({"a", "o", "i"}), harmony=True),
+                         end_suffixes=frozenset({"a", "o", "i"}), harmony=True, blocklist=sa.BLOCKLIST1),
     # 1.2: double given name, two fixed 2-syllable parts
     "soft@1.2":    Style("soft",    onsets="blmnrvdgjw",  codas=("", "n", "l"),
-                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True,
+                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1,
                          split=(2, 2)),
 }
 
@@ -456,8 +462,14 @@ if __name__ == "__main__":
     # the literals above use "vupav" as a placeholder family name; swap in the real one
     F = encode(top, "1.2.0+soft").rsplit("-", 1)[1]
     accepted = {k: v.replace("vupav", F) for k, v in accepted.items()}
-    accepted["zero-width chars"] = "﻿danla​-gil‍mi-" + F[:2] + "‌" + F[2:]
-    accepted["mixed case"] = "DaNlA-gIlMi-" + "".join(
+    # and "danla", "gilmi" as placeholder given words; swap in the real ones too
+    G1, G2 = encode(top, "1.2.0+soft").split("-")[:2]
+    accepted = {k: v.replace("danla", G1).replace("gilmi", G2) for k, v in accepted.items()}
+    accepted["soft hyphen in a word"] = (G1[:3] + "\u00ad" + G1[3:] + "-" + G2[:3] + "\u00ad" + G2[3:]
+                                         + "-" + F)
+    accepted["zero-width chars"] = ("\ufeff" + G1 + "\u200b-" + G2[:3] + "\u200d" + G2[3:] + "-"
+                                    + F[:2] + "\u200c" + F[2:])
+    accepted["mixed case"] = G1.upper() + "-" + G2.title() + "-" + "".join(
         c.upper() if i % 2 == 0 else c for i, c in enumerate(F))
     for what, variant in accepted.items():
         assert decode(variant) == expect, (what, variant)
