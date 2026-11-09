@@ -87,6 +87,9 @@ Feistel network or `(a·x + c) mod n`).
 | 6    | `1.2.0+soft`                                 | two words of 2 syllables (`bala-bema`)                |
 | 7    | `1.3.0+lyric`                                | melodic: may start with a vowel, may end in `ai`/`oi` |
 | 8    | `1.3.0+nordic`                               | hard: one onset cluster per word (`kobrokofako`)      |
+| 9    | `1.4.0+orkish`                               | dark and harsh (`bazgorunuk`)                         |
+| 10   | `1.4.0+elfish`                               | light and flowing (`vaelmoniltha`)                    |
+| 11   | `1.4.0+alien`                                | strange, long vowels (`ktakovaakon`)                  |
 
 The semver major equals the family-name *generation* (the shape CVC-CVC is
 generation 1). The registry is append-only.

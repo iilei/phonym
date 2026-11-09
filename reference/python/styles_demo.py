@@ -49,10 +49,16 @@ class Style:
     initial_vowel: bool = False
     # max_clusters: at most this many onset clusters per word; 0 means no limit.
     max_clusters: int = 0
+    # vowels: the single-vowel nuclei, a subset of aeiou in that order.
+    vowels: str = "aeiou"
+    # extra_nuclei: long vowels or diphthongs allowed anywhere in a word ("aa", "ie").
+    extra_nuclei: tuple[str, ...] = ()
+    # max_extra_nuclei: at most this many extra nuclei per word; 0 means no limit.
+    max_extra_nuclei: int = 0
 
     def build(self) -> sa.SyllableCode:
         onsets = list(self.onsets) + list(self.onset_clusters) + ([""] if self.initial_vowel else [])
-        nuclei = list(sa.NUCLEI) + list(self.final_nuclei)
+        nuclei = list(self.vowels) + list(self.extra_nuclei) + list(self.final_nuclei)
         sa.check_unique_split(onsets, self.codas, nuclei)
         parts = {o + n + c: (o, n, c)
                  for o, n, c in product(onsets, nuclei, self.codas) if not (o and o == c)}
@@ -60,6 +66,7 @@ class Style:
         end = {s for s, (_, n, c) in parts.items() if n + c in self.end_suffixes}
         final_only = set(self.final_nuclei)
         clusters = set(self.onset_clusters)
+        extras = set(self.extra_nuclei)
 
         dead = {x for x in self.end_suffixes if not any(n + c == x for _, n, c in parts.values())}
         assert not dead, f"{self.name}: dead suffixes {dead}"
@@ -72,7 +79,8 @@ class Style:
             onset, nucleus, coda = parts[syl]
             harmony = (q.harmony or sa.harmony_class(nucleus)) if self.harmony else None
             return sa.State(coda, harmony, onset, (bl.advance(q.tail, syl) or "") if bl else "",
-                            q.clusters + (onset in clusters) if self.max_clusters else 0)
+                            q.clusters + (onset in clusters) if self.max_clusters else 0,
+                            q.extras + (nucleus in extras) if self.max_extra_nuclei else 0)
 
         def allowed(q, syl, is_last):
             onset, nucleus, coda = parts[syl]
@@ -84,6 +92,8 @@ class Style:
             if nucleus in final_only and not is_last:
                 return False
             if self.max_clusters and onset in clusters and q.clusters >= self.max_clusters:
+                return False
+            if self.max_extra_nuclei and nucleus in extras and q.extras >= self.max_extra_nuclei:
                 return False
             if bl and bl.advance(q.tail, syl) is None:
                 return False
@@ -136,6 +146,20 @@ STYLES = {
                          blocklist=sa.BLOCKLIST1,
                          onset_clusters=("br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"),
                          max_clusters=1),
+    # 1.4: fantasy sounds. orkish: dark vowels, hard codas. elfish: light vowels, liquid
+    # onsets, at most one special vowel (ie, ae, io) per word. alien: long vowels, one
+    # onset cluster per word.
+    "orkish@1.4":  Style("orkish",  onsets="gkrzdbmn",    codas=("", "g", "k", "r", "z"), vowels="aou",
+                         end_suffixes=frozenset({"ag", "ak", "uk", "ug", "ok", "ar", "or", "uz", "oz"}),
+                         harmony=False, blocklist=sa.BLOCKLIST1),
+    "elfish@1.4":  Style("elfish",  onsets="lnmrvsfh",    codas=("", "n", "l", "r", "s"), vowels="aeio",
+                         end_suffixes=frozenset({"iel", "ion", "es", "is", "a", "e", "il", "ir", "ael", "ien"}),
+                         harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("th",),
+                         extra_nuclei=("ie", "ae", "io"), max_extra_nuclei=1, initial_vowel=True),
+    "alien@1.4":   Style("alien",   onsets="zkvtj",       codas=("", "n"), vowels="aiuo",
+                         end_suffixes=frozenset({"aan", "uun", "oon", "on", "ii", "uu", "a", "i"}),
+                         harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("zv", "kv", "tl", "kt"),
+                         max_clusters=1, extra_nuclei=("aa", "ii", "uu", "oo")),
 }
 
 
@@ -168,6 +192,9 @@ REGISTRY = [
     Release("1.2.0+soft",    STYLES["soft@1.2"]),
     Release("1.3.0+lyric",   STYLES["lyric@1.3"]),
     Release("1.3.0+nordic",  STYLES["nordic@1.3"]),
+    Release("1.4.0+orkish",  STYLES["orkish@1.4"]),
+    Release("1.4.0+elfish",  STYLES["elfish@1.4"]),
+    Release("1.4.0+alien",   STYLES["alien@1.4"]),
 ]
 
 # semver 2.0 (semver.org), build metadata required

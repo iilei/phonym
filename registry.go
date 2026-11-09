@@ -3,6 +3,7 @@ package phonym
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -60,7 +61,7 @@ var (
 	}
 	lyric13 = &Style{
 		rules: rules1, blocks: blocklist1, Name: "lyric", Onsets: softOnsets11, Codas: softCodas,
-		EndSuffixes: []string{"a", "i", "el", "an", "il", "ai", "oi"}, Harmony: true,
+		EndSuffixes: slices.Concat(softEndings, []string{"ai", "oi"}), Harmony: true,
 		InitialVowel: true, FinalNuclei: []string{"ai", "oi"},
 	}
 	nordic13 = &Style{
@@ -68,6 +69,28 @@ var (
 		EndSuffixes: crispEndings, Harmony: false,
 		OnsetClusters: []string{"br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"},
 		MaxClusters:   1,
+	}
+	orkish14 = &Style{
+		rules: rules1, blocks: blocklist1, Name: "orkish", Onsets: "gkrzdbmn", Vowels: "aou",
+		Codas:       []string{"", "g", "k", "r", "z"},
+		EndSuffixes: []string{"ag", "ak", "uk", "ug", "ok", "ar", "or", "uz", "oz"},
+	}
+	elfish14 = &Style{
+		rules: rules1, blocks: blocklist1, Name: "elfish", Onsets: "lnmrvsfh", Vowels: "aeio",
+		Codas:          []string{"", "n", "l", "r", "s"},
+		EndSuffixes:    []string{"iel", "ion", "es", "is", "a", "e", "il", "ir", "ael", "ien"},
+		OnsetClusters:  []string{"th"},
+		ExtraNuclei:    []string{"ie", "ae", "io"},
+		MaxExtraNuclei: 1,
+		InitialVowel:   true,
+	}
+	alien14 = &Style{
+		rules: rules1, blocks: blocklist1, Name: "alien", Onsets: "zkvtj", Vowels: "aiuo",
+		Codas:         []string{"", "n"},
+		EndSuffixes:   []string{"aan", "uun", "oon", "on", "ii", "uu", "a", "i"},
+		OnsetClusters: []string{"zv", "kv", "tl", "kt"},
+		MaxClusters:   1,
+		ExtraNuclei:   []string{"aa", "ii", "uu", "oo"},
 	}
 	soft12 = &Style{
 		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets11, Codas: softCodas,
@@ -86,6 +109,9 @@ var (
 		{Label: "1.2.0+soft", style: soft12},
 		{Label: "1.3.0+lyric", style: lyric13},
 		{Label: "1.3.0+nordic", style: nordic13},
+		{Label: "1.4.0+orkish", style: orkish14},
+		{Label: "1.4.0+elfish", style: elfish14},
+		{Label: "1.4.0+alien", style: alien14},
 	}
 
 	labelIndex = map[string]int{}

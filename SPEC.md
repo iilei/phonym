@@ -118,6 +118,9 @@ file's header records sources, commit, changes and its license (CC BY 4.0).
 | 6   | `1.2.0+soft`               | `split = (2, 2)`                              |
 | 7   | `1.3.0+lyric`              | vowel-only first syllable; `ai`, `oi` endings |
 | 8   | `1.3.0+nordic`             | onset clusters, at most one per word          |
+| 9   | `1.4.0+orkish`             | vowels `a o u`, hard codas `g k r z`          |
+| 10  | `1.4.0+elfish`             | `ie ae io`, at most one per word; `th`        |
+| 11  | `1.4.0+alien`              | long vowels; one cluster per word             |
 
 ## 6. Styles
 
@@ -129,6 +132,9 @@ file's header records sources, commit, changes and its license (CC BY 4.0).
   counts clusters used so far in the word.
 - `final_nuclei`: extra nuclei (diphthongs) allowed only in a word's last syllable. A
   diphthong's harmony class is that of its first non-neutral vowel (`ai` front, `oi` back).
+- `vowels`: the single-vowel nuclei, a subset of `aeiou` (orkish: `aou`).
+- `extra_nuclei`: long vowels or diphthongs allowed anywhere (`aa`, `ie`);
+  `max_extra_nuclei` limits them per word like `max_clusters` (state counts them).
 - `initial_vowel`: a word may start with a vowel-only syllable (`amira`); everywhere
   else every syllable has a consonant onset.
 - SPLIT RULE (frozen, checked when a style is built): vowel runs are nuclei, and the

@@ -27,6 +27,7 @@ type (
 		onset    string // onset of the previous syllable; "" before the first one
 		tail     string // end of the word that could still grow into a blocked fragment
 		clusters int    // onset clusters used so far in this word (styles that limit them)
+		extras   int    // extra nuclei used so far in this word (styles that limit them)
 	}
 
 	// succKey selects a successor list: the state, and whether the next syllable is the last.

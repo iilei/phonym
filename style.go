@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"reflect"
 	"slices"
 	"strings"
 )
@@ -21,6 +22,8 @@ type Style struct {
 	Name string
 	// Onsets are the onset consonants, in order; the order fixes the order of names.
 	Onsets string
+	// Vowels are the single-vowel nuclei, a subset of aeiou in that order; "" means all.
+	Vowels string
 	// Codas are the allowed codas, in order; "" is an open syllable.
 	Codas []string
 	// EndSuffixes are the vowel+coda suffixes allowed on the last syllable of a word.
@@ -33,8 +36,12 @@ type Style struct {
 	OnsetClusters []string
 	// FinalNuclei are extra nuclei (diphthongs) allowed only in a word's last syllable.
 	FinalNuclei []string
+	// ExtraNuclei are long vowels or diphthongs allowed anywhere in a word ("aa", "ie").
+	ExtraNuclei []string
 	// MaxClusters allows at most this many onset clusters per word; 0 means no limit.
 	MaxClusters int
+	// MaxExtraNuclei allows at most this many extra nuclei per word; 0 means no limit.
+	MaxExtraNuclei int
 	// Harmony enables vowel harmony (e i front, o u back, a neutral).
 	Harmony bool
 	// Joinable makes decoding ignore separators inside the given name (JOIN RULE).
@@ -48,11 +55,14 @@ func (s *Style) equal(o *Style) bool {
 	if s == nil || o == nil {
 		return s == o
 	}
-	return s.rules == o.rules && s.blocks == o.blocks && s.Name == o.Name && s.Onsets == o.Onsets &&
-		slices.Equal(s.Codas, o.Codas) && slices.Equal(sortedCopy(s.EndSuffixes), sortedCopy(o.EndSuffixes)) &&
-		s.Harmony == o.Harmony && slices.Equal(s.Split, o.Split) && s.Joinable == o.Joinable &&
-		slices.Equal(s.OnsetClusters, o.OnsetClusters) && slices.Equal(s.FinalNuclei, o.FinalNuclei) &&
-		s.MaxClusters == o.MaxClusters && s.InitialVowel == o.InitialVowel
+	if s.rules != o.rules || s.blocks != o.blocks {
+		return false
+	}
+	// Compare everything else field by field; the order of EndSuffixes doesn't matter.
+	a, b := *s, *o
+	a.rules, a.blocks, b.rules, b.blocks = nil, nil, nil, nil
+	a.EndSuffixes, b.EndSuffixes = sortedCopy(s.EndSuffixes), sortedCopy(o.EndSuffixes)
+	return reflect.DeepEqual(a, b)
 }
 
 // build creates the style's automaton and checks its inventory and endings.
@@ -61,7 +71,11 @@ func (s *Style) build() (*code, error) {
 	if s.InitialVowel {
 		onsets = append(onsets, "")
 	}
-	nuclei := slices.Concat(strings.Split(s.rules.nuclei, ""), s.FinalNuclei)
+	vowels := s.Vowels
+	if vowels == "" {
+		vowels = s.rules.nuclei
+	}
+	nuclei := slices.Concat(strings.Split(vowels, ""), s.ExtraNuclei, s.FinalNuclei)
 	if err := checkUniqueSplit(onsets, s.Codas, nuclei); err != nil {
 		return nil, fmt.Errorf("style %s: %w", s.Name, err)
 	}
@@ -113,7 +127,7 @@ func (s *Style) stepper(inv syllableSet) stepFunc {
 				h = s.rules.class(p.nucleus)
 			}
 		}
-		tail, clusters := "", 0
+		tail, clusters, extras := "", 0, 0
 		if s.blocks != nil {
 			tail, _ = s.blocks.advance(q.tail, syl)
 		}
@@ -123,7 +137,13 @@ func (s *Style) stepper(inv syllableSet) stepFunc {
 				clusters++
 			}
 		}
-		return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail, clusters: clusters}
+		if s.MaxExtraNuclei > 0 {
+			extras = q.extras
+			if slices.Contains(s.ExtraNuclei, p.nucleus) {
+				extras++
+			}
+		}
+		return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail, clusters: clusters, extras: extras}
 	}
 }
 
@@ -138,9 +158,9 @@ func (s *Style) allower(inv syllableSet, end map[string]bool) allowFunc {
 		switch {
 		case last && !end[syl]:
 			return false
-		case !s.shapeOK(q, p, last, finalOnly):
+		case !s.shapeOK(&q, p, last, finalOnly):
 			return false
-		case s.blocked(q, syl):
+		case s.blocked(q.tail, syl):
 			return false
 		case s.Harmony && s.rules.harmonyClash(q.harmony, p.nucleus):
 			return false
@@ -156,8 +176,9 @@ func (s *Style) allower(inv syllableSet, end map[string]bool) allowFunc {
 }
 
 // shapeOK checks the optional shape rules: vowel-only syllables only start a word,
-// final nuclei only end one, and a word has at most MaxClusters onset clusters.
-func (s *Style) shapeOK(q state, p parts, last bool, finalOnly map[string]bool) bool {
+// final nuclei only end one, and a word has at most MaxClusters onset clusters and
+// MaxExtraNuclei extra nuclei.
+func (s *Style) shapeOK(q *state, p parts, last bool, finalOnly map[string]bool) bool {
 	switch {
 	case p.onset == "" && q.coda != "^":
 		return false
@@ -165,16 +186,18 @@ func (s *Style) shapeOK(q state, p parts, last bool, finalOnly map[string]bool) 
 		return false
 	case s.MaxClusters > 0 && len(p.onset) > 1 && q.clusters >= s.MaxClusters:
 		return false
+	case s.MaxExtraNuclei > 0 && slices.Contains(s.ExtraNuclei, p.nucleus) && q.extras >= s.MaxExtraNuclei:
+		return false
 	}
 	return true
 }
 
-// blocked reports whether syl would complete a blocklisted fragment after state q.
-func (s *Style) blocked(q state, syl string) bool {
+// blocked reports whether syl would complete a blocklisted fragment after tail.
+func (s *Style) blocked(tail, syl string) bool {
 	if s.blocks == nil {
 		return false
 	}
-	_, ok := s.blocks.advance(q.tail, syl)
+	_, ok := s.blocks.advance(tail, syl)
 	return !ok
 }
 

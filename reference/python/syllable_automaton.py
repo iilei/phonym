@@ -37,6 +37,7 @@ class State(NamedTuple):
     onset: str            # onset of previous syllable; "" before the first one
     tail: str = ""        # end of the word that could still grow into a blocked fragment
     clusters: int = 0     # onset clusters used so far in this word (styles that limit them)
+    extras: int = 0       # extra nuclei used so far in this word (styles that limit them)
 
 
 START = State("^", None, "")

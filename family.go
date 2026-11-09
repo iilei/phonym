@@ -83,7 +83,7 @@ func family() *code {
 				return false
 			case last && !familyEnd[syl]:
 				return false
-			case familyBlocked(q, syl):
+			case familyBlocked(q.tail, syl):
 				return false
 			case familyRules.harmonyClash(q.harmony, p.nucleus):
 				return false
@@ -103,9 +103,9 @@ func family() *code {
 	return familyCode
 }
 
-// familyBlocked reports whether syl would complete a blocklisted fragment in a family name.
-func familyBlocked(q state, syl string) bool {
-	_, ok := familyBlocklist.advance(q.tail, syl)
+// familyBlocked reports whether syl would complete a blocklisted fragment after tail.
+func familyBlocked(tail, syl string) bool {
+	_, ok := familyBlocklist.advance(tail, syl)
 	return !ok
 }
 

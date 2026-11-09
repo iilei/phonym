@@ -394,3 +394,38 @@ func TestLyricAndNordicShapes(t *testing.T) {
 		t.Errorf("lyric features never used: %d vowel starts, %d diphthong endings", vowelStart, diphthongEnd)
 	}
 }
+
+func TestFantasyShapes(t *testing.T) {
+	t.Parallel()
+	count := func(w string, subs ...string) int {
+		n := 0
+		for _, s := range subs {
+			n += strings.Count(w, s)
+		}
+		return n
+	}
+	for i := range uint64(3000) {
+		id := new(big.Int).SetUint64(i*2654435761%(1<<40) + i)
+		orkish, err := phonym.EncodeShort(id, "1.4.0+orkish")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.ContainsAny(orkish, "ei") {
+			t.Fatalf("orkish %q uses a light vowel", orkish)
+		}
+		elfish, err := phonym.EncodeShort(id, "1.4.0+elfish")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(elfish, "u") || count(elfish, "ie", "ae", "io") > 1 {
+			t.Fatalf("elfish %q: u, or more than one special vowel", elfish)
+		}
+		alien, err := phonym.EncodeShort(id, "1.4.0+alien")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(alien, "e") || count(alien, "zv", "kv", "tl", "kt") > 1 {
+			t.Fatalf("alien %q: e, or more than one cluster", alien)
+		}
+	}
+}
