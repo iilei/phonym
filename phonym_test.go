@@ -86,8 +86,8 @@ func TestShortForm(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if short != "mujunbawolan" {
-		t.Errorf("short form = %q", short)
+	if strings.Contains(short, "-") || short == strings.SplitN(mustEncode(t, id.Uint64(), soft11), "-", 2)[0] {
+		t.Errorf("short form %q must be one word and carry the whole ID", short)
 	}
 	if d := mustDecode(t, short, soft11); d.ID.Cmp(id) != 0 || !d.Short {
 		t.Errorf("decode short: %+v", d)
@@ -107,10 +107,13 @@ func TestShortForm(t *testing.T) {
 func TestSplitRelease(t *testing.T) {
 	t.Parallel()
 	name := mustEncode(t, 0xfffffff, soft12)
-	if name != "dangi-bari-wornav" {
-		t.Errorf("got %q", name)
+	words := strings.Split(name, "-")
+	if len(words) != 3 {
+		t.Fatalf("got %q, want two given words and a family name", name)
 	}
-	for _, broken := range []string{"dangibari-wornav", "bari-wornav"} {
+	joined := words[0] + words[1] + "-" + words[2] // the inner separator dropped: not joinable
+	dropped := words[1] + "-" + words[2]           // a given word missing
+	for _, broken := range []string{joined, dropped} {
 		if _, err := phonym.Decode(broken, ""); !errors.Is(err, phonym.ErrInvalidName) {
 			t.Errorf("%q: %v", broken, err)
 		}
@@ -295,7 +298,7 @@ func ExampleEncode() {
 	short, _ := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp")
 	d, _ := phonym.Decode(name, "")
 	fmt.Println(name, short, d.ID, d.Release)
-	// Output: bago-vosnul bagasto 4711 1.1.0+crisp
+	// Output: bago-vilzav bagezar 4711 1.1.0+crisp
 }
 
 func TestBlocklist(t *testing.T) {

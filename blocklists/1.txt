@@ -2,48 +2,374 @@
 #
 # Fragments that must never appear inside a word of a name. One per line,
 # lowercase a-z, at least 3 letters; lines starting with # are comments.
-# Hand-curated for phonym (MIT, like the rest of the repository), transliterated
-# to phonym's letters: c->k, ck->k, sch/sh->s, doubled consonants single.
-# Very short fragments (dik, sik, kok, ...) are left out on purpose: they would
-# block far more harmless names than they protect.
+# 315 fragments, transliterated to phonym's letters as a reader would say them
+# (c -> k before a/o/u, s before e/i; sch/sh -> s; ph -> f; doubled letters single),
+# reduced to what phonym's syllables can spell, and minimised: a fragment that
+# contains another listed fragment is left out, since it is blocked anyway.
+#
+# License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+# Contains fragments adapted from the "List of Dirty, Naughty, Obscene, and
+# Otherwise Bad Words" by its contributors, CC BY 4.0,
+# https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
+# (commit 5faf2ba42d7b). Changes: transliterated, reduced to fragments,
+# minimised, reviewed by hand (ordinary words, names, misread transliterations and
+# neutral or medical terms removed), and combined with hand-curated fragments.
 
-# English
-fuk
-kunt
-pusi
-slut
-wank
-rape
-penis
+# phonym (hand-curated)
 dildo
-porno
-kike
 fagot
-niga
-niger
-# German
-neger
 fiken
-hure
-slampe
-# Spanish, Portuguese, Italian, Catalan
-puta
-puto
-merda
-pendejo
-kulo
-kazo
-stronzo
-# French
-merde
-pute
-salope
-# Slavic, Hungarian, Turkish
+fuk
 huj
+hure
 jeb
-suka
+kazo
+kike
+kulo
+kunt
 kurva
 kurwa
-orospu
-# History
+merda
+merde
 nazi
+neger
+niga
+niger
+orospu
+pendejo
+penis
+pusi
+puta
+pute
+puto
+rape
+salope
+slampe
+slut
+stronzo
+suka
+wank
+
+# Czech
+bordel
+debil
+hovno
+kokot
+kunda
+kurak
+pika
+pikus
+srat
+sulin
+
+# Danish
+boserov
+fise
+hestepik
+lort
+luder
+rovhul
+
+# Dutch
+bokelul
+kont
+luldebehanger
+lulhanes
+pardelul
+ruken
+slet
+snol
+vingeren
+zakenwaser
+
+# English
+anilingus
+apesit
+arsehole
+asole
+barebak
+bastard
+bondage
+boner
+buldike
+bulsit
+butole
+dogistile
+dolset
+erotik
+erotism
+figing
+fisting
+futanari
+gokun
+goregasm
+hoker
+horni
+insest
+jigabo
+jigerbo
+kinbaku
+kinki
+kons
+kuming
+kunilingus
+lolita
+masturbate
+masturbating
+mong
+omorasi
+orgasm
+orgi
+paki
+peging
+pising
+pispig
+pontang
+porn
+punani
+raping
+rapist
+riming
+santorum
+semale
+sibari
+sisoring
+sket
+slong
+smut
+sodomi
+spastik
+spik
+spoge
+spunk
+swastika
+toser
+
+# Esperanto
+feken
+fikema
+fiki
+fikota
+forfurzu
+forpisi
+forpisu
+furzulo
+kojono
+zamenfek
+
+# Filipino
+burat
+jakol
+tangina
+ulol
+
+# Finnish
+apara
+kirpintinit
+kirvitis
+kuli
+mulkero
+mulku
+nartu
+nekeri
+nusija
+nusinta
+paneskela
+paneta
+pantava
+paska
+perkele
+pilivako
+pilu
+ratipa
+runku
+vitu
+
+# French
+bander
+bite
+enkule
+kone
+pedale
+pede
+turlute
+zizi
+
+# French (Quebec)
+kalise
+osti
+tabarnak
+
+# German
+bonze
+dodel
+kake
+kanake
+milf
+morgenlate
+mose
+nute
+pimel
+pinkeln
+piser
+popen
+titen
+vogeln
+
+# Hindi (romanised)
+bobe
+gand
+gasti
+harami
+kanjar
+loda
+lodu
+lund
+rand
+tarak
+tarki
+
+# Hungarian
+baszik
+fasz
+kibaszot
+kurafi
+segek
+seget
+szar
+
+# Italian
+alupato
+arapato
+arusa
+aruso
+bagasa
+batona
+belino
+bofilo
+busone
+ditalino
+figa
+figone
+fika
+fotere
+fotersi
+inkazarsi
+kagata
+kazata
+kornuto
+kulatina
+kulatone
+merdoso
+patonza
+pipone
+pirla
+piselo
+porka
+porko
+pota
+pupami
+rizarsi
+sbatersi
+sbora
+sborone
+skopare
+skopata
+sveltina
+sverginare
+terone
+zokola
+
+# Kabyle
+ahekun
+ihekan
+ihekunen
+
+# Norwegian
+fanken
+kukene
+kuker
+morapuler
+stapik
+
+# Polish
+burdel
+dupa
+dupek
+duperele
+kurwi
+rzigak
+srak
+
+# Portuguese
+boseta
+bosta
+foda
+foder
+kagar
+karalho
+kasete
+kona
+pora
+sakanagem
+
+# Russian
+dermo
+ebalnik
+ebalo
+ebar
+ebat
+govno
+hohol
+jopa
+jopoliz
+mudilo
+nevebenij
+opesdol
+otebis
+pedik
+perdet
+petuh
+siski
+viperdis
+zalupa
+zasat
+
+# Spanish
+bolera
+folador
+folar
+gilipolas
+jilipolas
+kaka
+kapulo
+kono
+marika
+marikon
+masiza
+masizora
+pedo
+pervertido
+ramera
+verga
+
+# Swedish
+fita
+fitig
+javlar
+kotuvud
+muta
+rovhal
+runka
+
+# Turkish
+gote
+gotu
+kaltaga
+kaltagi
+kaltak
+siki
+singene
+tasaga
+tasagi
+tasak

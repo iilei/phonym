@@ -3,10 +3,10 @@
 Pronounceable, versioned names for integers, and back.
 
 ```text
-4711        → badil-durjav            (1.1.0+soft)
-0x62e6b43   → malnagavel-durmav
-0x62e6b43   → besizohon-vosbov        (1.1.0+crisp)
-4711        → bala-bema-wordov        (1.2.0+soft, double given name)
+4711        → badil-dovwav            (1.1.0+soft)
+0x62e6b43   → maldajivi-dovbul
+0x62e6b43   → betasgopar-vilben       (1.1.0+crisp)
+4711        → bala-bema-wevjin        (1.2.0+soft, double given name)
 ```
 
 phonym maps every non-negative integer to a name made of a **given name** and a
@@ -20,7 +20,7 @@ by a frozen, versioned spec: [SPEC.md](SPEC.md).
 ## Why another one
 
 - **Names describe themselves.** The family name carries the *release*, the spec
-  version the name was made with. `badil-durjav` decodes without any
+  version the name was made with. `badil-dovwav` decodes without any
   configuration, and a decoder can tell when a name is newer than it knows.
 - **Releases make the vocabulary evolvable.** Sound rules, styles and the
   blocklist change through new releases. Old names keep decoding; an ID can be
@@ -30,13 +30,13 @@ by a frozen, versioned spec: [SPEC.md](SPEC.md).
   context-sensitive rules: vowel harmony, consonant clusters, voicing, no
   stuttering, chosen endings. Ranking over the automaton keeps the mapping exact
   and dense: no retries, no gaps, no bias.
-- **No swearwords.** A versioned blocklist of fragments (`blocklists/1.txt`)
-  keeps them out of every word, family names included. Extending it means new
+- **No swearwords.** A versioned blocklist of 315 fragments in 22 languages
+  (`blocklists/1.txt`) keeps them out of every word, family names included. Extending it means new
   releases; existing names keep decoding.
 - **Never a proquint.** Family names always have the shape CVC-CVC (6 letters),
   so a phonym name can never be mistaken for a proquint.
 - **Short form.** Where the release is known from context, the given name alone
-  (`bajogan`) is about as short as fixed-length schemes, and keeps growing past
+  (`bajuban`) is about as short as fixed-length schemes, and keeps growing past
   their limits.
 
 ## Install
@@ -48,11 +48,11 @@ go install github.com/iilei/phonym/cmd/phonym@latest
 ## Command line
 
 ```sh
-phonym 4711                          # badil-durjav   (default release 1.1.0+soft)
-phonym -release 1.1.0+crisp 4711     # bago-vosnul
-phonym -short 4711                   # bajogan
-phonym decode "Badil Durjav"         # 4711  1.1.0+soft  full
-phonym decode -release 1.1.0+soft bajogan
+phonym 4711                          # badil-dovwav   (default release 1.1.0+soft)
+phonym -release 1.1.0+crisp 4711     # bago-vilzav
+phonym -short 4711                   # bajuban
+phonym decode "Badil Dovwav"         # 4711  1.1.0+soft  full
+phonym decode -release 1.1.0+soft bajuban
 phonym releases                      # list the registry
 ```
 
@@ -63,11 +63,11 @@ RULE in the spec.
 ## Library
 
 ```go
-name, err := phonym.EncodeUint64(4711, "1.1.0+crisp") // "bago-vosnul"
-short, err := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp") // "bagasto"
+name, err := phonym.EncodeUint64(4711, "1.1.0+crisp") // "bago-vilzav"
+short, err := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp") // "bagezar"
 
-d, err := phonym.Decode("bago-vosnul", "")      // d.ID = 4711, d.Release = "1.1.0+crisp"
-d, err = phonym.Decode("bagasto", "1.1.0+crisp") // short forms need the release
+d, err := phonym.Decode("bago-vilzav", "")      // d.ID = 4711, d.Release = "1.1.0+crisp"
+d, err = phonym.Decode("bagezar", "1.1.0+crisp") // short forms need the release
 ```
 
 Errors wrap one of `ErrInvalidName`, `ErrUnsupportedFormat`,
@@ -129,4 +129,7 @@ mise run release:snapshot  # build the release archives locally into dist/releas
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE), except `blocklists/`: CC BY 4.0, because the lists contain
+fragments adapted from the [List of Dirty, Naughty, Obscene, and Otherwise Bad
+Words](https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words).
+Each list's header names its sources and changes.

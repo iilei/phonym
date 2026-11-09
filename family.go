@@ -15,11 +15,11 @@ const (
 	// Siblings (K) is the number of IDs that share a given name and differ in the family name.
 	Siblings = 64
 	// Slots is the number of release slots the family code provides.
-	Slots = 385
+	Slots = 383
 
 	familyLen      = 2
-	familyCapacity = 24641
-	familyStride   = 239 // round(Slots * 0.6180339887) = 238, then the next value coprime to Slots
+	familyCapacity = 24572
+	familyStride   = 237 // round(Slots * 0.6180339887) = 237, already coprime to Slots (383 is prime)
 	familyOffset   = 97
 	familyOnsets   = "bdfgklmnprstvzhjw"
 )
