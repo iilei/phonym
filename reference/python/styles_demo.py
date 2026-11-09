@@ -41,14 +41,27 @@ class Style:
     joinable: bool = False
     # blocklist: fragments that never appear inside a word (BLOCKLIST RULE).
     blocklist: sa.Blocklist | None = None
+    # onset_clusters: extra onsets of two consonants ("br", "kl"), after the single ones.
+    onset_clusters: tuple[str, ...] = ()
+    # final_nuclei: extra nuclei (diphthongs) allowed only in a word's last syllable.
+    final_nuclei: tuple[str, ...] = ()
+    # initial_vowel: a word may start with a vowel-only syllable ("amira").
+    initial_vowel: bool = False
+    # max_clusters: at most this many onset clusters per word; 0 means no limit.
+    max_clusters: int = 0
 
     def build(self) -> sa.SyllableCode:
+        onsets = list(self.onsets) + list(self.onset_clusters) + ([""] if self.initial_vowel else [])
+        nuclei = list(sa.NUCLEI) + list(self.final_nuclei)
+        sa.check_unique_split(onsets, self.codas, nuclei)
         parts = {o + n + c: (o, n, c)
-                 for o, n, c in product(self.onsets, sa.NUCLEI, self.codas) if o != c}
+                 for o, n, c in product(onsets, nuclei, self.codas) if not (o and o == c)}
         syllables = list(parts)
-        end = {s for s in syllables if s[1:] in self.end_suffixes}
+        end = {s for s, (_, n, c) in parts.items() if n + c in self.end_suffixes}
+        final_only = set(self.final_nuclei)
+        clusters = set(self.onset_clusters)
 
-        dead = {x for x in self.end_suffixes if not any(s[1:] == x for s in syllables)}
+        dead = {x for x in self.end_suffixes if not any(n + c == x for _, n, c in parts.values())}
         assert not dead, f"{self.name}: dead suffixes {dead}"
         clash = end & fam.FAMILY_END
         assert not clash, f"{self.name}: endings overlap family endings {clash}"
@@ -57,29 +70,37 @@ class Style:
 
         def step(q, syl):
             onset, nucleus, coda = parts[syl]
-            harmony = (q.harmony or sa.HARMONY[nucleus]) if self.harmony else None
-            return sa.State(coda, harmony, onset, (bl.advance(q.tail, syl) or "") if bl else "")
+            harmony = (q.harmony or sa.harmony_class(nucleus)) if self.harmony else None
+            return sa.State(coda, harmony, onset, (bl.advance(q.tail, syl) or "") if bl else "",
+                            q.clusters + (onset in clusters) if self.max_clusters else 0)
 
         def allowed(q, syl, is_last):
             onset, nucleus, coda = parts[syl]
+            first = onset[:1]                     # boundary rules look at the first consonant
             if is_last and syl not in end:
+                return False
+            if not onset and q.coda != "^":
+                return False                      # vowel-only syllables only start a word
+            if nucleus in final_only and not is_last:
+                return False
+            if self.max_clusters and onset in clusters and q.clusters >= self.max_clusters:
                 return False
             if bl and bl.advance(q.tail, syl) is None:
                 return False
-            if self.harmony and q.harmony and sa.HARMONY[nucleus] not in (None, q.harmony):
+            if self.harmony and q.harmony and sa.harmony_class(nucleus) not in (None, q.harmony):
                 return False
-            if onset == q.onset:
+            if onset and onset == q.onset:
                 return False
             if q.coda in ("^", ""):
                 return True
-            if onset == q.coda or coda:
+            if first == q.coda or coda:
                 return False
-            if (q.coda, onset) in {("s", "z"), ("n", "m"), ("r", "l"), ("l", "r")}:
+            if (q.coda, first) in {("s", "z"), ("n", "m"), ("r", "l"), ("l", "r")}:
                 return False
-            if q.coda in sa.VOICED and onset in sa.VOICELESS:
+            if q.coda in sa.VOICED and first in sa.VOICELESS:
                 return False
-            if (q.coda in sa.VOICELESS and onset in sa.VOICED
-                    and (q.coda, onset) not in sa.VOICING_EXCEPTIONS):
+            if (q.coda in sa.VOICELESS and first in sa.VOICED
+                    and (q.coda, first) not in sa.VOICING_EXCEPTIONS):
                 return False
             return True
 
@@ -105,6 +126,16 @@ STYLES = {
     "soft@1.2":    Style("soft",    onsets="blmnrvdgjw",  codas=("", "n", "l"),
                          end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1,
                          split=(2, 2)),
+    # 1.3: two new sounds. lyric: soft@1.1 plus a vowel-only first syllable and the
+    # diphthongs ai/oi as endings. nordic: crisp@1.1 plus onset clusters, one per word.
+    "lyric@1.3":   Style("lyric",   onsets="blmnrvdgjw",  codas=("", "n", "l"),
+                         end_suffixes=frozenset({"a", "i", "el", "an", "il", "ai", "oi"}), harmony=True,
+                         blocklist=sa.BLOCKLIST1, initial_vowel=True, final_nuclei=("ai", "oi")),
+    "nordic@1.3":  Style("nordic",  onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
+                         end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False,
+                         blocklist=sa.BLOCKLIST1,
+                         onset_clusters=("br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"),
+                         max_clusters=1),
 }
 
 
@@ -135,6 +166,8 @@ REGISTRY = [
     Release("1.1.0+crisp",   STYLES["crisp@1.1"]),
     Release("1.1.0+flowing", STYLES["flowing@1.1"]),
     Release("1.2.0+soft",    STYLES["soft@1.2"]),
+    Release("1.3.0+lyric",   STYLES["lyric@1.3"]),
+    Release("1.3.0+nordic",  STYLES["nordic@1.3"]),
 ]
 
 # semver 2.0 (semver.org), build metadata required
@@ -549,8 +582,8 @@ if __name__ == "__main__":
     else:
         raise SystemExit("major-version rule missed 2.0.0")
 
-    # RETIREMENT RULE: a trial registry that retires 1.1.0+soft, skips slot 7 and
-    # adds a new release in slot 8 (the real REGISTRY is restored afterwards)
+    # RETIREMENT RULE: a trial registry that retires 1.1.0+soft, adds a placeholder
+    # and a new release after it (the real REGISTRY is restored afterwards)
     print("\nretirement:")
     real_registry, real_index = REGISTRY, INDEX
     old_name = encode(xs[0], "1.1.0+soft")
@@ -569,7 +602,7 @@ if __name__ == "__main__":
             print(f"  encode refused: {e}")
         else:
             raise SystemExit("retired release issued a name")
-        hole = "ba-" + fam.family_name(7, 0)
+        hole = "ba-" + fam.family_name(len(real_registry), 0)
         try:
             decode(hole)
         except InvalidName as e:
@@ -578,7 +611,7 @@ if __name__ == "__main__":
             raise SystemExit("placeholder slot decoded")
         new_name = encode(xs[0], "1.3.0+crisp")
         assert decode(new_name) == ("1.3.0+crisp", xs[0])
-        print(f"  same ID re-issued in slot 8: {new_name!r}")
+        print(f"  same ID re-issued in slot {len(real_registry) + 1}: {new_name!r}")
     finally:
         REGISTRY, INDEX = real_registry, real_index
         code_for.cache_clear()
@@ -592,7 +625,8 @@ if __name__ == "__main__":
         (real_registry, real_registry[:3] + [replace(real_registry[3], label="1.1.1+soft")]
          + real_registry[4:], "label edited"),
         (trial, unretired, "un-retired"),
-        (trial, trial[:7] + [Release("1.4.0+soft", STYLES["soft@1.1"])] + trial[8:],
+        (trial, trial[:len(real_registry)] + [Release("1.4.0+soft", STYLES["soft@1.1"])]
+         + trial[len(real_registry) + 1:],
          "placeholder reused"),
     ]:
         try:

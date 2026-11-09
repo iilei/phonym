@@ -112,3 +112,8 @@ func ParseBlocklist(text string) error {
 	_, err := parseBlocklist(text)
 	return err
 }
+
+// CheckUniqueSplit exposes the SPLIT RULE check.
+func CheckUniqueSplit(onsets, codas, nuclei []string) error {
+	return checkUniqueSplit(onsets, codas, nuclei)
+}

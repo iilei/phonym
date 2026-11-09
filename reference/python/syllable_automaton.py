@@ -36,9 +36,37 @@ class State(NamedTuple):
     harmony: str | None   # locked vowel class, None while only neutrals seen
     onset: str            # onset of previous syllable; "" before the first one
     tail: str = ""        # end of the word that could still grow into a blocked fragment
+    clusters: int = 0     # onset clusters used so far in this word (styles that limit them)
 
 
 START = State("^", None, "")
+
+
+def harmony_class(nucleus: str) -> str | None:
+    """Harmony class of a vowel or diphthong: that of its first non-neutral vowel."""
+    for v in nucleus:
+        if HARMONY[v]:
+            return HARMONY[v]
+    return None
+
+
+# SPLIT RULE (frozen): a style's inventory must split every word in only one way.
+# Every syllable but the first has a consonant onset, so vowel runs are nuclei and
+# the consonants between two nuclei are coda + onset. That split is unique when no
+# two (coda, onset) pairs spell the same letters, which this checks at build time.
+def check_unique_split(onsets, codas, nuclei) -> None:
+    vowels = set(NUCLEI)
+    assert all(set(n) <= vowels for n in nuclei), f"nuclei must be vowels: {nuclei}"
+    assert all(not set(c) & vowels for c in codas), f"codas must be consonants: {codas}"
+    assert all(not set(o) & vowels for o in onsets), f"onsets must be consonants: {onsets}"
+    seen = {}
+    for c in codas:
+        for o in onsets:
+            if not o:
+                continue                      # vowel-only syllables only start a word
+            key = c + o
+            assert key not in seen, f"ambiguous split of {key!r}: {seen[key]} or {(c, o)}"
+            seen[key] = (c, o)
 
 
 # BLOCKLIST RULE (frozen): a syllable is not allowed if the word so far plus the

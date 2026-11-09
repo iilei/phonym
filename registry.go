@@ -8,8 +8,11 @@ import (
 	"sync"
 )
 
-// Style names, as used in release labels.
+// Style names (as used in release labels) and shared onset sets.
 const (
+	// softOnsets11 are the onsets of soft from 1.1 on (j and w added).
+	softOnsets11 = "blmnrvdgjw"
+
 	styleSoft    = "soft"
 	styleCrisp   = "crisp"
 	styleFlowing = "flowing"
@@ -44,7 +47,7 @@ var (
 		EndSuffixes: flowingEndings, Harmony: true,
 	}
 	soft11 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets11, Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true,
 	}
 	crisp11 = &Style{
@@ -55,8 +58,19 @@ var (
 		rules: rules1, blocks: blocklist1, Name: styleFlowing, Onsets: "lmnrvsdtjw", Codas: flowingCodas,
 		EndSuffixes: flowingEndings, Harmony: true,
 	}
+	lyric13 = &Style{
+		rules: rules1, blocks: blocklist1, Name: "lyric", Onsets: softOnsets11, Codas: softCodas,
+		EndSuffixes: []string{"a", "i", "el", "an", "il", "ai", "oi"}, Harmony: true,
+		InitialVowel: true, FinalNuclei: []string{"ai", "oi"},
+	}
+	nordic13 = &Style{
+		rules: rules1, blocks: blocklist1, Name: "nordic", Onsets: "bdfgkpstzh", Codas: crispCodas,
+		EndSuffixes: crispEndings, Harmony: false,
+		OnsetClusters: []string{"br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"},
+		MaxClusters:   1,
+	}
 	soft12 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets11, Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true, Split: []int{2, 2},
 	}
 
@@ -70,6 +84,8 @@ var (
 		{Label: "1.1.0+crisp", style: crisp11},
 		{Label: "1.1.0+flowing", style: flowing11},
 		{Label: "1.2.0+soft", style: soft12},
+		{Label: "1.3.0+lyric", style: lyric13},
+		{Label: "1.3.0+nordic", style: nordic13},
 	}
 
 	labelIndex = map[string]int{}

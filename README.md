@@ -80,11 +80,13 @@ Feistel network or `(a·x + c) mod n`).
 
 ## Releases
 
-| Slot | Release                                      | Given name                             |
-| ---- | -------------------------------------------- | -------------------------------------- |
-| 0–2  | `1.0.0+soft`, `1.0.0+crisp`, `1.0.0+flowing` | one word, variable length              |
-| 3–5  | `1.1.0+soft`, `1.1.0+crisp`, `1.1.0+flowing` | one word, variable length              |
-| 6    | `1.2.0+soft`                                 | two words of 2 syllables (`bala-bema`) |
+| Slot | Release                                      | Given name                                            |
+| ---- | -------------------------------------------- | ----------------------------------------------------- |
+| 0–2  | `1.0.0+soft`, `1.0.0+crisp`, `1.0.0+flowing` | one word, variable length                             |
+| 3–5  | `1.1.0+soft`, `1.1.0+crisp`, `1.1.0+flowing` | one word, variable length                             |
+| 6    | `1.2.0+soft`                                 | two words of 2 syllables (`bala-bema`)                |
+| 7    | `1.3.0+lyric`                                | melodic: may start with a vowel, may end in `ai`/`oi` |
+| 8    | `1.3.0+nordic`                               | hard: one onset cluster per word (`kobrokofako`)      |
 
 The semver major equals the family-name *generation* (the shape CVC-CVC is
 generation 1). The registry is append-only.

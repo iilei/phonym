@@ -111,22 +111,38 @@ file's header records sources, commit, changes and its license (CC BY 4.0).
   decodes names of releases retired since. An encoder with an older registry
   could still issue names in a release retired since; keep encoders current.
 
-| #   | Label                      | Notes                                       |
-| --- | -------------------------- | ------------------------------------------- |
-| 0–2 | `1.0.0+soft/crisp/flowing` | original styles                             |
-| 3–5 | `1.1.0+soft/crisp/flowing` | extra onsets: soft/flowing `j w`, crisp `h` |
-| 6   | `1.2.0+soft`               | `split = (2, 2)`                            |
+| #   | Label                      | Notes                                         |
+| --- | -------------------------- | --------------------------------------------- |
+| 0–2 | `1.0.0+soft/crisp/flowing` | original styles                               |
+| 3–5 | `1.1.0+soft/crisp/flowing` | extra onsets: soft/flowing `j w`, crisp `h`   |
+| 6   | `1.2.0+soft`               | `split = (2, 2)`                              |
+| 7   | `1.3.0+lyric`              | vowel-only first syllable; `ai`, `oi` endings |
+| 8   | `1.3.0+nordic`             | onset clusters, at most one per word          |
 
 ## 6. Styles
 
-- Fields: `onsets, codas, end_suffixes, harmony, split, joinable`; one automaton per style.
+- Fields: `onsets, codas, end_suffixes, harmony, split, joinable, blocklist`, and the
+  optional shape fields below; one automaton per style.
+- `onset_clusters`: extra two-consonant onsets (`br`, `kl`), after the single ones.
+  Boundary rules (doubling, banned clusters, voicing) look at the onset's first consonant.
+- `max_clusters`: at most this many onset clusters per word (0: no limit). The state
+  counts clusters used so far in the word.
+- `final_nuclei`: extra nuclei (diphthongs) allowed only in a word's last syllable. A
+  diphthong's harmony class is that of its first non-neutral vowel (`ai` front, `oi` back).
+- `initial_vowel`: a word may start with a vowel-only syllable (`amira`); everywhere
+  else every syllable has a consonant onset.
+- SPLIT RULE (frozen, checked when a style is built): vowel runs are nuclei, and the
+  consonants between two nuclei split into coda + onset. No two (coda, onset) pairs may
+  spell the same letters, otherwise a word could split two ways (coda `t` + onset `r`
+  vs. onset `tr`). A style that fails the check is rejected.
 - `split`: shape of the given name in syllables per word. `()` is one word of
   variable length. `(2, 2)` is two fixed words combined like digits
   (word1 · capacity + word2); fixed capacity, overflow error beyond it. The
   decoder expects exactly `len(split)` given words.
 - `joinable`: decoding ignores separators inside the given name (see JOIN RULE).
   Allowed for single-word and split releases. No registered release uses it yet.
-- Build-time checks: no dead endings; no overlap with family endings.
+- Build-time checks: the SPLIT RULE; no dead endings (endings match on nucleus +
+  coda); no overlap with family endings.
 
 ## 7. Text form
 

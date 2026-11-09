@@ -338,3 +338,59 @@ func containsFragment(word string, fragments []string) bool {
 	}
 	return false
 }
+
+func TestSplitRule(t *testing.T) {
+	t.Parallel()
+	nuclei := []string{"a", "e", "i", "o", "u"}
+	ok := []string{"b", "t", "k", "br", "tr", "kl"}
+	if err := phonym.CheckUniqueSplit(ok, []string{"", "n", "r", "s"}, nuclei); err != nil {
+		t.Errorf("clusters without matching codas: %v", err)
+	}
+	// coda t + onset r and coda "" + onset tr both spell "tr": a-tra or at-ra
+	if err := phonym.CheckUniqueSplit([]string{"r", "tr"}, []string{"", "t"}, nuclei); err == nil {
+		t.Error("ambiguous inventory accepted")
+	}
+	if err := phonym.CheckUniqueSplit([]string{"b"}, []string{""}, []string{"ab"}); err == nil {
+		t.Error("consonant in a nucleus accepted")
+	}
+}
+
+func TestLyricAndNordicShapes(t *testing.T) {
+	t.Parallel()
+	clusters := []string{"br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"}
+	var vowelStart, diphthongEnd int
+	for i := range uint64(3000) {
+		id := i*2654435761%(1<<40) + i // spread over many lengths, deterministic
+		lyric, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.3.0+lyric")
+		if err != nil {
+			t.Fatal(err)
+		}
+		for j := 1; j < len(lyric); j++ {
+			if strings.ContainsRune("aeiou", rune(lyric[j])) && strings.ContainsRune("aeiou", rune(lyric[j-1])) &&
+				j != len(lyric)-1 {
+				t.Fatalf("lyric %q: two vowels before the end", lyric)
+			}
+		}
+		if strings.ContainsRune("aeiou", rune(lyric[0])) {
+			vowelStart++
+		}
+		if strings.HasSuffix(lyric, "ai") || strings.HasSuffix(lyric, "oi") {
+			diphthongEnd++
+		}
+		nordic, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.3.0+nordic")
+		if err != nil {
+			t.Fatal(err)
+		}
+		// b d g k p t f are never codas, so every "br", "kl", ... is an onset cluster
+		n := 0
+		for _, c := range clusters {
+			n += strings.Count(nordic, c)
+		}
+		if n > 1 {
+			t.Fatalf("nordic %q has %d clusters", nordic, n)
+		}
+	}
+	if vowelStart == 0 || diphthongEnd == 0 {
+		t.Errorf("lyric features never used: %d vowel starts, %d diphthong endings", vowelStart, diphthongEnd)
+	}
+}

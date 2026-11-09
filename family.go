@@ -69,7 +69,7 @@ func family() *code {
 			p := byName[syl]
 			h := q.harmony
 			if h == "" {
-				h = familyRules.harmony[p.nucleus]
+				h = familyRules.class(p.nucleus)
 			}
 			tail, _ := familyBlocklist.advance(q.tail, syl)
 			return state{coda: p.coda, harmony: h, onset: p.onset, tail: tail}
