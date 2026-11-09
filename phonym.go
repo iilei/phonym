@@ -15,6 +15,16 @@ import (
 	"math/big"
 )
 
+// MaxBits is the default limit on ID size: Encode rejects larger IDs, and Decode
+// rejects names longer than MaxBits letters (twice the longest name any release
+// gives a MaxBits-bit ID) before doing any work, then IDs above the limit. The
+// limit bounds memory and time for untrusted input; raise it with the MaxBits option.
+const MaxBits = 512
+
+// maxBytesPerLetter bounds the raw input before normalising: a UTF-8 rune has at
+// most 4 bytes, so a name within the letter limit never needs more.
+const maxBytesPerLetter = 4
+
 type (
 	// Decoded is the result of Decode.
 	Decoded struct {
@@ -26,10 +36,11 @@ type (
 		Short bool
 	}
 
-	// Option changes how Encode and EncodeShort behave.
+	// Option changes how Encode, EncodeShort and Decode behave.
 	Option func(*options)
 
 	options struct {
+		maxBits        int
 		includeRetired bool
 	}
 )
@@ -38,6 +49,20 @@ type (
 // snapshots and tests: it shows which name an ID had in a retired release.
 func IncludeRetired() Option {
 	return func(o *options) { o.includeRetired = true }
+}
+
+// WithMaxBits replaces the MaxBits limit on ID size (and on name length when decoding).
+func WithMaxBits(bits int) Option {
+	return func(o *options) { o.maxBits = bits }
+}
+
+// resolve applies the options over the defaults.
+func resolve(opts []Option) options {
+	o := options{maxBits: MaxBits}
+	for _, opt := range opts {
+		opt(&o)
+	}
+	return o
 }
 
 // Encode returns the full form of id in a release: lowercase, hyphen-separated,
@@ -70,15 +95,36 @@ func EncodeUint64(id uint64, release string, opts ...Option) (string, error) {
 	return Encode(new(big.Int).SetUint64(id), release, opts...)
 }
 
-// Decode decodes a full or short form. A full form (its last word is a family
+// Decode decodes a full or short form, within the MaxBits limit (see WithMaxBits). A full form (its last word is a family
 // name) decodes as the release in the name and ignores release; compare the
 // returned label if the context expects a specific one. Anything else is a short
 // form of release, and is rejected when release is empty.
-func Decode(name, release string) (Decoded, error) {
+func Decode(name, release string, opts ...Option) (Decoded, error) {
+	o := resolve(opts)
+	if len(name) > maxBytesPerLetter*o.maxBits { // cheap early bound, before normalising
+		return Decoded{}, fmt.Errorf("%w: input longer than %d bytes", ErrInvalidName, maxBytesPerLetter*o.maxBits)
+	}
 	words, err := normalize(name)
 	if err != nil {
 		return Decoded{}, err
 	}
+	letters := 0
+	for _, w := range words {
+		letters += len(w)
+	}
+	if letters > o.maxBits {
+		return Decoded{}, fmt.Errorf("%w: %d letters, more than the limit of %d", ErrInvalidName, letters, o.maxBits)
+	}
+	d, err := decodeWords(name, release, words)
+	if err == nil && d.ID.BitLen() > o.maxBits {
+		return Decoded{}, fmt.Errorf("%w: id has %d bits, more than the limit of %d", ErrOverflow, d.ID.BitLen(),
+			o.maxBits)
+	}
+	return d, err
+}
+
+// decodeWords decodes normalised words as a full or short form.
+func decodeWords(name, release string, words []string) (Decoded, error) {
 	ref, ferr := familyParse(words[len(words)-1])
 	if ferr != nil {
 		return decodeShort(name, release, words)
@@ -129,12 +175,12 @@ func decodeShort(name, release string, words []string) (Decoded, error) {
 
 // encodable resolves a release for encoding and checks the ID and retirement.
 func encodable(id *big.Int, release string, opts []Option) (int, *code, error) {
-	var o options
-	for _, opt := range opts {
-		opt(&o)
-	}
+	o := resolve(opts)
 	if id == nil || id.Sign() < 0 {
 		return 0, nil, fmt.Errorf("%w: ids must be non-negative", ErrOverflow)
+	}
+	if id.BitLen() > o.maxBits {
+		return 0, nil, fmt.Errorf("%w: id has %d bits, more than the limit of %d", ErrOverflow, id.BitLen(), o.maxBits)
 	}
 	slot, ok := labelIndex[release]
 	if !ok {

@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+elfish (slot 6)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=156c94e2c4cdce38
+#
+# IDs up to 64 bits
+#             id  short                        full
+               0  la                           la-woltav
+               1  le                           la-woltov
+               3  lir                          la-woltul
+              3f  he                           la-wovjov
+              40  hes                          le-woltav
+              41  hil                          le-woltov
+              5a  ael                          le-wovbul
+              8d  lafir                        les-wolhav
+             335  naves                        nis-wovrov
+             ae7  raesil                       vion-wovlov
+            6f11  lensothis                    lomis-woljas
+            7c95  lerfaeve                     lothes-woljul
+           1216f  laerfolir                    novael-wovnav
+           3eaed  reminir                      silme-wovmul
+          873b20  nehisefis                    niethirma-wovgas
+          eecf63  melfalones                   rasorha-wovgus
+          ffffff  minlisahir                   rensielis-wovjov
+         1000000  minlisahis                   rensiena-woltav
+         286a22a  felmefaere                   thenisiel-wovmav
+         f07b2f6  lenhenioveres                lithirvile-wovrus
+         fffffff  lersefelnieva                lirnohisthe-wovjov
+        10000000  lersefelnieve                lirnohola-woltav
+        4481567b  niolthalermafa               mofehaele-wovzus
+        8e3cf6de  vasielhofathil               silmelesma-wovdus
+        ffffffff  helivofarna                  olvathorael-wovjov
+       636bc30c1  limaesthihamihir             lonimosilion-woltov
+       ef9bd1895  nefosevariotha               nohiothonvothil-woljul
+      61294d2956  thisiemivesfivil             lanohionravoltha-wovbas
+      fed78a925f  larsamifilsanemael           leralvimiovilna-wovdul
+      ffffffffff  larsemonfimofone             lerehirfereme-wovjov
+     395eb6099c5  laevihimirhiforha            nemalvohosmifiel-wolvus
+     dd84d70b56c  rolhemironaerfisir           vosthelanhiothosa-wovmus
+    47b06665a016  lanfanerelarhenaethes        lasrenalmilirthonir-wovbas
+    7c7a5edd8d84  lethesmalaervoferthave       linerolnafanliome-wolvas
+    ffffffffffff  lonthofelafetholfothael      navishonalmiofavir-wovjov
+   ae1af9435f19c  esleserfavolsihiosfe         lamovierofahaslime-wovdav
+   ec5386b509570  laronfomiesleforsolaves      lafiormonaresthevalha-wovnov
+  2639dff89fa6f2  lehorfoverthinofalthaeve     lesfathonofioshothisil-wovnul
+  d67ad7b358491f  merniofinrimovarfaromes      miesrovasnathanhothines-wovdul
+  ffffffffffffff  molfenashavasierasivir       rihanferaesehisare-wovjov
+ 3f4efbb3009e56b  lamaselfahirotharelsaviel    lavomelthavislefalnore-wovmov
+ 50d5843b27fc656  lasathernohevaetholvahilfe   lathisavosfiemisfolorma-wovbas
+844313d2d875c424  vonsanethaslemionrothinilfe  siervamolnirelnelonsires-wovgul
+a172317228b05ded  siehanfenasmorominothisfa    harvohosnafirnorovarha-wovmul
+ffffffffffffffff  arfimaelvifasthelensifithir  lamarnilethinorathaervanis-wovjov
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                full
+                                               10000000000000000  arfimaelvifasthelensifithis                                                                          lamarnilethinorathaervama-woltav
+                                ffffffffffffffffffffffffffffffff  lenasmovarnemanthiranelenermalonsalaerharinsethirsine                                                lesohiniliselishilinomerosfihisthenefosromithes-wovjov
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  solnafelhethesmifismarilsavilhasefaelamavinthavohilvanelsoliravenohomolsirohasnefisinilmoholmorenfa  firhanefeserhefonrilirnemilsaethenalfolirsirasthihemenhefilohernefasminilfarominalarsivenalvareves-wovjov

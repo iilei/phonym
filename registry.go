@@ -3,7 +3,6 @@ package phonym
 import (
 	"fmt"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -11,12 +10,14 @@ import (
 
 // Style names (as used in release labels) and shared onset sets.
 const (
-	// softOnsets11 are the onsets of soft from 1.1 on (j and w added).
-	softOnsets11 = "blmnrvdgjw"
+	// softOnsets are soft's onsets: mostly voiced and liquid, plus h s z.
+	softOnsets = "blmnrvdgjwhsz"
+	// lyricOnsets are lyric's onsets, soft's without h s z.
+	lyricOnsets = "blmnrvdgjw"
+	// crispOnsets are crisp's and nordic's single onsets.
+	crispOnsets = "bdfgkpstzh"
 
-	styleSoft    = "soft"
-	styleCrisp   = "crisp"
-	styleFlowing = "flowing"
+	styleSoft = "soft"
 )
 
 var (
@@ -28,54 +29,45 @@ var (
 
 	// Released styles. Never edit one: add a new style and a new release instead.
 	// The shared lists below are never modified; a change needs a new list.
-	softEndings    = []string{"a", "i", "el", "an", "il"}
-	crispEndings   = []string{"is", "os", "ar", "on", "ir", "o"}
-	flowingEndings = []string{"a", "o", "i"}
-	softCodas      = []string{"", "n", "l"}
-	crispCodas     = []string{"", "n", "r", "s"}
-	flowingCodas   = []string{""}
+	softEndings  = []string{"a", "i", "el", "an", "il", "ar", "is"}
+	softCodas    = []string{"", "n", "l", "r", "s"}
+	crispEndings = []string{"is", "os", "ar", "on", "ir", "o"}
+	crispCodas   = []string{"", "n", "r", "s"}
 
-	soft10 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: "blmnrvdg", Codas: softCodas,
+	// soft: vowel harmony, mostly voiced and liquid onsets, light codas.
+	soft = &Style{
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets, Codas: softCodas,
 		EndSuffixes: softEndings, Harmony: true,
 	}
-	crisp10 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleCrisp, Onsets: "bdfgkpstz", Codas: crispCodas,
+	crisp = &Style{
+		rules: rules1, blocks: blocklist1, Name: "crisp", Onsets: crispOnsets, Codas: crispCodas,
 		EndSuffixes: crispEndings, Harmony: false,
 	}
-	flowing10 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleFlowing, Onsets: "lmnrvsdt", Codas: flowingCodas,
-		EndSuffixes: flowingEndings, Harmony: true,
+	flowing = &Style{
+		rules: rules1, blocks: blocklist1, Name: "flowing", Onsets: "lmnrvsdtjw", Codas: []string{""},
+		EndSuffixes: []string{"a", "o", "i"}, Harmony: true,
 	}
-	soft11 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets11, Codas: softCodas,
-		EndSuffixes: softEndings, Harmony: true,
-	}
-	crisp11 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleCrisp, Onsets: "bdfgkpstzh", Codas: crispCodas,
-		EndSuffixes: crispEndings, Harmony: false,
-	}
-	flowing11 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleFlowing, Onsets: "lmnrvsdtjw", Codas: flowingCodas,
-		EndSuffixes: flowingEndings, Harmony: true,
-	}
-	lyric13 = &Style{
-		rules: rules1, blocks: blocklist1, Name: "lyric", Onsets: softOnsets11, Codas: softCodas,
-		EndSuffixes: slices.Concat(softEndings, []string{"ai", "oi"}), Harmony: true,
+	// lyric: a vowel-only first syllable and the diphthongs ai/oi as endings.
+	lyric = &Style{
+		rules: rules1, blocks: blocklist1, Name: "lyric", Onsets: lyricOnsets, Codas: []string{"", "n", "l"},
+		EndSuffixes: []string{"a", "i", "el", "an", "il", "ai", "oi"}, Harmony: true,
 		InitialVowel: true, FinalNuclei: []string{"ai", "oi"},
 	}
-	nordic13 = &Style{
-		rules: rules1, blocks: blocklist1, Name: "nordic", Onsets: "bdfgkpstzh", Codas: crispCodas,
+	// nordic: crisp plus onset clusters, one per word.
+	nordic = &Style{
+		rules: rules1, blocks: blocklist1, Name: "nordic", Onsets: crispOnsets, Codas: crispCodas,
 		EndSuffixes: crispEndings, Harmony: false,
 		OnsetClusters: []string{"br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"},
 		MaxClusters:   1,
 	}
-	orkish14 = &Style{
+	// orkish: dark vowels, hard codas.
+	orkish = &Style{
 		rules: rules1, blocks: blocklist1, Name: "orkish", Onsets: "gkrzdbmn", Vowels: "aou",
 		Codas:       []string{"", "g", "k", "r", "z"},
 		EndSuffixes: []string{"ag", "ak", "uk", "ug", "ok", "ar", "or", "uz", "oz"},
 	}
-	elfish14 = &Style{
+	// elfish: light vowels, liquid onsets, at most one special vowel (ie, ae, io) per word.
+	elfish = &Style{
 		rules: rules1, blocks: blocklist1, Name: "elfish", Onsets: "lnmrvsfh", Vowels: "aeio",
 		Codas:          []string{"", "n", "l", "r", "s"},
 		EndSuffixes:    []string{"iel", "ion", "es", "is", "a", "e", "il", "ir", "ael", "ien"},
@@ -84,7 +76,8 @@ var (
 		MaxExtraNuclei: 1,
 		InitialVowel:   true,
 	}
-	alien14 = &Style{
+	// alien: long vowels, one onset cluster per word.
+	alien = &Style{
 		rules: rules1, blocks: blocklist1, Name: "alien", Onsets: "zkvtj", Vowels: "aiuo",
 		Codas:         []string{"", "n"},
 		EndSuffixes:   []string{"aan", "uun", "oon", "on", "ii", "uu", "a", "i"},
@@ -92,26 +85,24 @@ var (
 		MaxClusters:   1,
 		ExtraNuclei:   []string{"aa", "ii", "uu", "oo"},
 	}
-	soft12 = &Style{
-		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets11, Codas: softCodas,
-		EndSuffixes: softEndings, Harmony: true, Split: []int{2, 2},
+	// softDouble: soft as a double given name of 2-syllable words that grows.
+	softDouble = &Style{
+		rules: rules1, blocks: blocklist1, Name: styleSoft, Onsets: softOnsets, Codas: softCodas,
+		EndSuffixes: softEndings, Harmony: true, Split: []int{2, 2}, Grow: true,
 	}
 
 	// registry is frozen and append-only: the index is what names store. Entries may
 	// only be appended or retired; never reorder, edit or remove one.
 	registry = []Release{
-		{Label: "1.0.0+soft", style: soft10},
-		{Label: "1.0.0+crisp", style: crisp10},
-		{Label: "1.0.0+flowing", style: flowing10},
-		{Label: "1.1.0+soft", style: soft11},
-		{Label: "1.1.0+crisp", style: crisp11},
-		{Label: "1.1.0+flowing", style: flowing11},
-		{Label: "1.2.0+soft", style: soft12},
-		{Label: "1.3.0+lyric", style: lyric13},
-		{Label: "1.3.0+nordic", style: nordic13},
-		{Label: "1.4.0+orkish", style: orkish14},
-		{Label: "1.4.0+elfish", style: elfish14},
-		{Label: "1.4.0+alien", style: alien14},
+		{Label: "1.0.0+soft", style: soft},
+		{Label: "1.0.0+crisp", style: crisp},
+		{Label: "1.0.0+flowing", style: flowing},
+		{Label: "1.0.0+lyric", style: lyric},
+		{Label: "1.0.0+nordic", style: nordic},
+		{Label: "1.0.0+orkish", style: orkish},
+		{Label: "1.0.0+elfish", style: elfish},
+		{Label: "1.0.0+alien", style: alien},
+		{Label: "1.0.0+soft-double", style: softDouble},
 	}
 
 	labelIndex = map[string]int{}

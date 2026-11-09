@@ -39,7 +39,8 @@ flag "-t --time <duration>" default="30s" help="Fuzz time per target, e.g. 30s, 
 run = '''
 set -eu
 for target in FuzzRoundTrip FuzzDecode; do
-  go test -run '^$' -fuzz "^$target\$" -fuzztime "$usage_time" .
+  # at most 4 workers: each one builds every release's automaton
+  go test -run '^$' -fuzz "^$target\$" -fuzztime "$usage_time" -parallel 4 .
 done
 '''
 

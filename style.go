@@ -48,6 +48,10 @@ type Style struct {
 	Joinable bool
 	// InitialVowel lets a word start with a vowel-only syllable ("amira").
 	InitialVowel bool
+	// Grow adds words of the last Split length when the split's words are full.
+	// Names are numbered in blocks by word count (all 2-word names first), so the
+	// order is kept and there is no upper limit. Requires Split; not with Joinable.
+	Grow bool
 }
 
 // equal reports whether two styles produce the same names.
@@ -67,6 +71,9 @@ func (s *Style) equal(o *Style) bool {
 
 // build creates the style's automaton and checks its inventory and endings.
 func (s *Style) build() (*code, error) {
+	if s.Grow && (len(s.Split) == 0 || s.Joinable) {
+		return nil, fmt.Errorf("style %s: Grow needs Split and excludes Joinable", s.Name)
+	}
 	onsets := slices.Concat(strings.Split(s.Onsets, ""), s.OnsetClusters)
 	if s.InitialVowel {
 		onsets = append(onsets, "")
@@ -195,13 +202,20 @@ func (s *Style) shapeOK(q *state, p parts, last bool, finalOnly map[string]bool)
 	return true
 }
 
-// givenCapacity is the number of given names of a split style; nil means unlimited.
-func givenCapacity(s *Style, c *code) *big.Int {
-	if len(s.Split) == 0 {
-		return nil
+// shape is the syllables per word for a name of n given words; Grow repeats the
+// last length.
+func (s *Style) shape(n int) []int {
+	out := slices.Clone(s.Split)
+	for len(out) < n {
+		out = append(out, s.Split[len(s.Split)-1])
 	}
+	return out
+}
+
+// shapeCapacity is the number of given names of one fixed shape.
+func shapeCapacity(c *code, shape []int) *big.Int {
 	total := big.NewInt(1)
-	for _, k := range s.Split {
+	for _, k := range shape {
 		total.Mul(total, c.capacity(k))
 	}
 	return total
@@ -212,15 +226,27 @@ func encodeGiven(s *Style, c *code, x *big.Int) (string, error) {
 	if len(s.Split) == 0 {
 		return c.encodeVar(x)
 	}
-	if capacity := givenCapacity(s, c); x.Sign() < 0 || x.Cmp(capacity) >= 0 {
+	if x.Sign() < 0 {
+		return "", fmt.Errorf("%w: negative id", ErrOverflow)
+	}
+	shape, rest := s.Split, new(big.Int).Set(x)
+	if s.Grow {
+		for n := len(s.Split); ; n++ { // blocks by word count
+			shape = s.shape(n)
+			capN := shapeCapacity(c, shape)
+			if rest.Cmp(capN) < 0 {
+				break
+			}
+			rest.Sub(rest, capN)
+		}
+	} else if capacity := shapeCapacity(c, shape); rest.Cmp(capacity) >= 0 {
 		return "", fmt.Errorf("%w: split %v holds %s given names", ErrOverflow, s.Split, capacity)
 	}
-	rest := new(big.Int).Set(x)
-	words := make([]string, len(s.Split))
+	words := make([]string, len(shape))
 	digit := new(big.Int)
-	for i := len(s.Split) - 1; i >= 0; i-- { // mixed radix, first word most significant
-		rest.DivMod(rest, c.capacity(s.Split[i]), digit)
-		syls, err := c.unrank(digit, s.Split[i])
+	for i := len(shape) - 1; i >= 0; i-- { // mixed radix, first word most significant
+		rest.DivMod(rest, c.capacity(shape[i]), digit)
+		syls, err := c.unrank(digit, shape[i])
 		if err != nil {
 			return "", err
 		}
@@ -235,26 +261,32 @@ func decodeGiven(s *Style, c *code, words []string) (*big.Int, error) {
 	if err != nil {
 		return nil, err
 	}
-	if want := max(1, len(s.Split)); len(words) != want {
-		return nil, fmt.Errorf("%w: expected %d given word(s), got %d", ErrInvalidName, want, len(words))
-	}
 	if len(s.Split) == 0 {
+		if len(words) != 1 {
+			return nil, fmt.Errorf("%w: expected 1 given word, got %d", ErrInvalidName, len(words))
+		}
 		return c.decodeVar(words[0])
 	}
-	x := new(big.Int)
+	if len(words) < len(s.Split) || (!s.Grow && len(words) != len(s.Split)) {
+		return nil, fmt.Errorf("%w: expected %d given word(s), got %d", ErrInvalidName, len(s.Split), len(words))
+	}
+	shape, x := s.shape(len(words)), new(big.Int)
 	for i, w := range words {
 		syls, err := c.parse(w)
 		if err != nil {
 			return nil, err
 		}
-		if len(syls) != s.Split[i] {
-			return nil, fmt.Errorf("%w: %q has %d syllables, expected %d", ErrInvalidName, w, len(syls), s.Split[i])
+		if len(syls) != shape[i] {
+			return nil, fmt.Errorf("%w: %q has %d syllables, expected %d", ErrInvalidName, w, len(syls), shape[i])
 		}
 		r, err := c.rank(syls)
 		if err != nil {
 			return nil, err
 		}
-		x.Mul(x, c.capacity(s.Split[i])).Add(x, r)
+		x.Mul(x, c.capacity(shape[i])).Add(x, r)
+	}
+	for n := len(s.Split); n < len(words); n++ { // the shorter blocks come first
+		x.Add(x, shapeCapacity(c, s.shape(n)))
 	}
 	return x, nil
 }

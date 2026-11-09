@@ -16,8 +16,13 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
   syllable. States are discovered by search from `START`.
 - Variable length: all shorter names come before longer ones; `encode(0)` is the
   shortest name.
-- Covers all non-negative integers (no upper limit) for variable-length shapes.
-  Count tables use big integers once they outgrow 64 bits.
+- The format covers all non-negative integers for variable-length and growing
+  shapes. Count tables use big integers once they outgrow 64 bits.
+- SIZE LIMIT: implementations must support every ID up to 2⁵¹² − 1 and may reject
+  larger ones. The reference implementation rejects them by default (`MaxBits =
+  512`, configurable); it also rejects names longer than `MaxBits` letters before
+  doing any work (twice the longest name a 512-bit ID gets in any release), so
+  untrusted input can't make it build huge tables.
 
 ## 2. Syllables (base inventory)
 
@@ -99,7 +104,7 @@ commit, changes and its license (CC BY 4.0).
 
 - The registry is a frozen, append-only list; a name stores the list position,
   never the label.
-- Labels are semver with the style as build metadata: `1.1.0+crisp`. The major
+- Labels are semver with the style as build metadata: `1.0.0+crisp`. The major
   must equal the generation. Editing a style means a new release; old style
   definitions stay so old names keep decoding.
 - Registry checks: semver with `+build`, unique labels, at most `SLOTS` entries,
@@ -120,16 +125,19 @@ commit, changes and its license (CC BY 4.0).
   decodes names of releases retired since. An encoder with an older registry
   could still issue names in a release retired since; keep encoders current.
 
-| #   | Label                      | Notes                                         |
-| --- | -------------------------- | --------------------------------------------- |
-| 0–2 | `1.0.0+soft/crisp/flowing` | original styles                               |
-| 3–5 | `1.1.0+soft/crisp/flowing` | extra onsets: soft/flowing `j w`, crisp `h`   |
-| 6   | `1.2.0+soft`               | `split = (2, 2)`                              |
-| 7   | `1.3.0+lyric`              | vowel-only first syllable; `ai`, `oi` endings |
-| 8   | `1.3.0+nordic`             | onset clusters, at most one per word          |
-| 9   | `1.4.0+orkish`             | vowels `a o u`, hard codas `g k r z`          |
-| 10  | `1.4.0+elfish`             | `ie ae io`, at most one per word; `th`        |
-| 11  | `1.4.0+alien`              | long vowels; one cluster per word             |
+| #   | Label               | Notes                                                           |
+| --- | ------------------- | --------------------------------------------------------------- |
+| 0   | `1.0.0+soft`        | harmony; onsets `blmnrvdgjwhsz`, codas `n l r s`                |
+| 1   | `1.0.0+crisp`       | no harmony; onsets `bdfgkpstzh`, codas `n r s`                  |
+| 2   | `1.0.0+flowing`     | open syllables only                                             |
+| 3   | `1.0.0+lyric`       | vowel-only first syllable; `ai`, `oi` endings                   |
+| 4   | `1.0.0+nordic`      | onset clusters, at most one per word                            |
+| 5   | `1.0.0+orkish`      | vowels `a o u`, hard codas `g k r z`                            |
+| 6   | `1.0.0+elfish`      | `ie ae io`, at most one per word; `th`                          |
+| 7   | `1.0.0+alien`       | long vowels; one cluster per word                               |
+| 8   | `1.0.0+soft-double` | soft, `split = (2, 2)` with `grow`: 2-syllable words, 2 or more |
+
+All labels are `1.0.0`: the registry was curated once before the freeze.
 
 ## 6. Styles
 
@@ -152,8 +160,13 @@ commit, changes and its license (CC BY 4.0).
   vs. onset `tr`). A style that fails the check is rejected.
 - `split`: shape of the given name in syllables per word. `()` is one word of
   variable length. `(2, 2)` is two fixed words combined like digits
-  (word1 · capacity + word2); fixed capacity, overflow error beyond it. The
-  decoder expects exactly `len(split)` given words.
+  (word1 · capacity + word2); fixed capacity, overflow error beyond it.
+- `grow` (needs `split`, excludes `joinable`): when the split's words are full,
+  words of the last length are added (`bala-bema`, then `bamel-durwa-bari`, …).
+  Names are numbered in blocks by word count, all 2-word names first, so order is
+  kept and there is no upper limit. For the first block it equals the fixed split.
+- The decoder expects exactly `len(split)` given words, or at least that many with
+  `grow`.
 - `joinable`: decoding ignores separators inside the given name (see JOIN RULE).
   Allowed for single-word and split releases. No registered release uses it yet.
 - Build-time checks: the SPLIT RULE; no dead endings (endings match on nucleus +
@@ -195,7 +208,8 @@ commit, changes and its license (CC BY 4.0).
 - Same style, same rules: split shapes, `joinable`, the INPUT and JOIN rules
   apply unchanged. Order is preserved within a release.
 - Capacity: fixed shapes hold K times fewer IDs in the short form. For example
-  `1.2.0+soft` (2+2) holds 6,943,225 IDs short instead of 444,366,400 full.
+  a 2+2 split of soft would hold 59,721,984 IDs short instead of 3,822,206,976 full;
+  `1.0.0+soft-double` grows instead of overflowing.
   Variable-length shapes have no limit in either form.
 - Retired releases issue no short forms either.
 - Telling the forms apart: a name is in full form exactly when its last word
@@ -215,20 +229,21 @@ commit, changes and its license (CC BY 4.0).
   are rejected.
 - No guarantees the full form has: a short form doesn't identify its release,
   the same short form can decode in several releases, and it can be a valid
-  proquint (measured: up to 2.2% for `1.2.0+soft`). Machine-to-machine use must
+  proquint (measured: up to 3.6% for `1.0.0+soft-double`). Machine-to-machine use must
   use the full form.
 - Length, IDs uniform in Babbler's range 0 to 1,643,523 (Babbler: always 9
   characters):
 
-  | Release         | Full | Short |
-  | --------------- | ---- | ----- |
-  | `1.1.0+flowing` | 12.9 | 9.0   |
-  | `1.1.0+crisp`   | 14.1 | 9.0   |
-  | `1.1.0+soft`    | 13.8 | 9.1   |
-  | `1.2.0+soft`    | 17.2 | 10.4  |
+  | Release             | Full | Short |
+  | ------------------- | ---- | ----- |
+  | `1.0.0+nordic`      | 13.5 | 8.2   |
+  | `1.0.0+soft`        | 13.6 | 8.4   |
+  | `1.0.0+flowing`     | 12.9 | 9.0   |
+  | `1.0.0+crisp`       | 14.1 | 9.0   |
+  | `1.0.0+soft-double` | 17.4 | 10.7  |
 
-  Short forms are about as long as Babbler's names on that range; shorter for
-  small IDs, and they keep going past 1.6M.
+  Short forms of soft and nordic are shorter than Babbler's names on that range
+  (8.2–8.4 characters), the others about as long; all keep going past 1.6M.
 
 ## 9. Portability (frozen requirements for every implementation)
 
@@ -262,6 +277,8 @@ Also required:
   `int`). Implementations may use a 64-bit fast path, but it must give exactly
   the same names as the big-integer path.
 - Only `divmod` on non-negative integers; negative IDs are rejected.
+- Memory stays at states × lengths numbers: store only `count[n][q]` and add counts
+  while unranking and ranking; per-successor prefix tables cost gigabytes at 512 bits.
 - No hash functions anywhere in the format.
 
 ## 10. Conformance
@@ -271,7 +288,7 @@ Also required:
   blocklist digest and a sha256 over the rows.
 - `testdata/names/<slot>-<release>.txt`: one file per release, with the short and
   full form of 48 fixed IDs (boundary values up to 2²⁵⁶ − 1 and seeded random IDs
-  of 1–16 hex digits), including `<overflow>` rows for fixed-shape releases. IDs
+  of 1–16 hex digits); `<overflow>` rows would appear for fixed-shape releases. IDs
   beyond 64 bits get a table of their own, so they don't set the column widths.
 - The registry is append-only, so a released names file never changes: a diff in
   an existing file means a release was renamed. A new release adds a file; a file

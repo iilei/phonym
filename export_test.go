@@ -22,10 +22,9 @@ var (
 	ValidateEvolution = validateEvolution
 
 	// Styles of the current registry, for building trial registries.
-	Soft10  = soft10
-	Soft11  = soft11
-	Crisp11 = crisp11
-	Soft12  = soft12
+	Soft       = soft
+	Crisp      = crisp
+	SoftDouble = softDouble
 )
 
 // FamilyName returns the family name of a release slot and sibling.
@@ -68,13 +67,14 @@ func NewRelease(label string, style *Style, retired bool) Release {
 	return Release{Label: label, style: style, Retired: retired}
 }
 
-// WithJoinable returns a copy of a style with Joinable set, for JOIN RULE tests.
+// WithJoinable returns a copy of a style with Joinable set (and Grow cleared), for JOIN RULE tests.
 func WithJoinable(s *Style) *Style {
 	c := *s
 	c.Codas = slices.Clone(s.Codas)
 	c.EndSuffixes = slices.Clone(s.EndSuffixes)
 	c.Split = slices.Clone(s.Split)
 	c.Joinable = true
+	c.Grow = false // Grow excludes Joinable
 	return &c
 }
 

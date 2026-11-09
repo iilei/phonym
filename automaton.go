@@ -41,20 +41,17 @@ type (
 	stepFunc  func(q state, syl string) state
 	allowFunc func(q state, syl string, last bool) bool
 
-	// tables are the count and prefix-sum tables up to some length. Levels are never
-	// modified once built, so a snapshot of the slices is safe to read without a lock.
-	tables struct {
-		count  []map[state]*big.Int   // count[n][q]: valid n-syllable continuations from q
-		prefix []map[state][]*big.Int // prefix[n-1][q][i]: continuations covered by succ[q][:i]
-	}
-
 	// code ranks and unranks syllable sequences accepted by one automaton.
-	// Count tables grow on demand, so there is no length limit.
+	// Count tables grow on demand, so there is no length limit. Only counts are
+	// stored (count[n][q] per length and state); unranking adds them up as it goes,
+	// so memory stays at states x lengths numbers.
 	code struct {
 		step   stepFunc
 		succ   map[succKey][]string
 		index  map[succKey]map[string]int
-		tab    tables
+		id     map[state]int // state -> position in states
+		next   [][]int       // next[q][i]: state after succ[q, not last][i]
+		count  [][]*big.Int  // count[n][q]: valid n-syllable continuations from state q
 		states []state
 		mu     sync.Mutex
 		maxSyl int
@@ -96,86 +93,99 @@ func newCode(inv syllableSet, step stepFunc, allowed allowFunc) *code {
 	for _, s := range inv.names {
 		c.maxSyl = max(c.maxSyl, len(s))
 	}
-	one := map[state]*big.Int{}
-	for _, q := range c.states {
-		one[q] = big.NewInt(1)
+	c.id = make(map[state]int, len(c.states))
+	for i, q := range c.states {
+		c.id[q] = i
 	}
-	c.tab.count = []map[state]*big.Int{one}
+	c.next = make([][]int, len(c.states))
+	for i, q := range c.states {
+		succ := c.succ[succKey{q, false}]
+		c.next[i] = make([]int, len(succ))
+		for j, s := range succ {
+			c.next[i][j] = c.id[step(q, s)]
+		}
+	}
+	one := make([]*big.Int, len(c.states))
+	for i := range one {
+		one[i] = big.NewInt(1)
+	}
+	c.count = [][]*big.Int{one}
 	return c
 }
 
-// tablesUpTo extends the tables to length n and returns a snapshot of them.
-func (c *code) tablesUpTo(n int) tables {
+// countsUpTo extends the count tables to length n and returns a snapshot of them.
+// Levels are never modified once built, so the snapshot is safe to read unlocked.
+func (c *code) countsUpTo(n int) [][]*big.Int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	for len(c.tab.count) <= n {
-		m := len(c.tab.count) // computing count[m]
-		prev, last := c.tab.count[m-1], m == 1
-		count := map[state]*big.Int{}
-		prefix := map[state][]*big.Int{}
-		for _, q := range c.states {
-			succ := c.succ[succKey{q, last}]
-			sums := make([]*big.Int, 0, len(succ)+1)
-			acc := new(big.Int)
-			sums = append(sums, new(big.Int))
-			for _, s := range succ {
-				if last {
-					acc.Add(acc, big.NewInt(1))
-				} else {
-					n, ok := prev[c.step(q, s)]
-					if !ok {
-						panic(fmt.Sprintf("phonym: state after %q was not discovered", s))
-					}
-					acc.Add(acc, n)
-				}
-				sums = append(sums, new(big.Int).Set(acc))
+	for len(c.count) <= n {
+		m := len(c.count) // computing count[m]
+		prev := c.count[m-1]
+		level := make([]*big.Int, len(c.states))
+		for i, q := range c.states {
+			if m == 1 {
+				level[i] = big.NewInt(int64(len(c.succ[succKey{q, true}])))
+				continue
 			}
-			prefix[q] = sums
-			count[q] = sums[len(sums)-1]
+			sum := new(big.Int)
+			for _, nx := range c.next[i] {
+				sum.Add(sum, prev[nx])
+			}
+			level[i] = sum
 		}
-		c.tab.count = append(c.tab.count, count)
-		c.tab.prefix = append(c.tab.prefix, prefix)
+		c.count = append(c.count, level)
 	}
-	return tables{count: c.tab.count[:n+1], prefix: c.tab.prefix[:n]}
+	return c.count[:n+1]
 }
 
 // capacity is the number of k-syllable sequences. The result must not be modified.
 func (c *code) capacity(k int) *big.Int {
-	return c.tablesUpTo(k).count[k][startState]
+	return c.countsUpTo(k)[k][0] // state 0 is startState
 }
 
 // unrank returns the k-syllable sequence with rank x (0 <= x < capacity(k)).
 func (c *code) unrank(x *big.Int, k int) ([]string, error) {
-	t := c.tablesUpTo(k)
-	if x.Sign() < 0 || x.Cmp(t.count[k][startState]) >= 0 {
+	count := c.countsUpTo(k)
+	if x.Sign() < 0 || x.Cmp(count[k][0]) >= 0 {
 		return nil, fmt.Errorf("%w: %s out of range for length %d", ErrOverflow, x, k)
 	}
 	rest := new(big.Int).Set(x)
-	q, out := startState, make([]string, 0, k)
-	for remaining := k; remaining > 0; remaining-- {
-		pre := t.prefix[remaining-1][q]
-		i := sort.Search(len(pre), func(j int) bool { return pre[j].Cmp(rest) > 0 }) - 1
-		rest.Sub(rest, pre[i])
-		syl := c.succ[succKey{q, remaining == 1}][i]
-		out = append(out, syl)
-		q = c.step(q, syl)
+	qi, out := 0, make([]string, 0, k)
+	for remaining := k; remaining > 1; remaining-- {
+		succ := c.succ[succKey{c.states[qi], false}]
+		for j, nx := range c.next[qi] {
+			if n := count[remaining-1][nx]; rest.Cmp(n) >= 0 {
+				rest.Sub(rest, n)
+				continue
+			}
+			out = append(out, succ[j])
+			qi = nx
+			break
+		}
 	}
+	// the last syllable: every allowed one completes exactly one name
+	out = append(out, c.succ[succKey{c.states[qi], true}][rest.Int64()])
 	return out, nil
 }
 
 // rank returns the rank of a syllable sequence among sequences of its length.
 func (c *code) rank(syls []string) (*big.Int, error) {
-	t := c.tablesUpTo(len(syls))
-	q, x := startState, new(big.Int)
+	count := c.countsUpTo(len(syls))
+	qi, x := 0, new(big.Int)
 	for i, syl := range syls {
 		remaining := len(syls) - i
-		key := succKey{q, remaining == 1}
-		j, ok := c.index[key][syl]
+		j, ok := c.index[succKey{c.states[qi], remaining == 1}][syl]
 		if !ok {
 			return nil, fmt.Errorf("%w: syllable %q not allowed here", ErrInvalidName, syl)
 		}
-		x.Add(x, t.prefix[remaining-1][q][j])
-		q = c.step(q, syl)
+		if remaining == 1 {
+			x.Add(x, big.NewInt(int64(j)))
+			break
+		}
+		for _, nx := range c.next[qi][:j] {
+			x.Add(x, count[remaining-1][nx])
+		}
+		qi = c.next[qi][j]
 	}
 	return x, nil
 }

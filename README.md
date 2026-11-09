@@ -3,15 +3,16 @@
 Pronounceable, versioned names for integers, and back.
 
 ```text
-4711        → badil-duljav            (1.1.0+soft)
-0x62e6b43   → manwuduma-dulmav
-0x62e6b43   → besanhagon-vunfus       (1.1.0+crisp)
-4711        → bala-bema-wovlov        (1.2.0+soft, double given name)
+4711        → sa-karven               (1.0.0+soft)
+0x62e6b43   → banjuvazan-kargin
+0x62e6b43   → besanhagon-hulnus       (1.0.0+crisp)
+4711        → bala-bazan-golhul       (1.0.0+soft-double)
 ```
 
 phonym maps every non-negative integer to a name made of a **given name** and a
 **family name**, and every name back to its integer. The mapping is an
-order-preserving bijection, has no upper limit (256-bit IDs work), and is defined
+order-preserving bijection, handles IDs up to 512 bits by default (SHA-512
+digests, UUIDs, keys; the format itself has no limit), and is defined
 by a frozen, versioned spec: [SPEC.md](SPEC.md).
 
 > **Status:** pre-release. The spec is a draft and not yet frozen, so names may
@@ -20,7 +21,7 @@ by a frozen, versioned spec: [SPEC.md](SPEC.md).
 ## Why another one
 
 - **Names describe themselves.** The family name carries the *release*, the spec
-  version the name was made with. `badil-duljav` decodes without any
+  version the name was made with. `sa-karven` decodes without any
   configuration, and a decoder can tell when a name is newer than it knows.
 - **Releases make the vocabulary evolvable.** Sound rules, styles and the
   blocklist change through new releases. Old names keep decoding; an ID can be
@@ -38,7 +39,7 @@ by a frozen, versioned spec: [SPEC.md](SPEC.md).
 - **Never a proquint.** Family names always have the shape CVC-CVC (6 letters),
   so a phonym name can never be mistaken for a proquint.
 - **Short form.** Where the release is known from context, the given name alone
-  (`bajowa`) is about as short as fixed-length schemes, and keeps growing past
+  (`gorna`) is about as short as fixed-length schemes, and keeps growing past
   their limits.
 
 ## Install
@@ -50,11 +51,11 @@ go install github.com/iilei/phonym/cmd/phonym@latest
 ## Command line
 
 ```sh
-phonym 4711                          # badil-duljav   (default release 1.1.0+soft)
-phonym -release 1.1.0+crisp 4711     # bago-vunzov
-phonym -short 4711                   # bajowa
-phonym decode "Badil Duljav"         # 4711  1.1.0+soft  full
-phonym decode -release 1.1.0+soft bajowa
+phonym 4711                          # sa-karven      (default release 1.0.0+soft)
+phonym -release 1.0.0+crisp 4711     # bago-huvbus
+phonym -short 4711                   # gorna
+phonym decode "Sa Karven"            # 4711  1.0.0+soft  full
+phonym decode -release 1.0.0+soft gorna
 phonym releases                      # list the registry
 ```
 
@@ -65,16 +66,20 @@ RULE in the spec.
 ## Library
 
 ```go
-name, err := phonym.EncodeUint64(4711, "1.1.0+crisp") // "bago-vunzov"
-short, err := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp") // "bagekir"
+name, err := phonym.EncodeUint64(4711, "1.0.0+crisp") // "bago-huvbus"
+short, err := phonym.EncodeShort(big.NewInt(4711), "1.0.0+crisp") // "bagekir"
 
-d, err := phonym.Decode("bago-vunzov", "")      // d.ID = 4711, d.Release = "1.1.0+crisp"
-d, err = phonym.Decode("bagekir", "1.1.0+crisp") // short forms need the release
+d, err := phonym.Decode("bago-huvbus", "")      // d.ID = 4711, d.Release = "1.0.0+crisp"
+d, err = phonym.Decode("bagekir", "1.0.0+crisp") // short forms need the release
 ```
 
 Errors wrap one of `ErrInvalidName`, `ErrUnsupportedFormat`,
 `ErrUnsupportedRelease`, `ErrUnknownRelease`, `ErrRetiredRelease` and
 `ErrOverflow`; use `errors.Is`.
+
+IDs above 512 bits are rejected, and so are names longer than 512 letters, so
+untrusted input stays cheap to decode. `phonym.WithMaxBits(n)` (CLI: `-max-bits`)
+raises the limit.
 
 phonym preserves order and does not scramble IDs. If sequential IDs should not
 look sequential, permute them yourself before encoding (for example with a
@@ -82,16 +87,17 @@ Feistel network or `(a·x + c) mod n`).
 
 ## Releases
 
-| Slot | Release                                      | Given name                                            |
-| ---- | -------------------------------------------- | ----------------------------------------------------- |
-| 0–2  | `1.0.0+soft`, `1.0.0+crisp`, `1.0.0+flowing` | one word, variable length                             |
-| 3–5  | `1.1.0+soft`, `1.1.0+crisp`, `1.1.0+flowing` | one word, variable length                             |
-| 6    | `1.2.0+soft`                                 | two words of 2 syllables (`bala-bema`)                |
-| 7    | `1.3.0+lyric`                                | melodic: may start with a vowel, may end in `ai`/`oi` |
-| 8    | `1.3.0+nordic`                               | hard: one onset cluster per word (`kobrokofako`)      |
-| 9    | `1.4.0+orkish`                               | dark and harsh (`bazgorunuk`)                         |
-| 10   | `1.4.0+elfish`                               | light and flowing (`vaelmoniltha`)                    |
-| 11   | `1.4.0+alien`                                | strange, long vowels (`ktakovaakon`)                  |
+| Slot | Release             | Given name                                                               |
+| ---- | ------------------- | ------------------------------------------------------------------------ |
+| 0    | `1.0.0+soft`        | soft: vowel harmony, voiced and liquid onsets (`banjuvazan`)             |
+| 1    | `1.0.0+crisp`       | crisp: voiceless onsets, no harmony (`besanhagon`)                       |
+| 2    | `1.0.0+flowing`     | open syllables only (`lerinimiwa`)                                       |
+| 3    | `1.0.0+lyric`       | melodic: may start with a vowel, may end in `ai`/`oi` (`jomaganolboi`)   |
+| 4    | `1.0.0+nordic`      | hard: one onset cluster per word (`kobrokofako`)                         |
+| 5    | `1.0.0+orkish`      | dark and harsh (`bazgorunuk`)                                            |
+| 6    | `1.0.0+elfish`      | light and flowing (`vaelmoniltha`)                                       |
+| 7    | `1.0.0+alien`       | strange, long vowels (`ktakovaakon`)                                     |
+| 8    | `1.0.0+soft-double` | soft as 2-syllable words that grow: `bala-bema`, then `bamel-durwa-bari` |
 
 The semver major equals the family-name *generation* (the shape CVC-CVC is
 generation 1). The registry is append-only.

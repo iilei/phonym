@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+nordic (slot 4)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=720c9b7a0344ce9b
+#
+# IDs up to 64 bits
+#             id  short                       full
+               0  bar                         bar-vunfas
+               1  bir                         bar-vunfav
+               3  bo                          bar-vunfus
+              3f  bros                        bar-vurdav
+              40  drar                        bir-vunfas
+              41  drir                        bir-vunfav
+              5a  tris                        bir-vunrov
+              8d  bafos                       bis-vunkus
+             335  bonpro                      far-vunwav
+             ae7  futron                      to-vunzov
+            6f11  banfadis                    bento-vunlov
+            7c95  bantiklon                   besflo-vunpov
+           1216f  benprobir                   daglos-vunjas
+           3eaed  detonglo                    kegis-vunhus
+          873b20  bezondrozon                 botirgo-vuntas
+          eecf63  birkutarfo                  dasguto-vuntus
+          ffffff  bispribado                  deblotis-vurdav
+         1000000  bispribadon                 debloto-vunfas
+         286a22a  doherfrokir                 genzeho-vunhas
+         f07b2f6  gruhandukos                 baturpedir-vunwov
+         fffffff  fregirzapar                 bahedizir-vurdav
+        10000000  fregirzapir                 bahedizis-vunfas
+        4481567b  behesarbibrir               bosengreso-vurbov
+        8e3cf6de  boponzokopron               ditorsidar-vunsov
+        ffffffff  defusezebris                fondebrurbo-vurdav
+       636bc30c1  zasfuklehetis               basatiskigir-vunfav
+       ef9bd1895  bazugahanpehos              begahusgrofos-vunpov
+      61294d2956  buskuhangapabrar            dunfugenkepis-vunpus
+      fed78a925f  forkedizonglihar            pankugisbrahir-vunsul
+      ffffffffff  fortupinprisifon            panflesahogon-vurdav
+     395eb6099c5  grahapurkusatis             bazadirfletigos-vungas
+     dd84d70b56c  bekukrinbuzasbezos          bintuzafirtuplon-vunhov
+    47b06665a016  dobefasgratigodar           gandofasgeheglar-vunpus
+    7c7a5edd8d84  futesfeturzigezon           pitigespodorflo-vunful
+    ffffffffffff  purglosoturhezusgo          flargapertebonso-vurdav
+   ae1af9435f19c  bikrakohaspadizudar         burgasorgiblebazar-vunrul
+   ec5386b509570  boplisdeheskidoskazar       denpefragusarhikar-vunjav
+  2639dff89fa6f2  durgiprefonkubonkuhon       ginblisogensibirzo-vunjus
+  d67ad7b358491f  badenzafikurbliderkato      badrintigukupunsidos-vunsul
+  ffffffffffffff  bagirbesurfretedobizir      banteklonbaterfuburpo-vurdav
+ 3f4efbb3009e56b  besgahublifizodirzedo       borpaserpihezerbrahar-vunhav
+ 50d5843b27fc656  binsadarglazangahosdepir    busgiglendehitinfubis-vunpus
+844313d2d875c424  bapuzograbitanfizastagar    barsifliherzetazersutir-vuntul
+a172317228b05ded  bahinfiplorfugespehekerto   bedinplokinsetarsihofo-vunhus
+ffffffffffffffff  basgefansifisboturgisobris  beskipitrohosahuskabo-vurdav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                        full
+                                               10000000000000000  basgefansifisboturgisobro                                                                    beskipitrohosahuskabon-vunfas
+                                ffffffffffffffffffffffffffffffff  firgibepurbasenbufiterdudrepankazutarkigendifos                                              kesufapohunblogarfukefeshokenzoterboposfuzar-vurdav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  kibenzohorzabondeposunbodanteguhubudusfosotabehapenzapezenbahetasdesongipresfutenhekorhobon  teziskedensahakazosfokursihutisingadonpisankuzontakorzekiziklenzedutikinhapekafosbesuzo-vurdav

@@ -1,56 +1,56 @@
 # phonym names: 1.0.0+soft (slot 0)
-# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=5981756a65047642
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=9083c10eb5db6550
 #
 # IDs up to 64 bits
-#             id  short                          full
-               0  ba                             ba-kargas
-               1  ban                            ba-kargav
-               3  bi                             ba-kargin
-              3f  badil                          ba-karjul
-              40  baga                           ban-kargas
-              41  bagan                          ban-kargav
-              5a  belan                          ban-karsav
-              8d  bila                           bel-karmul
-             335  ralni                          mil-karhin
-             ae7  bagalmi                        bami-karven
-            6f11  nelverel                       manda-karnus
-            7c95  ralinri                        menda-karpen
-           1216f  bamalnoga                      vonga-karzov
-           3eaed  biribidil                      baldinel-karzen
-          873b20  bilandivandi                   bangabidi-kartav
-          eecf63  lagerelbila                    bimenbama-kartov
-          ffffff  lebevelbama                    bivendemi-karjul
-         1000000  lebevelbaman                   bivendemil-kargas
-         286a22a  noldobalgoda                   maganvina-karvul
-         f07b2f6  berelmabenilvi                 badebingiva-karhov
-         fffffff  bedelmigelbevan                bagadovaba-karjul
-        10000000  bedelmigelbevel                bagadovaban-kargas
-        4481567b  mingibenlidini                 legalideva-karjen
-        8e3cf6de  volguramundaba                 nalgelangeva-karsul
-        ffffffff  banolbamolvodaba               damanganegi-karjul
-       636bc30c1  lidenvilenravebil              bilgemingadagil-kargav
-       ef9bd1895  revaldelangedara               mevelbamivama-karpen
-      61294d2956  belvedalvalibadeva             banvadangiderelbi-karpin
-      fed78a925f  lunbodanulvodolnaman           bunalmodonlaboran-kartas
-      ffffffffff  lunvodalguranoguran            buralungabuvalga-karjul
-     395eb6099c5  galmalaburudangoba             rangalanibanvidil-kargus
-     dd84d70b56c  belveranilidimanrebi           banvanulgabulmodura-karzav
-    47b06665a016  ranaradinelmidageman           manvamonlaruvuranva-karpin
-    7c7a5edd8d84  dumunbagonlubalodunva          ralidelnegamandaga-kargov
-    ffffffffffff  bagedavemiranvagevari          balarilgevagandilidel-karjul
-   ae1af9435f19c  ralgabilemaginbemengevi        melenavedilgibavigan-karsin
-   ec5386b509570  vildaranladilnevalmaliba       naginremevinbanelaba-karzus
-  2639dff89fa6f2  banlavabaremidenelvebedil      balimeribavimaginidil-karhas
-  d67ad7b358491f  mandagabengilenbidigilderi     lanibangivegimanlidilgi-kartas
-  ffffffffffffff  midavidamenalidirelveli        lenilvidanadanlaganlani-karjul
- 3f4efbb3009e56b  baradangevelbemanradaridalga   danbavumulnumuldolonvadan-karzas
- 50d5843b27fc656  bagalemandimenilgirenvadalva   gonravunbomalgamunlogoma-karpin
-844313d2d875c424  banalabanramavalmarinvenedila  vidilvibanaldanelvilamali-kartus
-a172317228b05ded  bavebelmavelbedinalgeveranara  dubamuvonbamadabulgoroma-karzen
-ffffffffffffffff  balvobunralagaronalmuruvoboda  barangevenladanbavilnebilveda-karjul
+#             id  short                     full
+               0  ba                        ba-kargas
+               1  ban                       ba-kargav
+               3  bel                       ba-kargin
+              3f  wi                        ba-karjul
+              40  wil                       ban-kargas
+              41  wis                       ban-kargav
+              5a  balis                     ban-karsav
+              8d  bawel                     bar-karmul
+             335  larhi                     ma-karhin
+             ae7  rilgi                     dil-karven
+            6f11  berezis                   bigis-karnus
+            7c95  bezala                    binzi-karpen
+           1216f  lajisha                   lonra-karzov
+           3eaed  rejelga                   dirvi-karzen
+          873b20  lirnesilma                marsemi-kartav
+          eecf63  nahimasan                 ranlewa-kartov
+          ffffff  nejasgana                 reldanar-karjul
+         1000000  nejasganar                reldanel-kargas
+         286a22a  jislirenji                samisha-karvul
+         f07b2f6  benjamewenar              bihernezel-karhov
+         fffffff  beljiminwidis             binzahersa-karjul
+        10000000  beljiminwiga              binzahersi-kargas
+        4481567b  minbisilwanar             niziheswa-karjen
+        8e3cf6de  vonorsajosar              girvadarmi-karsul
+        ffffffff  harvagarnevil             baluswahasja-karjul
+       636bc30c1  bidenbamilgebis           boharvadarza-kargav
+       ef9bd1895  lisdisihandama            maswonurwujar-karpen
+      61294d2956  zalwomunvujanar           banobarmovalga-karpin
+      fed78a925f  balwejarzagirdegel        belabelarjavan-kartas
+      ffffffffff  balwonulzubarmular        belasdeminbima-karjul
+     395eb6099c5  lansunovaludunha          lindaginrizewa-kargus
+     dd84d70b56c  vejasdihaljadarhi         dusmazorgamovan-karzav
+    47b06665a016  banwanezerwereslajis      barjigihildasavar-karpin
+    7c7a5edd8d84  behalmiselajergeza        bimasjawibasirda-kargov
+    ffffffffffff  buswugorulurvunular       legasagasilwibil-karjul
+   ae1af9435f19c  zormagalsujunalanwa       barugoldozonrowulja-karsin
+   ec5386b509570  bavilzadarbaheldenela     bahilvesigesjegesji-karzus
+  2639dff89fa6f2  bedenlawalbilazensawar    beslimindihesjalirel-karhas
+  d67ad7b358491f  mujulusonzanorhamurna     nulwojuslazabadalva-kartas
+  ffffffffffffff  niligarzimenislejava      roganzudoswomazada-karjul
+ 3f4efbb3009e56b  bamenrehewirhiwashadisli  badusudovulzojubawan-karzas
+ 50d5843b27fc656  badeswabamesdeveralena    bazawesawirhanesgilis-karpin
+844313d2d875c424  vonzajubuzasrusumosguva   gerhanerzabalmanisenri-kartus
+a172317228b05ded  gajinhegenavamanriseji    wazelsirelbajahilvibar-karzen
+ffffffffffffffff  sawasdovarmonarganolosa   bamirajelbanirsewejasha-karjul
 #
 # IDs beyond 64 bits
-#                                                             id  short                                                                                                           full
-                                               10000000000000000  balvobunralagaronalmuruvobodan                                                                                  barangevenladanbavilnebilvedan-kargas
-                                ffffffffffffffffffffffffffffffff  linabiveganbamagadanemarelimendeleranleginleribaldigedil                                                        bilminedanvelivinbidalneginbedegilvarilbamegademivegeban-karjul
-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  balvaridamilvemilnibinlivenaledimebiverenbavilivengireldimagederedenlivelevegemagivirelmanibanivedigibanarevil  baramenvanimilbimilvagedelgaribavinbamilabinidilmedirimaldamanligalvelebavelnegamagevamidivibinimeribalginigel-karjul
+#                                                             id  short                                                                                                full
+                                               10000000000000000  sawasdovarmonarganolosan                                                                             bamirajelbanirsewejashi-kargas
+                                ffffffffffffffffffffffffffffffff  zurnoganwojurhulurwumurbalagoshadolvobunzuhogaban                                                    bavanrugalhadunasodunjoharadurhujusdugaronjadan-karjul
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  bavisbezasnigesmijarhezinramiselanvahisrevirwehenlevewerenzederbelasbigerenjibasribelmavasnemanwera  bahorborojarhuwonsamajonoldosolvaburwudularhorogunlujalsahabalnogalborolzudojuruswobunsobolnuwa-karjul

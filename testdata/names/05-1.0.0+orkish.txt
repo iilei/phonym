@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+orkish (slot 5)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=19ef062ca7c9bc2b
+#
+# IDs up to 64 bits
+#             id  short                           full
+               0  gak                             gak-marbov
+               1  gar                             gak-marbus
+               3  gor                             gak-mardas
+              3f  gakag                           gak-marzin
+              40  gakar                           gar-marbov
+              41  gakor                           gar-marbus
+              5a  gaduk                           gar-marken
+              8d  godok                           gok-marfin
+             335  domug                           kuz-martus
+             ae7  gakmobuz                        buk-marpin
+            6f11  rogzudok                        ranuz-margas
+            7c95  rugbunak                        ronug-margov
+           1216f  mozaguk                         mugak-marsul
+           3eaed  gozurkunor                      gazrakag-marsin
+          873b20  gazdanogzudoz                   gaduzramor-marnav
+          eecf63  gozmadornubuz                   gorudomok-marnul
+          ffffff  gurukazdobuk                    godorugak-marzin
+         1000000  gurukazdobuz                    godorugar-marbov
+         286a22a  kurmanugronak                   kodagrogak-marpul
+         f07b2f6  gabazugmurozag                  garagdubadok-martul
+         fffffff  gabunuzordukag                  garugbumodor-marzin
+        10000000  gabunuzordukar                  garugbumodoz-marbov
+        4481567b  kagbazakugmukug                 gubogmorumug-marvul
+        8e3cf6de  roznuzodogbadar                 kugubuzraguk-markul
+        ffffffff  durkobagdamagar                 zarkurokmador-marzin
+       636bc30c1  goknukugbumurkadak              gazbozamoznokor-marbus
+       ef9bd1895  kogzanurzonarzogak              karonogdurozar-margov
+      61294d2956  gazobarmagakrumabak             nogodakuznorok-margus
+      fed78a925f  gomugronugmakuzgazar            garnuzurdobogzaguk-marnas
+      ffffffffff  gomurnakozanurgabuz             gazragoknodogbamor-marzin
+     395eb6099c5  rabugdamarkunordaruk            koboznagamuzakag-marden
+     dd84d70b56c  gakorgabunadogarbokuz           burkagomuzagnoruz-marsen
+    47b06665a016  gurdabuknogunadugamak           gorzudanazdanozmanuz-margus
+    7c7a5edd8d84  kozruzurgamakoznomadak          kamarzonarkobugmugak-mardav
+    ffffffffffff  zormukozbazamogurbudor          rodubakmanazrudunuk-marzin
+   ae1af9435f19c  gubagumozbuzormonurzorak        gomoknukabagnudorkodug-markov
+   ec5386b509570  kabokmarazumaknumozgokag        guroznokodomukozubuz-martas
+  2639dff89fa6f2  zabugnoburdoruzduzudokuz        ragodabadurabunurag-marten
+  d67ad7b358491f  garzudogomoboroznomagbokar      gabakoramaborgozunuzug-marnas
+  ffffffffffffff  gazmagazunokumonugbugodug       ganarzagurdanozganarkudor-marzin
+ 3f4efbb3009e56b  kuzugbazakogbugozmubukmobuz     kagdomubazamuzboguknakag-marsav
+ 50d5843b27fc656  raknazanazobuzugnuraznudak      kogbomozrokorburobokubag-margus
+844313d2d875c424  kazragobazmogornokadaromugar    gukmanarognukomurogbodokoz-marpas
+a172317228b05ded  korbokoznubuknuzuknumanuzragoz  kaduburduruzgadubogradonor-marsin
+ffffffffffffffff  rozmubogdokoznubargubadugmobuk  kuduruzdukagrodornokugukag-marzin
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                       full
+                                               10000000000000000  rozmubogdokoznubargubadugmobuz                                                                              kuduruzdukagrodornokugukar-marbov
+                                ffffffffffffffffffffffffffffffff  guzokmabognukozmuzagbokuznobodoknoraboguknorudozganorguzug                                                  gobokruzaromazugarmanabarmuranabarzomaknagunamokuduk-marzin
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  zumuknokurgomaraguzokarbuzagnoboguzogonozognumodoknuzudozakabudunormogazurodonakmudugorokmugamuznumuzbanor  rogzunorgorobardazarkodogzadanazmodugnumaruzumozomurzugokornamugnugurnokornadorkogurnuragarukarzunagramabomor-marzin

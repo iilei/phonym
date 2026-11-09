@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+alien (slot 7)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=eaf6d022dfe3a3e5
+#
+# IDs up to 64 bits
+#             id  short                               full
+               0  za                                  za-sirgin
+               1  zi                                  za-sirkas
+               3  zaan                                za-sirken
+              3f  kta                                 za-silnav
+              40  kti                                 zi-sirgin
+              41  kton                                zi-sirkas
+              5a  zataan                              zi-sirhas
+              8d  zanvii                              zon-sirpen
+             335  zoonjii                             kii-silgin
+             ae7  taazvuun                            zvii-silbav
+            6f11  zunvooton                           zonkvi-sirten
+            7c95  zovotluun                           zaakvaan-sirvin
+           1216f  katinzva                            kozvi-silfav
+           3eaed  tuukiinjii                          zvinkii-sildin
+          873b20  kuutonkiizvi                        koontlaakuu-sirjen
+          eecf63  tinvoziinva                         taankoktuun-sirwav
+          ffffff  tonkajanza                          tuunjoza-silnav
+         1000000  tonkajanzi                          tuunjozi-sirgin
+         286a22a  zatuukuunktoovaan                   zajuktaanji-sildas
+         f07b2f6  ziinkoojaatovoon                    ziinkvokavii-silkas
+         fffffff  zuukuuntiijoozva                    zuujinviiza-silnav
+        10000000  zuukuuntiijoozvi                    zuujinviizi-sirgin
+        4481567b  taatlootaavonja                     tiinkakvozuun-silmav
+        8e3cf6de  zaviikaazvojokoon                   zaviitloonvajii-sirjas
+        ffffffff  zanktakanzajaaza                    zantlutiivita-silnav
+       636bc30c1  kuzonktikuvunzii                    kinjiitajunka-sirkas
+       ef9bd1895  tivaatankikvinjii                   tanjiitliivanzuu-sirvin
+      61294d2956  zukaktiinvakozokoon                 zinjokojozvinzii-sirzas
+      fed78a925f  zuujuuntlakiinjikanza               zuuvozuuntookvaanjii-sirjav
+      ffffffffff  zuuzviijankiijuzuunka               zuuviiziinvajanza-silnav
+     395eb6099c5  tijikvaakaanjuvazuun                takiintaazutinva-sirmas
+     dd84d70b56c  zanjuuziintlokanjoozojuu            zantojookutoonzvuujuun-silden
+    47b06665a016  kazanzvujotoovuunjuvoon             zoojituujuunktozuunki-sirzas
+    7c7a5edd8d84  kuujaankujaktikavuunki              kiijunvuuktuunzookoonvuu-sirkin
+    ffffffffffff  tuutliijoonzuvanzajaaza             taajozuunkiivizuka-silnav
+   ae1af9435f19c  ziikovootlaavozoojoozaajuu          zaakvojuuzuvizunjazoon-sirhen
+   ec5386b509570  zoovazanvuzukvankaavuuti            zuujaazuunjitlujookatuun-silfen
+  2639dff89fa6f2  vonzuujunkizvuunvatoonzitaan        vinkvajiivutinviijookii-silgas
+  d67ad7b358491f  zivaajaantiijaankaktiitozuka        zikijuunzizvokaatanzokuu-sirjav
+  ffffffffffffff  zitlooviitoonkatiizaankajaaza       zitiinvoozitaziizvaavita-silnav
+ 3f4efbb3009e56b  kaktonzuvuuzuukuutiijiinviikii      zoonkooktaanjivaajanzoovoozuun-sildav
+ 50d5843b27fc656  kovonjikoonviizvujuutunkaatoon      kuzunvaajavoonkazvaakaajon-sirzas
+844313d2d875c424  zaanvajinzojizvoozokoojutaanki      zaakoojukizankvivijaavoozi-sirwen
+a172317228b05ded  ziinjaaziikuuntazantiizintlotanjii  ziivaazookuunjazonkvajoozonta-sildin
+ffffffffffffffff  kintaajotaanzatuuvonzvookajaaza     kanvajozvakinjukanzajaaza-silnav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                                         full
+                                               10000000000000000  kintaajotaanzatuuvonzvookajaazi                                                                                               kanvajozvakinjukanzajaazi-sirgin
+                                ffffffffffffffffffffffffffffffff  kaanzavijoozivintijinvuujiikoonjutoojazatlaantikanviijuzuunka                                                                 kuzvajuuviijinzajuukanzajuvookaanvaazaatuunkiitunzikajaaza-silnav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  zakutuunziivoozakuntaavuunzvotinvozuukiviinjivazinkovaanjookontizonkuvaantajuukiivojovuuntaakovantikiiviikanzotoojaanzajaaza  jozvatuuzuunkuutiinzuutokiinzojavoozunkozikivoozaankutuunkuutinkiitonkujoontuujaakinzutankaajoonkaazankaavojikanviijuzuunka-silnav

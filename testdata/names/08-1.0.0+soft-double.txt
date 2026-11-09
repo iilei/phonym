@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+soft-double (slot 8)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=7943b922c423c85d
+#
+# IDs up to 64 bits
+#             id  short                          full
+               0  bala-bala                      bala-bala-golkav
+               1  bala-balan                     bala-bala-golkov
+               3  bala-bali                      bala-bala-golkul
+              3f  bala-bahi                      bala-bala-govlus
+              40  bala-bahil                     bala-balan-golkav
+              41  bala-bahis                     bala-balan-golkov
+              5a  bala-banji                     bala-balan-goltul
+              8d  bala-basma                     bala-balar-golnul
+             335  bala-lehel                     bala-bana-govbus
+             ae7  bala-rosla                     bala-bagil-golhul
+            6f11  bali-josma                     bala-birji-golpus
+            7c95  balis-linra                    bala-bohar-golsul
+           1216f  bami-girji                     bala-lusra-golwov
+           3eaed  badar-mugan                    bala-dorma-golwas
+          873b20  lurva-helda                    banis-surja-golzov
+          eecf63  nergi-merza                    bada-jelni-golhas
+          ffffff  nirzi-zivel                    badar-zamel-govlus
+         1000000  nirzi-zivi                     badar-zami-golkav
+         286a22a  wasji-jirbi                    banda-juda-goljov
+         f07b2f6  bali-muna-wuja                 bonga-hula-govbul
+         fffffff  bali-dinis-vonra               boswa-winva-govlus
+        10000000  bali-dinis-vonda               boswa-winvi-golkav
+        4481567b  bara-narji-voga                rabis-hasmi-govdul
+        8e3cf6de  baga-zesba-zuswa               jalga-sowar-golzas
+        ffffffff  basi-sunda-zosna               bala-liwel-sazis-govlus
+       636bc30c1  birwa-sedi-zelha               bama-zora-husa-golkov
+       ef9bd1895  lonja-zola-jurha               bani-hisba-direl-golsul
+      61294d2956  sonar-daga-sonda               balgi-mehel-rijil-goltas
+      fed78a925f  balan-vabis-molza-zasma        bergi-rulan-julga-golzav
+      ffffffffff  balan-vanja-disi-rildi         berja-jilva-zesna-govlus
+     395eb6099c5  bamar-ganvi-lermi-vuba         lisdi-dari-misli-golmav
+     dd84d70b56c  bada-zovar-liwel-vesma         doha-juswa-zahel-goljul
+    47b06665a016  bena-harva-ganis-nasgi         balan-jisba-runha-welba-goltas
+    7c7a5edd8d84  berzi-galha-desma-jigil        bali-jera-sana-jibi-golmas
+    ffffffffffff  busla-sevil-mejel-gimis        bamel-durwa-bari-vehis-govlus
+   ae1af9435f19c  sazar-ruswa-runba-sirha        balni-warel-wizil-galhi-golvus
+   ec5386b509570  bala-malhi-biri-genra-zosra    basla-woban-nelmi-hina-golwus
+  2639dff89fa6f2  balar-barga-zusla-vasri-guda   biji-neswi-jelan-buvan-govbas
+  d67ad7b358491f  bani-zaja-melba-riban-ginli    nesra-holar-zosna-herda-golzav
+  ffffffffffffff  baran-minda-luga-rulja-higa    rasbi-delza-wasda-nugan-govlus
+ 3f4efbb3009e56b  bazis-zasmi-namel-herba-ravil  bala-nela-dorma-sajil-wanar-goljus
+ 50d5843b27fc656  balna-bolva-rezil-werja-zasdi  bala-goha-gorda-laza-dojar-goltas
+844313d2d875c424  rizi-boma-wenel-negar-jisni    bagar-wola-voma-rala-hosla-golhav
+a172317228b05ded  vinbi-jizis-vunar-zonva-surwa  baji-zinil-dumar-neswi-bezar-golwas
+ffffffffffffffff  jismi-sugan-balja-vonda-hisla  banla-hilar-giwel-devar-nerhi-govlus
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                                   full
+                                               10000000000000000  jismi-sugan-balja-vonda-hisli                                                                                           banla-hilar-giwel-devar-nersa-golkav
+                                ffffffffffffffffffffffffffffffff  vulda-nivel-nalbi-varni-sari-lisni-geza-wiril-velmi-milzi                                                               bawan-lanil-rabil-resmi-dalsi-warba-herna-sirwa-vanli-higa-govlus
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  misi-nesel-besdi-horan-dojar-bargi-girzi-remel-donla-dohan-heldi-zahel-meril-jawel-rajil-belis-wunar-julan-jalwi-nerhi  baris-muran-garji-bivar-zedis-maja-duha-selmi-guman-servi-nasda-nusar-gonja-dirzi-gebis-niba-nuva-vobar-danji-mega-govlus

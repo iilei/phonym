@@ -1,56 +1,56 @@
 # phonym names: 1.0.0+crisp (slot 1)
-# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=67619204b3eaa4c6
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=1d304d363e1fe8ed
 #
 # IDs up to 64 bits
-#             id  short                       full
-               0  bar                         bar-hulnas
-               1  bir                         bar-hulnav
-               3  bo                          bar-hulnus
-              3f  bafos                       bar-huvnus
-              40  bagar                       bir-hulnas
-              41  bagir                       bir-hulnav
-              5a  baton                       bir-huljas
-              8d  beko                        bis-hultas
-             335  fepar                       far-huvlov
-             ae7  zedos                       to-huvbus
-            6f11  botabon                     danto-hultul
-            7c95  borpadon                    detos-hulzas
-           1216f  dugupis                     gepos-huvgav
-           3eaed  sofugar                     bagubon-huvdul
-          873b20  fudortogo                   gindokar-hulwav
-          eecf63  pasortubos                  sekobis-hulwul
-          ffffff  pigispukis                  sorzubar-huvnus
-         1000000  pigispuko                   sorzubir-hulnas
-         286a22a  basaforzepos                bandogison-huvdav
-         f07b2f6  bosgopisugo                 daskutorzo-huvlus
-         fffffff  bukontefipir                detabidon-huvnus
-        10000000  bukontefipis                detabidos-hulnas
-        4481567b  gunkubinpuson               pufurkafir-huvmul
-        8e3cf6de  zerpizarsezir               bakerfibesfo-huljul
-        ffffffff  batarbesengazir             bargipirtezo-huvnus
-       636bc30c1  buskeginbefarto             dersokasdepo-hulnav
-       ef9bd1895  finzadabadogar              gibandisito-hulzas
-      61294d2956  bandifisbifesdobos          bartafupatospo-hulzav
-      fed78a925f  bestazuspibasgobir          bispufikedurko-hulwas
-      ffffffffff  bestodirpetinkipos          bistikinfezetar-huvnus
-     395eb6099c5  dozosfagopozinpo            fiderfapusodar-hulpas
-     dd84d70b56c  sungisuzadonbupos           badorgizesenfosar-huvdus
-    47b06665a016  benkafikusgikesigis         biseponfaginkadar-hulzav
-    7c7a5edd8d84  bodinsufangeberzedo         butenpebipusibo-hulnul
-    ffffffffffff  derpukorsedaskafazir        dunbopigesbefozos-huvnus
-   ae1af9435f19c  bazadibodorsudipiton        barkabanfigopintazir-huljov
-   ec5386b509570  bargepunguzokozirgados      begurfatorkisontado-huvgov
-  2639dff89fa6f2  binzapetarsepunbezakar      borzipargidokasuzar-huvgul
-  d67ad7b358491f  gibufoskogensokindason      kosfedirbekigaspukis-hulwas
-  ffffffffffffff  kanbafokaspiboposfigis      ponzekisbaturkogabon-huvnus
- 3f4efbb3009e56b  bazontopakirgibasgepibir    barsoparkitenbapufadis-huvdov
- 50d5843b27fc656  barfopodensukutiburdutar    begopurtagubunzobazir-hulzav
-844313d2d875c424  sedaskobortekasfapirfakir   zoturgedekepazentisir-huvbas
-a172317228b05ded  tonpatinpisetafederpekos    bafiskopogotesigoskaso-huvdul
-ffffffffffffffff  bakasgatonketefurbutagados  bazungafadapinzakuzetar-huvnus
+#             id  short                      full
+               0  bar                        bar-hulnas
+               1  bir                        bar-hulnav
+               3  bo                         bar-hulnus
+              3f  bados                      bar-huvnus
+              40  bafar                      bir-hulnas
+              41  bafir                      bir-hulnav
+              5a  baso                       bir-huljas
+              8d  befar                      bis-hultas
+             335  dusgo                      far-huvlov
+             ae7  tekis                      to-huvbus
+            6f11  binpofos                   dabir-hultul
+            7c95  birhukir                   danko-hulzas
+           1216f  difetir                    fusir-huvgav
+           3eaed  pandehar                   badifos-huvdul
+          873b20  dunpukuzon                 fontepo-hulwav
+          eecf63  gizapenho                  kupafo-hulwul
+          ffffff  gorbaguzar                 paskafar-huvnus
+         1000000  gorbaguzir                 paskafir-hulnas
+         286a22a  honpetizis                 bakesdebos-huvdav
+         f07b2f6  biporhoposdo               bospogipar-huvlus
+         fffffff  bihodesgobar               bupensuko-huvnus
+        10000000  bihodesgobir               bupensukon-hulnas
+        4481567b  fertigipibo                kabontekar-huvmul
+        8e3cf6de  kusputenbadir              zirtahirpo-huljul
+        ffffffff  haspezondigar              basikerbodo-huvnus
+       636bc30c1  bihopohorkotar             boshaburgikir-hulnav
+       ef9bd1895  denzibasgusenbo            fasarpabotis-hulzas
+      61294d2956  hezebotikesir              bakurdokestezon-hulzav
+      fed78a925f  bargozirsakugenbo          bezigubashopo-hulwas
+      ffffffffff  barkabezordesefis          bezishebergatar-huvnus
+     395eb6099c5  bortugorsabustesir         detendupistuzos-hulpas
+     dd84d70b56c  geburtizardubafis          pasdopinzetipon-huvdus
+    47b06665a016  bazengukufensizokos        basdeterzaterkados-hulzav
+    7c7a5edd8d84  bedagohagosbifebo          berhogiskigihorko-hulnul
+    ffffffffffff  bintikongozukusgihir       butakonsuferguhar-huvnus
+   ae1af9435f19c  sonhisarzagirsokutis       badikadisadohifar-huljov
+   ec5386b509570  hasdizonpudanpoderko       bapargufuzigertopo-huvgov
+  2639dff89fa6f2  barfotirfabedusuturbo      beturhuzartudigonso-huvgul
+  d67ad7b358491f  degaskehangofakusezon      dusfehesfazoposofis-hulwas
+  ffffffffffffff  dizunsehokesdeguskadar     fesdufasbozesputefar-huvnus
+ 3f4efbb3009e56b  sarfadonbupurseposbikos    hugapetesfagirtizon-huvdov
+ 50d5843b27fc656  zadisbitibizansizifar      bagirkihinzebisdapuson-hulzav
+844313d2d875c424  dustosinpobarsekobanfoson  gartubidestisangapanzo-huvbas
+a172317228b05ded  fisonhekantabestafokihar   guzurtuhefurdibesgefo-huvdul
+ffffffffffffffff  gursodikerpahirkuzudasir   segonhikurdihepesgobo-huvnus
 #
 # IDs beyond 64 bits
-#                                                             id  short                                                                                            full
-                                               10000000000000000  bakasgatonketefurbutagafar                                                                       bazungafadapinzakuzetir-hulnas
-                                ffffffffffffffffffffffffffffffff  tozenkadestizondosonkugonsodartaserdokirzukasfukon                                               bafisdetonzasondozukunbipikagepirzupenfokengatos-huvnus
-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  funsidesfedarzadispagerdiborkisuzinkogarpibentupozargezosubargufugadestibonkadezatoberfukubusgo  katerdosubongefesanduparbutorpizonpafansaterfagukutefinbugokuspigitoketonkodinfoturbafipobos-huvnus
+#                                                             id  short                                                                                       full
+                                               10000000000000000  gursodikerpahirkuzudaso                                                                     segonhikurdihepesgobon-hulnas
+                                ffffffffffffffffffffffffffffffff  bosentegeberkibortegurfepifukipinhasuntisorhazar                                            dazotezensihondokodosposopendobirdatunkaguko-huvnus
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  fingikerfetobusupitizespofuzihazurbudekengefahagobirkezosgezugashusebispazaberfekarpizekon  gurtosodakunfosurzibefirkedekonfesugorbezeputirfigerfogonkoburkodaskesingibispigosbudekusho-huvnus

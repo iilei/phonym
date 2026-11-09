@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+lyric (slot 3)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=8cf13d2cc2260677
+#
+# IDs up to 64 bits
+#             id  short                         full
+               0  ba                            ba-dulkus
+               1  ban                           ba-dulkul
+               3  bi                            ba-dulmav
+              3f  wi                            ba-duvmav
+              40  wil                           ban-dulkus
+              41  wai                           ban-dulkul
+              5a  banai                         ban-dulvus
+              8d  banroi                        bel-dulpav
+             335  marai                         ma-duvgas
+             ae7  ganil                         dil-duljav
+            6f11  lawenel                       buda-dulsav
+            7c95  leganbai                      lana-dultav
+           1216f  nilvijai                      molda-dulwul
+           3eaed  baminregan                    anel-dulwov
+          873b20  jolbaluda                     dolgaman-dulzul
+          eecf63  bavobanjadan                  bamadejai-dulhov
+          ffffff  badolvojula                   bamuganda-duvmav
+         1000000  badolvojulan                  bamugandoi-dulkus
+         286a22a  bigeljebilwi                  bejidenli-duljul
+         f07b2f6  vanwanegenwa                  ramonjoran-duvgav
+         fffffff  vimangivadil                  raldomalda-duvmav
+        10000000  vimangivadai                  raldomaldoi-dulkus
+        4481567b  banwijalengejel               bajalanbuvan-duvlav
+        8e3cf6de  bomalomadunjoi                belgajingidan-dulzov
+        ffffffff  linveriljanerai               lagenrijabel-duvmav
+       636bc30c1  balagolodunworan              jimelabalma-dulkul
+       ef9bd1895  balwenadiviwanrai             banrajolgaranva-dultav
+      61294d2956  nilmabijinvidivai             mindajibedalba-dultov
+      fed78a925f  wilenvaralemabai              galminilidajel-dulzus
+      ffffffffff  wivanebelmelami               galdejeldajegel-duvmav
+     395eb6099c5  bendewedilnawemiwan           balgajoralmojolnoi-dulmus
+     dd84d70b56c  minrimiladawemewai            managaldemabeldai-dulwav
+    47b06665a016  barejeldirenbereladi          inbanivejenwiban-dultov
+    7c7a5edd8d84  balnorabandamodolgaja         bajovanralungojulda-dulmov
+    ffffffffffff  bogojabunjoburanwojoi         bilimerinvagiljimil-duvmav
+   ae1af9435f19c  balebinranilderawilberil      jiwenvaranbejelderi-dulzas
+   ec5386b509570  bavinbijanwivilgamenvibil     balindagalbidibilnigan-duvbas
+  2639dff89fa6f2  birenjarijabenvibelwila       beviladiljewelmiwalma-duvbov
+  d67ad7b358491f  rildivereveldaginbejabai      nelwivenbarimagalneda-dulzus
+  ffffffffffffff  vidirilnigivinlewemejel       ralgibelmilanraniwajai-duvmav
+ 3f4efbb3009e56b  bandomalgobajunlonajogowoi    badilwidenbewenjawengavi-dulwas
+ 50d5843b27fc656  bemalendabanimawereldeman     banvemenwagijaredebeman-dultov
+844313d2d875c424  bavelabejegilbanivijedelnai   balevildewerilageneldenil-dulhus
+a172317228b05ded  bajigiliwilvilijilmalangawel  barangemalenwiminwabejeri-dulwov
+ffffffffffffffff  beranwalamijinradalbegibera   bangadevidanelvenibalwevi-duvmav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                         full
+                                               10000000000000000  beranwalamijinradalbegiberan                                                                                  bangadevidanelvenibalwevil-dulkus
+                                ffffffffffffffffffffffffffffffff  nalmedenagendalevijindinijelgerindilindagaldejarivalda                                                        mejilibiljegivenbagadabanawinbiwiginiwenvibilgawai-duvmav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  lugonbovulmolanwarulvuluwujorunlurungubogunvojavajudulnobolnumajuldovalmuvamaraganrubagonlabogulwovodonalvoi  lanwinebanvarilbidijanlijanvarejengiliwiljevebidagewabelmanagenremevilwajadalinvawimerigarilnagilmalini-duvmav

@@ -12,21 +12,21 @@ import (
 func TestCLI(t *testing.T) {
 	t.Parallel()
 	full := libName(t, 4711, defaultRelease, false)
-	crisp := libName(t, 4711, "1.1.0+crisp", false)
-	crispShort := libName(t, 0x1267, "1.1.0+crisp", true)
+	crisp := libName(t, 4711, "1.0.0+crisp", false)
+	crispShort := libName(t, 0x1267, "1.0.0+crisp", true)
 	cases := []struct {
 		want string
 		args []string
 		code int
 	}{
 		{full + "\n", []string{"4711"}, 0},
-		{crisp + "\n", []string{"encode", "-release", "1.1.0+crisp", "4711"}, 0},
-		{crispShort + "\n", []string{"-release", "1.1.0+crisp", "-short", "0x1267"}, 0},
-		{"4711\t1.1.0+crisp\tfull\n", []string{"decode", crisp}, 0},
-		{"0x1267\t1.1.0+crisp\tshort\n", []string{"decode", "-release", "1.1.0+crisp", "-hex", crispShort}, 0},
+		{crisp + "\n", []string{"encode", "-release", "1.0.0+crisp", "4711"}, 0},
+		{crispShort + "\n", []string{"-release", "1.0.0+crisp", "-short", "0x1267"}, 0},
+		{"4711\t1.0.0+crisp\tfull\n", []string{"decode", crisp}, 0},
+		{"0x1267\t1.0.0+crisp\tshort\n", []string{"decode", "-release", "1.0.0+crisp", "-hex", crispShort}, 0},
 		{"", []string{"decode", crispShort}, 1},
 		{"", []string{"encode", "-1"}, 1},
-		{"  6  1.2.0+soft      2+2\n", []string{"releases"}, 0},
+		{"  8  1.0.0+soft-double  2+2+...\n", []string{"releases"}, 0},
 	}
 	for _, c := range cases {
 		var out, errOut bytes.Buffer

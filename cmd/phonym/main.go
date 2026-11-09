@@ -15,7 +15,7 @@ import (
 
 const (
 	// defaultRelease is used when -release is not given.
-	defaultRelease = "1.1.0+soft"
+	defaultRelease = "1.0.0+soft"
 
 	cmdEncode   = "encode"
 	cmdDecode   = "decode"
@@ -86,6 +86,7 @@ func encode(args []string, stdout, stderr io.Writer) error {
 	fs.SetOutput(stderr)
 	release := fs.String("release", defaultRelease, "release label")
 	short := fs.Bool("short", false, "print the short form (decoding it needs the release)")
+	maxBits := fs.Int("max-bits", phonym.MaxBits, "largest ID size in bits")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -101,9 +102,9 @@ func encode(args []string, stdout, stderr io.Writer) error {
 		var name string
 		var err error
 		if *short {
-			name, err = phonym.EncodeShort(id, *release)
+			name, err = phonym.EncodeShort(id, *release, phonym.WithMaxBits(*maxBits))
 		} else {
-			name, err = phonym.Encode(id, *release)
+			name, err = phonym.Encode(id, *release, phonym.WithMaxBits(*maxBits))
 		}
 		if err != nil {
 			return err
@@ -118,6 +119,7 @@ func decode(args []string, stdout, stderr io.Writer) error {
 	fs.SetOutput(stderr)
 	release := fs.String("release", "", "release of short forms (full forms carry their own)")
 	hex := fs.Bool("hex", false, "print IDs in hex")
+	maxBits := fs.Int("max-bits", phonym.MaxBits, "largest ID size in bits (and name length in letters)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -126,7 +128,7 @@ func decode(args []string, stdout, stderr io.Writer) error {
 		return errors.New("no name given")
 	}
 	for _, name := range fs.Args() {
-		d, err := phonym.Decode(name, *release)
+		d, err := phonym.Decode(name, *release, phonym.WithMaxBits(*maxBits))
 		if err != nil {
 			return err
 		}
@@ -156,6 +158,9 @@ func listReleases(stdout io.Writer) {
 		shape := "variable"
 		if split := r.Style().Split; len(split) > 0 {
 			shape = strings.Trim(strings.ReplaceAll(fmt.Sprint(split), " ", "+"), "[]")
+			if r.Style().Grow {
+				shape += "+..."
+			}
 		}
 		line := fmt.Sprintf("%3d  %-14s  %-8s%s", slot, r.Label, shape, status)
 		fmt.Fprintln(stdout, strings.TrimRight(line, " "))

@@ -55,8 +55,13 @@ class Style:
     extra_nuclei: tuple[str, ...] = ()
     # max_extra_nuclei: at most this many extra nuclei per word; 0 means no limit.
     max_extra_nuclei: int = 0
+    # grow: when the split's words are full, add words of the last word's length.
+    # Names are numbered in blocks by word count (all 2-word names first), so the
+    # order is kept and there is no upper limit. Requires split; not with joinable.
+    grow: bool = False
 
     def build(self) -> sa.SyllableCode:
+        assert not self.grow or (self.split and not self.joinable), f"{self.name}: grow needs split, not joinable"
         onsets = list(self.onsets) + list(self.onset_clusters) + ([""] if self.initial_vowel else [])
         nuclei = list(self.vowels) + list(self.extra_nuclei) + list(self.final_nuclei)
         sa.check_unique_split(onsets, self.codas, nuclei)
@@ -119,48 +124,43 @@ class Style:
 
 
 # Style definitions. Editing one changes its output, so it needs a new release.
+SOFT_ONSETS, SOFT_CODAS = "blmnrvdgjwhsz", ("", "n", "l", "r", "s")
+SOFT_ENDS = frozenset({"a", "i", "el", "an", "il", "ar", "is"})
 STYLES = {
-    "soft":    Style("soft",    onsets="blmnrvdg",  codas=("", "n", "l"),
-                     end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1),
-    "crisp":   Style("crisp",   onsets="bdfgkpstz", codas=("", "n", "r", "s"),
+    # soft: vowel harmony, mostly voiced and liquid onsets, light codas
+    "soft":    Style("soft",    onsets=SOFT_ONSETS, codas=SOFT_CODAS, end_suffixes=SOFT_ENDS, harmony=True,
+                     blocklist=sa.BLOCKLIST1),
+    "crisp":   Style("crisp",   onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
                      end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False, blocklist=sa.BLOCKLIST1),
-    "flowing": Style("flowing", onsets="lmnrvsdt",  codas=("",),
+    "flowing": Style("flowing", onsets="lmnrvsdtjw",  codas=("",),
                      end_suffixes=frozenset({"a", "o", "i"}), harmony=True, blocklist=sa.BLOCKLIST1),
-    # 1.1: extra onsets chosen to fit each style's feel
-    "soft@1.1":    Style("soft",    onsets="blmnrvdgjw",  codas=("", "n", "l"),
-                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1),
-    "crisp@1.1":   Style("crisp",   onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
-                         end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False, blocklist=sa.BLOCKLIST1),
-    "flowing@1.1": Style("flowing", onsets="lmnrvsdtjw",  codas=("",),
-                         end_suffixes=frozenset({"a", "o", "i"}), harmony=True, blocklist=sa.BLOCKLIST1),
-    # 1.2: double given name, two fixed 2-syllable parts
-    "soft@1.2":    Style("soft",    onsets="blmnrvdgjw",  codas=("", "n", "l"),
-                         end_suffixes=frozenset({"a", "i", "el", "an", "il"}), harmony=True, blocklist=sa.BLOCKLIST1,
-                         split=(2, 2)),
-    # 1.3: two new sounds. lyric: soft@1.1 plus a vowel-only first syllable and the
-    # diphthongs ai/oi as endings. nordic: crisp@1.1 plus onset clusters, one per word.
-    "lyric@1.3":   Style("lyric",   onsets="blmnrvdgjw",  codas=("", "n", "l"),
-                         end_suffixes=frozenset({"a", "i", "el", "an", "il", "ai", "oi"}), harmony=True,
-                         blocklist=sa.BLOCKLIST1, initial_vowel=True, final_nuclei=("ai", "oi")),
-    "nordic@1.3":  Style("nordic",  onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
-                         end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False,
-                         blocklist=sa.BLOCKLIST1,
-                         onset_clusters=("br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"),
-                         max_clusters=1),
-    # 1.4: fantasy sounds. orkish: dark vowels, hard codas. elfish: light vowels, liquid
-    # onsets, at most one special vowel (ie, ae, io) per word. alien: long vowels, one
-    # onset cluster per word.
-    "orkish@1.4":  Style("orkish",  onsets="gkrzdbmn",    codas=("", "g", "k", "r", "z"), vowels="aou",
-                         end_suffixes=frozenset({"ag", "ak", "uk", "ug", "ok", "ar", "or", "uz", "oz"}),
-                         harmony=False, blocklist=sa.BLOCKLIST1),
-    "elfish@1.4":  Style("elfish",  onsets="lnmrvsfh",    codas=("", "n", "l", "r", "s"), vowels="aeio",
-                         end_suffixes=frozenset({"iel", "ion", "es", "is", "a", "e", "il", "ir", "ael", "ien"}),
-                         harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("th",),
-                         extra_nuclei=("ie", "ae", "io"), max_extra_nuclei=1, initial_vowel=True),
-    "alien@1.4":   Style("alien",   onsets="zkvtj",       codas=("", "n"), vowels="aiuo",
-                         end_suffixes=frozenset({"aan", "uun", "oon", "on", "ii", "uu", "a", "i"}),
-                         harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("zv", "kv", "tl", "kt"),
-                         max_clusters=1, extra_nuclei=("aa", "ii", "uu", "oo")),
+    # lyric: a vowel-only first syllable and the diphthongs ai/oi as endings
+    "lyric":   Style("lyric",   onsets="blmnrvdgjw",  codas=("", "n", "l"),
+                     end_suffixes=frozenset({"a", "i", "el", "an", "il", "ai", "oi"}), harmony=True,
+                     blocklist=sa.BLOCKLIST1, initial_vowel=True, final_nuclei=("ai", "oi")),
+    # nordic: crisp plus onset clusters, one per word
+    "nordic":  Style("nordic",  onsets="bdfgkpstzh",  codas=("", "n", "r", "s"),
+                     end_suffixes=frozenset({"is", "os", "ar", "on", "ir", "o"}), harmony=False,
+                     blocklist=sa.BLOCKLIST1,
+                     onset_clusters=("br", "dr", "gr", "kr", "pr", "tr", "fr", "bl", "gl", "kl", "pl", "fl"),
+                     max_clusters=1),
+    # orkish: dark vowels, hard codas
+    "orkish":  Style("orkish",  onsets="gkrzdbmn",    codas=("", "g", "k", "r", "z"), vowels="aou",
+                     end_suffixes=frozenset({"ag", "ak", "uk", "ug", "ok", "ar", "or", "uz", "oz"}),
+                     harmony=False, blocklist=sa.BLOCKLIST1),
+    # elfish: light vowels, liquid onsets, at most one special vowel (ie, ae, io) per word
+    "elfish":  Style("elfish",  onsets="lnmrvsfh",    codas=("", "n", "l", "r", "s"), vowels="aeio",
+                     end_suffixes=frozenset({"iel", "ion", "es", "is", "a", "e", "il", "ir", "ael", "ien"}),
+                     harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("th",),
+                     extra_nuclei=("ie", "ae", "io"), max_extra_nuclei=1, initial_vowel=True),
+    # alien: long vowels, one onset cluster per word
+    "alien":   Style("alien",   onsets="zkvtj",       codas=("", "n"), vowels="aiuo",
+                     end_suffixes=frozenset({"aan", "uun", "oon", "on", "ii", "uu", "a", "i"}),
+                     harmony=False, blocklist=sa.BLOCKLIST1, onset_clusters=("zv", "kv", "tl", "kt"),
+                     max_clusters=1, extra_nuclei=("aa", "ii", "uu", "oo")),
+    # soft-double: soft as a double given name of 2-syllable words that grows (bala-bema, bala-bema-lani)
+    "soft-double": Style("soft", onsets=SOFT_ONSETS, codas=SOFT_CODAS, end_suffixes=SOFT_ENDS, harmony=True,
+                         blocklist=sa.BLOCKLIST1, split=(2, 2), grow=True),
 }
 
 
@@ -184,18 +184,15 @@ def placeholder() -> Release:
 
 # Frozen, append-only: the index is what names store. Never reorder, edit or remove.
 REGISTRY = [
-    Release("1.0.0+soft",    STYLES["soft"]),
-    Release("1.0.0+crisp",   STYLES["crisp"]),
-    Release("1.0.0+flowing", STYLES["flowing"]),
-    Release("1.1.0+soft",    STYLES["soft@1.1"]),
-    Release("1.1.0+crisp",   STYLES["crisp@1.1"]),
-    Release("1.1.0+flowing", STYLES["flowing@1.1"]),
-    Release("1.2.0+soft",    STYLES["soft@1.2"]),
-    Release("1.3.0+lyric",   STYLES["lyric@1.3"]),
-    Release("1.3.0+nordic",  STYLES["nordic@1.3"]),
-    Release("1.4.0+orkish",  STYLES["orkish@1.4"]),
-    Release("1.4.0+elfish",  STYLES["elfish@1.4"]),
-    Release("1.4.0+alien",   STYLES["alien@1.4"]),
+    Release("1.0.0+soft",        STYLES["soft"]),
+    Release("1.0.0+crisp",       STYLES["crisp"]),
+    Release("1.0.0+flowing",     STYLES["flowing"]),
+    Release("1.0.0+lyric",       STYLES["lyric"]),
+    Release("1.0.0+nordic",      STYLES["nordic"]),
+    Release("1.0.0+orkish",      STYLES["orkish"]),
+    Release("1.0.0+elfish",      STYLES["elfish"]),
+    Release("1.0.0+alien",       STYLES["alien"]),
+    Release("1.0.0+soft-double", STYLES["soft-double"]),
 ]
 
 # semver 2.0 (semver.org), build metadata required
@@ -244,29 +241,48 @@ def code_for(index: int) -> sa.SyllableCode:
     return REGISTRY[index].style.build()
 
 
-def given_capacity(index: int) -> int | None:
-    """Exact capacity of a split given name; None = unbounded (variable length)."""
-    split, code = REGISTRY[index].style.split, code_for(index)
-    if not split:
-        return None
+def _shape(style: Style, words: int) -> tuple[int, ...]:
+    """Syllables per word for a name of `words` given words (grow repeats the last length)."""
+    return style.split + (style.split[-1],) * (words - len(style.split))
+
+
+def _capacity(code: sa.SyllableCode, shape: tuple[int, ...]) -> int:
     total = 1
-    for k in split:
+    for k in shape:
         total *= code.capacity(k)
     return total
 
 
-def encode_given(index: int, hi: int) -> str:
-    split, code = REGISTRY[index].style.split, code_for(index)
-    if not split:
-        return code.encode(hi)
-    cap = given_capacity(index)
-    if hi >= cap:
-        raise OverflowError(f"{REGISTRY[index].label} holds {cap:,} given names, got {hi:,}")
+def given_capacity(index: int) -> int | None:
+    """Exact capacity of a split given name; None = unbounded (variable length or grow)."""
+    style, code = REGISTRY[index].style, code_for(index)
+    if not style.split or style.grow:
+        return None
+    return _capacity(code, style.split)
+
+
+def _encode_fixed(code: sa.SyllableCode, shape: tuple[int, ...], x: int) -> str:
     parts = []
-    for k in reversed(split):                 # mixed radix, first part most significant
-        hi, digit = divmod(hi, code.capacity(k))
+    for k in reversed(shape):                 # mixed radix, first part most significant
+        x, digit = divmod(x, code.capacity(k))
         parts.append("".join(code.unrank(digit, k)))
     return "-".join(reversed(parts))
+
+
+def encode_given(index: int, hi: int) -> str:
+    style, code = REGISTRY[index].style, code_for(index)
+    if not style.split:
+        return code.encode(hi)
+    if style.grow:
+        words = len(style.split)
+        while hi >= _capacity(code, _shape(style, words)):
+            hi -= _capacity(code, _shape(style, words))
+            words += 1
+        return _encode_fixed(code, _shape(style, words), hi)
+    cap = _capacity(code, style.split)
+    if hi >= cap:
+        raise OverflowError(f"{REGISTRY[index].label} holds {cap:,} given names, got {hi:,}")
+    return _encode_fixed(code, style.split, hi)
 
 
 # JOIN RULE (frozen format rule, identical for every release that sets joinable):
@@ -311,18 +327,26 @@ def _canonical_parts(style: Style, code: sa.SyllableCode, label: str,
 def _decode_parts(style: Style, code: sa.SyllableCode, label: str, parts: list[str]) -> int:
     split = style.split
     parts = _canonical_parts(style, code, label, parts)
-    expected = len(split) or 1
-    if len(parts) != expected:
-        raise ValueError(f"{label} expects {expected} given part(s), got {len(parts)}")
     if not split:
+        if len(parts) != 1:
+            raise ValueError(f"{label} expects 1 given part(s), got {len(parts)}")
         return code.decode(parts[0])
+    if style.grow:
+        if len(parts) < len(split):
+            raise ValueError(f"{label} expects at least {len(split)} given part(s), got {len(parts)}")
+        shape = _shape(style, len(parts))
+        offset = sum(_capacity(code, _shape(style, n)) for n in range(len(split), len(parts)))
+    else:
+        if len(parts) != len(split):
+            raise ValueError(f"{label} expects {len(split)} given part(s), got {len(parts)}")
+        shape, offset = split, 0
     hi = 0
-    for part, k in zip(parts, split):
+    for part, k in zip(parts, shape):
         syls = code.parse(part)
         if len(syls) != k:
             raise ValueError(f"{part!r}: expected {k} syllables, got {len(syls)}")
         hi = hi * code.capacity(k) + code.rank(syls)
-    return hi
+    return offset + hi
 
 
 def decode_given(index: int, parts: list[str]) -> int:
@@ -428,7 +452,9 @@ if __name__ == "__main__":
         c = code_for(i)
         if r.style.split:
             cap = given_capacity(i)
-            info = f"split {'+'.join(map(str, r.style.split))}: {cap:,} given names ({cap.bit_length() - 1}b)"
+            shape = '+'.join(map(str, r.style.split))
+            info = (f"split {shape}, grows by {r.style.split[-1]}-syllable words" if cap is None
+                    else f"split {shape}: {cap:,} given names ({cap.bit_length() - 1}b)")
         else:
             info = "bits per length  " + "  ".join(
                 f"{k}:{c.capacity(k).bit_length() - 1}b" for k in range(3, 7))
@@ -448,12 +474,12 @@ if __name__ == "__main__":
 
     # 1.2.0+soft: every 7-digit hex ID fits, and display forms decode the same
     top = 0xFFFFFFF
-    n = encode(top, "1.2.0+soft")
+    n = encode(top, "1.0.0+soft-double")
     print(f"\n{top:#09x} -> {n}")
     display = " ".join(n.title().rsplit("-", 1))          # "Hans-Peter Müller" shape
     for variant in [n.replace("-", " "), display, f"  {n.upper()}  ",
                     n.replace("-", "_")]:
-        assert decode(variant) == ("1.2.0+soft", top), variant
+        assert decode(variant) == ("1.0.0+soft-double", top), variant
         print(f"  accepted: {variant!r}")
     for broken in [n.replace("-", "", 1), n.split("-", 1)[1]]:
         try:
@@ -478,11 +504,11 @@ if __name__ == "__main__":
             raise SystemExit(f"guard missed: {why}")
 
     # JOIN RULE: exercised on a throwaway joinable style (nothing added to REGISTRY)
-    join_style = replace(STYLES["soft@1.2"], joinable=True)
+    join_style = replace(STYLES["soft-double"], joinable=True, grow=False)
     join_code = join_style.build()
-    strict_n = encode(top, "1.2.0+soft")
+    strict_n = encode(top, "1.0.0+soft-double")
     given = strict_n.rsplit("-", 1)[0].split("-")             # ['danla', 'gilmi']
-    hi = decode_given(INDEX["1.2.0+soft"], given)
+    hi = decode_given(INDEX["1.0.0+soft-double"], given)
     print("\njoinable variant of 1.2.0+soft:")
     for form in [given, ["".join(given)], [given[0][:3], given[0][3:] + given[1]]]:
         assert _decode_parts(join_style, join_code, "test+soft.joinable", form) == hi
@@ -500,7 +526,7 @@ if __name__ == "__main__":
 
     # INPUT RULE: one case per character class
     print("\ninput rule:")
-    expect = ("1.2.0+soft", top)
+    expect = ("1.0.0+soft-double", top)
     accepted = {
         "hyphen U+2010":          "danla‐gilmi‐vupav",
         "non-breaking hyphen":    "danla‑gilmi‑vupav",
@@ -521,10 +547,10 @@ if __name__ == "__main__":
         "surrounding separators": " —danla-gilmi-vupav— ",
     }
     # the literals above use "vupav" as a placeholder family name; swap in the real one
-    F = encode(top, "1.2.0+soft").rsplit("-", 1)[1]
+    F = encode(top, "1.0.0+soft-double").rsplit("-", 1)[1]
     accepted = {k: v.replace("vupav", F) for k, v in accepted.items()}
     # and "danla", "gilmi" as placeholder given words; swap in the real ones too
-    G1, G2 = encode(top, "1.2.0+soft").split("-")[:2]
+    G1, G2 = encode(top, "1.0.0+soft-double").split("-")[:2]
     accepted = {k: v.replace("danla", G1).replace("gilmi", G2) for k, v in accepted.items()}
     accepted["soft hyphen in a word"] = (G1[:3] + "\u00ad" + G1[3:] + "-" + G2[:3] + "\u00ad" + G2[3:]
                                          + "-" + F)
@@ -610,22 +636,22 @@ if __name__ == "__main__":
     else:
         raise SystemExit("major-version rule missed 2.0.0")
 
-    # RETIREMENT RULE: a trial registry that retires 1.1.0+soft, adds a placeholder
+    # RETIREMENT RULE: a trial registry that retires 1.0.0+lyric, adds a placeholder
     # and a new release after it (the real REGISTRY is restored afterwards)
     print("\nretirement:")
     real_registry, real_index = REGISTRY, INDEX
-    old_name = encode(xs[0], "1.1.0+soft")
+    old_name = encode(xs[0], "1.0.0+lyric")
     trial = (real_registry[:3] + [replace(real_registry[3], retired=True)] + real_registry[4:]
-             + [placeholder(), Release("1.3.0+crisp", STYLES["crisp@1.1"])])
+             + [placeholder(), Release("1.1.0+crisp", STYLES["crisp"])])
     validate_registry(trial)
     validate_evolution(real_registry, trial)
     REGISTRY, INDEX = trial, {r.label: i for i, r in enumerate(trial) if r.label is not None}
     code_for.cache_clear()
     try:
-        assert decode(old_name) == ("1.1.0+soft", xs[0])
+        assert decode(old_name) == ("1.0.0+lyric", xs[0])
         print(f"  retired release still decodes: {old_name!r}")
         try:
-            encode(xs[0], "1.1.0+soft")
+            encode(xs[0], "1.0.0+lyric")
         except RetiredRelease as e:
             print(f"  encode refused: {e}")
         else:
@@ -637,8 +663,8 @@ if __name__ == "__main__":
             print(f"  placeholder slot: {e}")
         else:
             raise SystemExit("placeholder slot decoded")
-        new_name = encode(xs[0], "1.3.0+crisp")
-        assert decode(new_name) == ("1.3.0+crisp", xs[0])
+        new_name = encode(xs[0], "1.1.0+crisp")
+        assert decode(new_name) == ("1.1.0+crisp", xs[0])
         print(f"  same ID re-issued in slot {len(real_registry) + 1}: {new_name!r}")
     finally:
         REGISTRY, INDEX = real_registry, real_index
@@ -650,10 +676,10 @@ if __name__ == "__main__":
         (real_registry, real_registry[:-1], "entry removed"),
         (real_registry, real_registry[:3] + [replace(real_registry[3], style=STYLES["soft"])]
          + real_registry[4:], "style edited"),
-        (real_registry, real_registry[:3] + [replace(real_registry[3], label="1.1.1+soft")]
+        (real_registry, real_registry[:3] + [replace(real_registry[3], label="1.0.1+lyric")]
          + real_registry[4:], "label edited"),
         (trial, unretired, "un-retired"),
-        (trial, trial[:len(real_registry)] + [Release("1.4.0+soft", STYLES["soft@1.1"])]
+        (trial, trial[:len(real_registry)] + [Release("1.2.0+soft", STYLES["soft"])]
          + trial[len(real_registry) + 1:],
          "placeholder reused"),
     ]:
@@ -678,17 +704,18 @@ if __name__ == "__main__":
         except OverflowError:
             short = "<overflow>"
         print(f"  {r.label:<14} {short:<16} full: {encode(xs[0], r.label)}")
-    s = encode_short(xs[0], "1.1.0+soft")
+    s = encode_short(xs[0], "1.0.0+soft")
     try:
         decode(s)
     except InvalidName as e:
         print(f"  rejected without release: {e}")
     else:
         raise SystemExit("short form decoded without a release")
-    full = encode(xs[0], "1.1.0+crisp")
-    assert decode(full, "1.1.0+soft") == ("1.1.0+crisp", xs[0])
-    print(f"  full form ignores the context release: {full!r} -> 1.1.0+crisp")
-    try:
-        encode_short(2**23, "1.2.0+soft")
-    except OverflowError as e:
-        print(f"  split shape, short capacity: {e}")
+    full = encode(xs[0], "1.0.0+crisp")
+    assert decode(full, "1.0.0+soft") == ("1.0.0+crisp", xs[0])
+    print(f"  full form ignores the context release: {full!r} -> 1.0.0+crisp")
+    # soft-double grows instead of overflowing: two words, then three, ...
+    for x in (2**23, 2**40, 2**64 - 1):
+        s_ = encode_short(x, "1.0.0+soft-double")
+        assert decode(s_, "1.0.0+soft-double") == ("1.0.0+soft-double", x)
+        print(f"  soft-double grows: {x:#x} -> {s_}")

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -11,9 +12,9 @@ import (
 )
 
 const (
-	soft11 = "1.1.0+soft"
-	crisp  = "1.1.0+crisp"
-	soft12 = "1.2.0+soft"
+	softL   = "1.0.0+soft"
+	crispL  = "1.0.0+crisp"
+	doubleL = "1.0.0+soft-double"
 )
 
 // title upper-cases the first letter, like a display form.
@@ -59,7 +60,7 @@ func TestBigIDs(t *testing.T) {
 	t.Parallel()
 	for _, bits := range []uint{64, 128, 256, 512} {
 		id := new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), bits), big.NewInt(1))
-		name, err := phonym.Encode(id, soft11)
+		name, err := phonym.Encode(id, softL)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -71,7 +72,7 @@ func TestBigIDs(t *testing.T) {
 
 func TestNegativeAndUnknown(t *testing.T) {
 	t.Parallel()
-	if _, err := phonym.Encode(big.NewInt(-1), soft11); !errors.Is(err, phonym.ErrOverflow) {
+	if _, err := phonym.Encode(big.NewInt(-1), softL); !errors.Is(err, phonym.ErrOverflow) {
 		t.Errorf("negative id: %v", err)
 	}
 	if _, err := phonym.EncodeUint64(1, "9.9.9+none"); !errors.Is(err, phonym.ErrUnknownRelease) {
@@ -82,31 +83,32 @@ func TestNegativeAndUnknown(t *testing.T) {
 func TestShortForm(t *testing.T) {
 	t.Parallel()
 	id := big.NewInt(0x62e6b43)
-	short, err := phonym.EncodeShort(id, soft11)
+	short, err := phonym.EncodeShort(id, softL)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(short, "-") || short == strings.SplitN(mustEncode(t, id.Uint64(), soft11), "-", 2)[0] {
+	if strings.Contains(short, "-") || short == strings.SplitN(mustEncode(t, id.Uint64(), softL), "-", 2)[0] {
 		t.Errorf("short form %q must be one word and carry the whole ID", short)
 	}
-	if d := mustDecode(t, short, soft11); d.ID.Cmp(id) != 0 || !d.Short {
+	if d := mustDecode(t, short, softL); d.ID.Cmp(id) != 0 || !d.Short {
 		t.Errorf("decode short: %+v", d)
 	}
 	if _, err := phonym.Decode(short, ""); !errors.Is(err, phonym.ErrInvalidName) {
 		t.Errorf("short form without release: %v", err)
 	}
-	full := mustEncode(t, id.Uint64(), crisp)
-	if d := mustDecode(t, full, soft11); d.Release != crisp || d.Short {
+	full := mustEncode(t, id.Uint64(), crispL)
+	if d := mustDecode(t, full, softL); d.Release != crispL || d.Short {
 		t.Errorf("full form must ignore the context release: %+v", d)
 	}
-	if _, err := phonym.EncodeShort(big.NewInt(1<<23), soft12); !errors.Is(err, phonym.ErrOverflow) {
-		t.Errorf("split short capacity: %v", err)
+	big40 := new(big.Int).Lsh(big.NewInt(1), 40)
+	if s, err := phonym.EncodeShort(big40, doubleL); err != nil || strings.Count(s, "-") < 2 {
+		t.Errorf("soft-double must grow to three or more words for 2^40: %q, %v", s, err)
 	}
 }
 
 func TestSplitRelease(t *testing.T) {
 	t.Parallel()
-	name := mustEncode(t, 0xfffffff, soft12)
+	name := mustEncode(t, 0xfffffff, doubleL)
 	words := strings.Split(name, "-")
 	if len(words) != 3 {
 		t.Fatalf("got %q, want two given words and a family name", name)
@@ -118,15 +120,29 @@ func TestSplitRelease(t *testing.T) {
 			t.Errorf("%q: %v", broken, err)
 		}
 	}
-	if _, err := phonym.EncodeUint64(1<<29, soft12); !errors.Is(err, phonym.ErrOverflow) {
-		t.Errorf("split capacity: %v", err)
+	// Grow: never overflows, word count never shrinks as IDs grow, order is kept
+	count, prev := 0, ""
+	for bits := uint(0); bits <= 256; bits += 4 {
+		id := new(big.Int).Lsh(big.NewInt(1), bits)
+		name, err := phonym.Encode(id, doubleL)
+		if err != nil {
+			t.Fatalf("2^%d: %v", bits, err)
+		}
+		if d := mustDecode(t, name, ""); d.ID.Cmp(id) != 0 {
+			t.Fatalf("2^%d: %q decodes to %s", bits, name, d.ID)
+		}
+		n := strings.Count(name, "-") // given words
+		if n < 2 || n < count {
+			t.Fatalf("2^%d: %q has %d given words after %d (%q)", bits, name, n, count, prev)
+		}
+		count, prev = n, name
 	}
 }
 
 func TestInputRule(t *testing.T) {
 	t.Parallel()
 	const want = 0xfffffff
-	words := strings.Split(mustEncode(t, want, soft12), "-") // two given words, then the family name
+	words := strings.Split(mustEncode(t, want, doubleL), "-") // two given words, then the family name
 	g1, g2, fam := words[0], words[1], words[2]
 	accepted := map[string]string{
 		"hyphen U+2010":          g1 + "\u2010" + g2 + "\u2010" + fam,
@@ -184,8 +200,8 @@ func TestProquintFamilyShape(t *testing.T) {
 }
 
 func TestJoinRule(t *testing.T) {
-	soft := phonym.WithJoinable(phonym.Soft12)
-	single := phonym.WithJoinable(phonym.Soft10)
+	soft := phonym.WithJoinable(phonym.SoftDouble)
+	single := phonym.WithJoinable(phonym.Soft)
 	trial := append(phonym.Releases(),
 		phonym.NewRelease("1.3.0+soft.joinable", soft, false),
 		phonym.NewRelease("1.3.0+softsingle.joinable", single, false))
@@ -219,29 +235,29 @@ func TestJoinRule(t *testing.T) {
 
 func TestRetirement(t *testing.T) {
 	current := phonym.Releases()
-	oldName := mustEncode(t, 0x62e6b43, soft11)
+	oldName := mustEncode(t, 0x62e6b43, softL)
 	trial := append([]phonym.Release{}, current...)
-	trial[3] = phonym.NewRelease(soft11, phonym.Soft11, true)
-	trial = append(trial, phonym.Placeholder(), phonym.NewRelease("1.3.0+crisp", phonym.Crisp11, false))
+	trial[0] = phonym.NewRelease(softL, phonym.Soft, true)
+	trial = append(trial, phonym.Placeholder(), phonym.NewRelease("1.1.0+crisp", phonym.Crisp, false))
 	if err := phonym.ValidateEvolution(current, trial); err != nil {
 		t.Fatal(err)
 	}
 	phonym.WithRegistry(trial, func() {
-		if d := mustDecode(t, oldName, ""); d.ID.Uint64() != 0x62e6b43 || d.Release != soft11 {
+		if d := mustDecode(t, oldName, ""); d.ID.Uint64() != 0x62e6b43 || d.Release != softL {
 			t.Errorf("retired release must still decode: %+v", d)
 		}
-		if _, err := phonym.EncodeUint64(1, soft11); !errors.Is(err, phonym.ErrRetiredRelease) {
+		if _, err := phonym.EncodeUint64(1, softL); !errors.Is(err, phonym.ErrRetiredRelease) {
 			t.Errorf("retired release issued a name: %v", err)
 		}
 		hole := "ba-" + phonym.FamilyName(len(current), 0)
 		if _, err := phonym.Decode(hole, ""); !errors.Is(err, phonym.ErrInvalidName) {
 			t.Errorf("placeholder slot: %v", err)
 		}
-		newName, err := phonym.EncodeUint64(0x62e6b43, "1.3.0+crisp")
+		newName, err := phonym.EncodeUint64(0x62e6b43, "1.1.0+crisp")
 		if err != nil {
 			t.Fatal(err)
 		}
-		if d := mustDecode(t, newName, ""); d.ID.Uint64() != 0x62e6b43 || d.Release != "1.3.0+crisp" {
+		if d := mustDecode(t, newName, ""); d.ID.Uint64() != 0x62e6b43 || d.Release != "1.1.0+crisp" {
 			t.Errorf("re-issued name: %+v", d)
 		}
 	})
@@ -261,10 +277,10 @@ func TestRegistryChecks(t *testing.T) {
 	current := phonym.Releases()
 	plus := func(r phonym.Release) []phonym.Release { return append(append([]phonym.Release{}, current...), r) }
 	bad := map[string][]phonym.Release{
-		"duplicate label":  plus(phonym.NewRelease(soft11, phonym.Soft11, false)),
-		"missing +build":   plus(phonym.NewRelease("1.4.0", phonym.Soft11, false)),
-		"not semver":       plus(phonym.NewRelease("v1.4.0+soft", phonym.Soft11, false)),
-		"major 2":          plus(phonym.NewRelease("2.0.0+soft", phonym.Soft11, false)),
+		"duplicate label":  plus(phonym.NewRelease(softL, phonym.Soft, false)),
+		"missing +build":   plus(phonym.NewRelease("1.4.0", phonym.Soft, false)),
+		"not semver":       plus(phonym.NewRelease("v1.4.0+soft", phonym.Soft, false)),
+		"major 2":          plus(phonym.NewRelease("2.0.0+soft", phonym.Soft, false)),
 		"live placeholder": plus(phonym.NewRelease("", nil, false)),
 	}
 	for what, reg := range bad {
@@ -273,11 +289,11 @@ func TestRegistryChecks(t *testing.T) {
 		}
 	}
 	retired := append([]phonym.Release{}, current...)
-	retired[3] = phonym.NewRelease(soft11, phonym.Soft11, true)
+	retired[0] = phonym.NewRelease(softL, phonym.Soft, true)
 	evolutions := map[string][2][]phonym.Release{
 		"entry removed": {current, current[:len(current)-1]},
-		"style edited":  {current, replaceAt(current, 3, phonym.NewRelease(soft11, phonym.Soft10, false))},
-		"label edited":  {current, replaceAt(current, 3, phonym.NewRelease("1.1.1+soft", phonym.Soft11, false))},
+		"style edited":  {current, replaceAt(current, 0, phonym.NewRelease(softL, phonym.Crisp, false))},
+		"label edited":  {current, replaceAt(current, 0, phonym.NewRelease("1.0.1+soft", phonym.Soft, false))},
 		"un-retired":    {retired, current},
 	}
 	for what, pair := range evolutions {
@@ -294,11 +310,11 @@ func replaceAt(reg []phonym.Release, i int, r phonym.Release) []phonym.Release {
 }
 
 func ExampleEncode() {
-	name, _ := phonym.EncodeUint64(4711, "1.1.0+crisp")
-	short, _ := phonym.EncodeShort(big.NewInt(4711), "1.1.0+crisp")
+	name, _ := phonym.EncodeUint64(4711, "1.0.0+crisp")
+	short, _ := phonym.EncodeShort(big.NewInt(4711), "1.0.0+crisp")
 	d, _ := phonym.Decode(name, "")
 	fmt.Println(name, short, d.ID, d.Release)
-	// Output: bago-vunzov bagekir 4711 1.1.0+crisp
+	// Output: bago-huvbus bagekir 4711 1.0.0+crisp
 }
 
 func TestSplitRule(t *testing.T) {
@@ -323,7 +339,7 @@ func TestLyricAndNordicShapes(t *testing.T) {
 	var vowelStart, diphthongEnd int
 	for i := range uint64(3000) {
 		id := i*2654435761%(1<<40) + i // spread over many lengths, deterministic
-		lyric, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.3.0+lyric")
+		lyric, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.0.0+lyric")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -339,7 +355,7 @@ func TestLyricAndNordicShapes(t *testing.T) {
 		if strings.HasSuffix(lyric, "ai") || strings.HasSuffix(lyric, "oi") {
 			diphthongEnd++
 		}
-		nordic, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.3.0+nordic")
+		nordic, err := phonym.EncodeShort(new(big.Int).SetUint64(id), "1.0.0+nordic")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -368,21 +384,21 @@ func TestFantasyShapes(t *testing.T) {
 	}
 	for i := range uint64(3000) {
 		id := new(big.Int).SetUint64(i*2654435761%(1<<40) + i)
-		orkish, err := phonym.EncodeShort(id, "1.4.0+orkish")
+		orkish, err := phonym.EncodeShort(id, "1.0.0+orkish")
 		if err != nil {
 			t.Fatal(err)
 		}
 		if strings.ContainsAny(orkish, "ei") {
 			t.Fatalf("orkish %q uses a light vowel", orkish)
 		}
-		elfish, err := phonym.EncodeShort(id, "1.4.0+elfish")
+		elfish, err := phonym.EncodeShort(id, "1.0.0+elfish")
 		if err != nil {
 			t.Fatal(err)
 		}
 		if strings.Contains(elfish, "u") || count(elfish, "ie", "ae", "io") > 1 {
 			t.Fatalf("elfish %q: u, or more than one special vowel", elfish)
 		}
-		alien, err := phonym.EncodeShort(id, "1.4.0+alien")
+		alien, err := phonym.EncodeShort(id, "1.0.0+alien")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -451,5 +467,58 @@ func TestBlocklist(t *testing.T) {
 	}
 	if err := phonym.ParseBlocklist("# comment\n\nabc\n"); err != nil {
 		t.Errorf("valid blocklist rejected: %v", err)
+	}
+}
+
+func TestLimits(t *testing.T) {
+	t.Parallel()
+	top := new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), phonym.MaxBits), big.NewInt(1))
+	tooBig := new(big.Int).Lsh(big.NewInt(1), phonym.MaxBits)
+	for _, r := range phonym.Releases() {
+		name, err := phonym.Encode(top, r.Label)
+		if err != nil {
+			t.Fatalf("%s: 2^%d-1: %v", r.Label, phonym.MaxBits, err)
+		}
+		// the decode limit (MaxBits letters) must leave room: at least twice the longest name
+		if letters := len(strings.ReplaceAll(name, "-", "")); 2*letters > phonym.MaxBits {
+			t.Errorf("%s: 2^%d-1 needs %d letters; the decode limit leaves no margin", r.Label, phonym.MaxBits, letters)
+		}
+		if d := mustDecode(t, name, ""); d.ID.Cmp(top) != 0 {
+			t.Errorf("%s: %q decodes to %s", r.Label, name, d.ID)
+		}
+		if _, err := phonym.Encode(tooBig, r.Label); !errors.Is(err, phonym.ErrOverflow) {
+			t.Errorf("%s: 2^%d accepted: %v", r.Label, phonym.MaxBits, err)
+		}
+		if _, err := phonym.Encode(tooBig, r.Label, phonym.WithMaxBits(2*phonym.MaxBits)); err != nil {
+			t.Errorf("%s: WithMaxBits: %v", r.Label, err)
+		}
+	}
+	long := strings.Repeat("ba", phonym.MaxBits) + "-karfas"
+	if _, err := phonym.Decode(long, ""); !errors.Is(err, phonym.ErrInvalidName) {
+		t.Errorf("over-long input: %v", err)
+	}
+	huge := strings.Repeat("x", 10*phonym.MaxBits)
+	if _, err := phonym.Decode(huge, ""); !errors.Is(err, phonym.ErrInvalidName) {
+		t.Errorf("huge input: %v", err)
+	}
+}
+
+// TestMemoryBudget builds every release's tables up to MaxBits and checks the heap
+// stays bounded: the count tables are the only per-length state. Not parallel, so
+// other tests don't allocate meanwhile.
+func TestMemoryBudget(t *testing.T) {
+	const budget = 256 << 20
+	top := new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), phonym.MaxBits), big.NewInt(1))
+	for _, r := range phonym.Releases() {
+		if _, err := phonym.EncodeShort(top, r.Label); err != nil {
+			t.Fatal(err)
+		}
+	}
+	runtime.GC()
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	if m.HeapInuse > budget {
+		t.Errorf("heap in use %d MB after building all releases to %d bits; budget %d MB",
+			m.HeapInuse>>20, phonym.MaxBits, budget>>20)
 	}
 }
