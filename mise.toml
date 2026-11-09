@@ -31,6 +31,18 @@ run = "golangci-lint run"
 description = "Run all tests with the race detector, including the golden snapshots"
 run = "go test -race ./..."
 
+[tasks.fuzz]
+description = "Fuzz each target (round trip; decoding never panics and gives one name per ID); default 30s each"
+usage = '''
+flag "-t --time <duration>" default="30s" help="Fuzz time per target, e.g. 30s, 5m"
+'''
+run = '''
+set -eu
+for target in FuzzRoundTrip FuzzDecode; do
+  go test -run '^$' -fuzz "^$target\$" -fuzztime "$usage_time" .
+done
+'''
+
 [tasks.coverage]
 description = "Run tests and report coverage"
 run = [

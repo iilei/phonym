@@ -1,6 +1,10 @@
 package phonym
 
-import "slices"
+import (
+	"math/big"
+	"slices"
+	"strings"
+)
 
 // Test-only access to internals, for the external phonym_test package.
 
@@ -31,6 +35,15 @@ func FamilyName(slot, lo int) string { return familyName(slot, lo) }
 func FamilyParse(word string) ([2]int, error) {
 	ref, err := familyParse(word)
 	return [2]int{ref.slot, ref.lo}, err
+}
+
+// FamilyAt returns the 2-syllable family name with rank i, issued or not.
+func FamilyAt(i int) string {
+	syls, err := family().unrank(big.NewInt(int64(i)), familyLen)
+	if err != nil {
+		panic(err)
+	}
+	return strings.Join(syls, "")
 }
 
 // FamilyIndex returns a family name's rank among all 2-syllable family names.

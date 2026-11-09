@@ -206,3 +206,20 @@ func list(xs []string) string {
 	}
 	return strings.Join(xs, ",")
 }
+
+// TestFamilyNamesUnique checks every 2-syllable family name, issued or not, against
+// the whole slot space: a name either fails to decode, or it is exactly the name of
+// the slot and sibling it decodes to. Otherwise one ID would have two family names.
+func TestFamilyNamesUnique(t *testing.T) {
+	t.Parallel()
+	for i := range phonym.FamilyCapacity {
+		name := phonym.FamilyAt(i)
+		ref, err := phonym.FamilyParse(name)
+		if err != nil {
+			continue
+		}
+		if back := phonym.FamilyName(ref[0], ref[1]); back != name {
+			t.Fatalf("family name %q decodes to slot %d sibling %d, whose name is %q", name, ref[0], ref[1], back)
+		}
+	}
+}
