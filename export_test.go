@@ -1,6 +1,7 @@
 package phonym
 
 import (
+	"fmt"
 	"math/big"
 	"slices"
 	"strings"
@@ -38,7 +39,7 @@ func FamilyParse(word string) ([2]int, error) {
 
 // FamilyAt returns the 2-syllable family name with rank i, issued or not.
 func FamilyAt(i int) string {
-	syls, err := family().unrank(big.NewInt(int64(i)), familyLen)
+	syls, err := familyAutomaton().unrank(big.NewInt(int64(i)), familyLen)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +48,7 @@ func FamilyAt(i int) string {
 
 // FamilyIndex returns a family name's rank among all 2-syllable family names.
 func FamilyIndex(word string) int {
-	c := family()
+	c := familyAutomaton()
 	syls, err := c.parse(word)
 	if err != nil {
 		panic(err)
@@ -117,3 +118,25 @@ func ParseBlocklist(text string) error {
 func CheckUniqueSplit(onsets, codas, nuclei []string) error {
 	return checkUniqueSplit(onsets, codas, nuclei)
 }
+
+// FamilyTableFromAutomaton generates the family table from the family automaton.
+func FamilyTableFromAutomaton() (string, error) {
+	c := familyAutomaton()
+	if got := c.capacity(familyLen); got.Cmp(big.NewInt(familyCapacity)) != 0 {
+		return "", fmt.Errorf("family automaton capacity %s, want %d", got, familyCapacity)
+	}
+	var b strings.Builder
+	b.WriteString("# phonym family table: the issued family names in index order (spread slot * 64 + sibling).\n")
+	b.WriteString("# Generated from the family automaton: go test -run TestFamilyTable -update. Do not edit.\n")
+	for i := range Slots * Siblings {
+		syls, err := c.unrank(big.NewInt(int64(i)), familyLen)
+		if err != nil {
+			return "", err
+		}
+		b.WriteString(strings.Join(syls, "") + "\n")
+	}
+	return b.String(), nil
+}
+
+// FamilyTableEmbedded is the embedded family table.
+func FamilyTableEmbedded() string { return familyNamesText }

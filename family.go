@@ -1,6 +1,7 @@
 package phonym
 
 import (
+	_ "embed" // the family table
 	"fmt"
 	"math/big"
 	"strings"
@@ -43,18 +44,30 @@ var (
 	// familyBlocklist is checked once, when the family code is frozen.
 	familyBlocklist = blocklist1
 
-	familyOnce   sync.Once
-	familyCode   *code
-	familyEnd    map[string]bool
-	familyInvert int // familyStride^-1 mod Slots
+	// familyNamesText is the frozen family code as a table: the Slots*Siblings issued
+	// names in index order (spread slot * Siblings + sibling). It is generated from the
+	// family automaton below and checked against it by the tests.
+	//go:embed familynames.txt
+	familyNamesText string
+
+	familyAutomatonOnce sync.Once
+	familyAutomatonCode *code
+
+	familyEndOnce sync.Once
+	familyEnd     map[string]bool
+
+	familyTableOnce  sync.Once
+	familyTableNames []string
+	familyTableIndex map[string]int
+	familyInvert     int // familyStride^-1 mod Slots
 )
 
 // familyRef is a decoded family name: release slot and sibling (the ID's low bits).
 type familyRef struct{ slot, lo int }
 
-// family builds the frozen family code once and checks its constants.
-func family() *code {
-	familyOnce.Do(func() {
+// familyEndings returns the syllables that may end a family name.
+func familyEndings() map[string]bool {
+	familyEndOnce.Do(func() {
 		inv := inventory(familyOnsets, familyRules.nuclei, familyCodas)
 		familyEnd = map[string]bool{}
 		for _, s := range inv.names {
@@ -64,13 +77,39 @@ func family() *code {
 				}
 			}
 		}
-		familyCode = newCode(inv, familyStepper(inv), familyAllower(inv))
-		if got := familyCode.capacity(familyLen); got.Cmp(big.NewInt(familyCapacity)) != 0 {
-			panic(fmt.Sprintf("phonym: family capacity %s, want %d", got, familyCapacity))
+	})
+	return familyEnd
+}
+
+// familyAutomaton builds the family automaton, which generates the family table.
+// Encoding and decoding use the table; the automaton is only used to build and
+// check it.
+func familyAutomaton() *code {
+	familyAutomatonOnce.Do(func() {
+		inv := inventory(familyOnsets, familyRules.nuclei, familyCodas)
+		familyAutomatonCode = newCode(inv, familyStepper(inv), familyAllower(inv))
+	})
+	return familyAutomatonCode
+}
+
+// familyTable loads the embedded family table once.
+func familyTable() ([]string, map[string]int) {
+	familyTableOnce.Do(func() {
+		for line := range strings.SplitSeq(familyNamesText, "\n") {
+			if line != "" && !strings.HasPrefix(line, "#") {
+				familyTableNames = append(familyTableNames, line)
+			}
+		}
+		if len(familyTableNames) != Slots*Siblings {
+			panic(fmt.Sprintf("phonym: family table has %d names, want %d", len(familyTableNames), Slots*Siblings))
+		}
+		familyTableIndex = make(map[string]int, len(familyTableNames))
+		for i, name := range familyTableNames {
+			familyTableIndex[name] = i
 		}
 		familyInvert = int(new(big.Int).ModInverse(big.NewInt(familyStride), big.NewInt(Slots)).Int64())
 	})
-	return familyCode
+	return familyTableNames, familyTableIndex
 }
 
 // familyStepper returns the family code's transition function.
@@ -94,7 +133,7 @@ func familyAllower(inv syllableSet) allowFunc {
 		switch {
 		case q.coda == "^" && p.coda == "":
 			return false
-		case last && !familyEnd[syl]:
+		case last && !familyEndings()[syl]:
 			return false
 		case last && familyBlocklist.wordBlocked(q.head, syl):
 			return false
@@ -111,13 +150,9 @@ func familyAllower(inv syllableSet) allowFunc {
 
 // familyName returns the family name of a release slot and sibling (0 <= lo < Siblings).
 func familyName(slot, lo int) string {
-	c := family()
+	names, _ := familyTable()
 	spread := (slot*familyStride + familyOffset) % Slots
-	syls, err := c.unrank(big.NewInt(int64(spread*Siblings+lo)), familyLen)
-	if err != nil {
-		panic(err) // unreachable: spread*Siblings+lo < Slots*Siblings <= familyCapacity
-	}
-	return strings.Join(syls, "")
+	return names[spread*Siblings+lo]
 }
 
 // familyParse decodes a family name into its release slot and sibling.
@@ -126,20 +161,9 @@ func familyParse(word string) (familyRef, error) {
 		return familyRef{}, fmt.Errorf("%w: %q is not a generation-%d family name (CVC-CVC, 6 letters)",
 			ErrUnsupportedFormat, word, Generation)
 	}
-	c := family()
-	syls, err := c.parse(word)
-	if err != nil {
-		return familyRef{}, fmt.Errorf("%w: %w", ErrUnsupportedFormat, err)
-	}
-	if len(syls) != familyLen {
-		return familyRef{}, fmt.Errorf("%w: %q must have %d syllables", ErrUnsupportedFormat, word, familyLen)
-	}
-	idx, err := c.rank(syls)
-	if err != nil {
-		return familyRef{}, fmt.Errorf("%w: %w", ErrUnsupportedFormat, err)
-	}
-	i := int(idx.Int64())
-	if i >= Slots*Siblings { // the familyCapacity % Siblings leftover names are never issued
+	_, index := familyTable()
+	i, ok := index[word] // the familyCapacity % Siblings leftover names are not in the table
+	if !ok {
 		return familyRef{}, fmt.Errorf("%w: %q is not an issued family name", ErrUnsupportedFormat, word)
 	}
 	spread := i / Siblings

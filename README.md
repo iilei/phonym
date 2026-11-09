@@ -102,6 +102,33 @@ Feistel network or `(a·x + c) mod n`).
 The semver major equals the family-name *generation* (the shape CVC-CVC is
 generation 1). The registry is append-only.
 
+## Performance
+
+phonym trades speed for exact, rule-based names. Measured on one core of a
+current laptop (`go test -bench .`):
+
+| ID size    | Encode  | Decode  | Name length (soft) |
+| ---------- | ------- | ------- | ------------------ |
+| 64 bits    | 1–10 µs | 4–12 µs | ~30 letters        |
+| 512 bits   | ~80 µs  | ~90 µs  | ~200 letters       |
+
+- **Cost per release, once:** the first use of a release builds its automaton,
+  3–65 ms and 1–8 MB depending on the style; all nine releases together take
+  about 27 MB. The family code is an embedded table (24,576 names), so it costs
+  nothing to build.
+- **Fast enough for names people see:** links, lists, tickets, UIs — 100,000 to
+  700,000 names per second per core for 64-bit IDs.
+- **Not for hot paths:** for millions of IDs per second, or tight memory budgets,
+  use a rule-free scheme such as proquint or Sqids. Exact ranking under
+  context-sensitive rules has to count through an automaton; that cost is
+  inherent.
+- **Where the cost goes:** encoding walks the automaton once per syllable, using
+  64-bit counts while they fit and big integers beyond; decoding first splits the
+  word into syllables (the parse proves the split is unique), then ranks it.
+- **Bounded:** memory grows with states × name length, not with the ID's value,
+  and the 512-bit default limit caps both for untrusted input. A test keeps all
+  releases at 512 bits under 256 MB.
+
 ## Conformance
 
 `testdata/family.txt` (the frozen family code) and `testdata/names/` (one file

@@ -279,6 +279,9 @@ Also required:
 - Only `divmod` on non-negative integers; negative IDs are rejected.
 - Memory stays at states × lengths numbers: store only `count[n][q]` and add counts
   while unranking and ranking; per-successor prefix tables cost gigabytes at 512 bits.
+- The family code may be stored as a table of its 24,576 issued names instead of
+  being built at run time, as long as the table is generated from the automaton
+  and checked against it (the reference embeds `familynames.txt`).
 - No hash functions anywhere in the format.
 
 ## 10. Conformance

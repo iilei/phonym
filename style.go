@@ -114,7 +114,7 @@ func (s *Style) endings(inv syllableSet) (map[string]bool, error) {
 	if len(dead) > 0 {
 		return nil, fmt.Errorf("style %s: suffixes matching no syllable: %v", s.Name, dead)
 	}
-	family()
+	familyEnd := familyEndings()
 	for syl := range end {
 		if familyEnd[syl] {
 			return nil, fmt.Errorf("style %s: ending %q overlaps the family endings", s.Name, syl)

@@ -266,3 +266,22 @@ func TestFamilyNamesUnique(t *testing.T) {
 		}
 	}
 }
+
+// TestFamilyTable checks the embedded family table against the family automaton;
+// -update regenerates it (familynames.txt).
+func TestFamilyTable(t *testing.T) {
+	t.Parallel()
+	want, err := phonym.FamilyTableFromAutomaton()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if *update {
+		if err := os.WriteFile("familynames.txt", []byte(want), 0o600); err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+	if got := phonym.FamilyTableEmbedded(); got != want {
+		t.Fatal("familynames.txt differs from the family automaton; run go test -run TestFamilyTable -update")
+	}
+}
