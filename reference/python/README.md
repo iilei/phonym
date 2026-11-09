@@ -5,12 +5,12 @@ independent second implementation: `snapshot.py --check` must reproduce
 `testdata/` exactly, just like the Go tests. They are not a library and not the
 planned Python port.
 
-| File | Contents |
-|---|---|
-| `syllable_automaton.py` | ranking over the automaton; the base syllable rules |
-| `family_demo.py` | the frozen family code (SHAPE and GENERATION rules) |
-| `styles_demo.py` | styles, the release registry, INPUT and JOIN rules, short form; running it prints its checks |
-| `snapshot.py` | writes or checks `testdata/family_snapshot.txt` and `testdata/names_snapshot.txt` |
+| File                    | Contents                                                                                     |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| `syllable_automaton.py` | ranking over the automaton; the base syllable rules                                          |
+| `family_demo.py`        | the frozen family code (SHAPE and GENERATION rules)                                          |
+| `styles_demo.py`        | styles, the release registry, INPUT and JOIN rules, short form; running it prints its checks |
+| `snapshot.py`           | writes or checks `testdata/family_snapshot.txt` and `testdata/names_snapshot.txt`            |
 
 ```sh
 python3 snapshot.py --check   # compare against ../../testdata

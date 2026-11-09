@@ -1,4 +1,6 @@
+*coverage.txt
+coverage
+/phonym
+/dist
 bin
-dist
-coverage.txt
 __pycache__/

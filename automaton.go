@@ -49,11 +49,10 @@ type (
 		step   stepFunc
 		succ   map[succKey][]string
 		index  map[succKey]map[string]int
+		tab    tables
 		states []state
+		mu     sync.Mutex
 		maxSyl int
-
-		mu  sync.Mutex
-		tab tables
 	}
 )
 
@@ -224,15 +223,15 @@ func (c *code) decodeVar(word string) (*big.Int, error) {
 // (no recursion limit) and finds all parses, so ambiguity is detected.
 func (c *code) parse(word string) ([]string, error) {
 	type node struct {
-		pos int
 		q   state
+		pos int
 	}
 	type edge struct {
 		syl string
 		to  node
 	}
 	n := len(word)
-	root := node{0, startState}
+	root := node{q: startState}
 	edges := map[node][]edge{}
 	order := []node{root}
 	seen := map[node]bool{root: true}
@@ -243,7 +242,7 @@ func (c *code) parse(word string) ([]string, error) {
 			if _, ok := c.index[succKey{v.q, j == n}][syl]; !ok {
 				continue
 			}
-			to := node{j, c.step(v.q, syl)}
+			to := node{q: c.step(v.q, syl), pos: j}
 			edges[v] = append(edges[v], edge{syl, to})
 			if !seen[to] {
 				seen[to] = true

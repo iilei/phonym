@@ -28,8 +28,10 @@ var (
 	familyCodas    = []string{"", "n", "r", "s", "l", "v"}
 	familySuffixes = []string{"en", "in", "ov", "av", "as", "us", "ul"}
 	familyRules    = &rules{
-		nuclei:            "aeiou",
-		harmony:           map[string]string{"e": "front", "i": "front", "o": "back", "u": "back", "a": ""},
+		nuclei: "aeiou",
+		harmony: map[string]string{
+			"e": harmonyFront, "i": harmonyFront, "o": harmonyBack, "u": harmonyBack, "a": "",
+		},
 		voiced:            "bdgvz",
 		voiceless:         "ptkfsh",
 		voicingExceptions: map[pair]bool{{"s", "b"}: true, {"s", "d"}: true, {"s", "g"}: true},

@@ -1,47 +1,66 @@
+# Hygiene hooks from pre-commit-hooks, then the same mise tasks CI runs (versions pinned in mise.toml),
+# so a hook failure reproduces with the same command: mise run <task>.
 repos:
-  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.6.1
-    hooks:
-      - id: editorconfig-checker
-        alias: ec
-        exclude: '\.go$|^testdata/'  # Go formatting is handled by gofmt; snapshots are generated
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: check-toml
       - id: check-added-large-files
-        args: ['--maxkb=2048']  # testdata/family_snapshot.txt is ~1 MB
+        args: ['--maxkb=2048']  # testdata/family_snapshot.txt is ~600 KB
       - id: mixed-line-ending
         args: ['--fix=lf']
 
-  - repo: https://github.com/golangci/golangci-lint
-    rev: v2.12.1
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.6.1
     hooks:
-      - id: golangci-lint-full
-      - id: golangci-lint-fmt
+      - id: editorconfig-checker
+        alias: ec
+        # Go is formatted by golangci-lint fmt; snapshots are generated; the Python prototype keeps PEP 8 hanging indents.
+        exclude: '\.go$|^testdata/|^reference/python/.*\.py$'
 
   - repo: local
     hooks:
-      - id: go-vet
-        name: go vet
-        entry: go vet ./...
+      - id: fmt-check
+        name: mise run fmt:check
+        entry: mise run fmt:check
         language: system
         types: [go]
         pass_filenames: false
 
-      - id: go-test
-        name: go test
-        entry: go test -short ./...
+      - id: vet
+        name: mise run vet
+        entry: mise run vet
         language: system
         types: [go]
         pass_filenames: false
 
-      - id: reference-snapshots
-        name: python reference matches testdata
-        entry: python3 reference/python/snapshot.py --check
+      - id: lint
+        name: mise run lint
+        entry: mise run lint
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: test
+        name: mise run test
+        entry: mise run test
+        language: system
+        files: '\.go$|^testdata/'
+        pass_filenames: false
+
+      - id: golden-check
+        name: mise run golden:check
+        entry: mise run golden:check
         language: system
         files: '^(reference/python/.*\.py|testdata/.*)$'
+        pass_filenames: false
+
+      - id: lint-md
+        name: mise run lint:md
+        entry: mise run lint:md
+        language: system
+        types: [markdown]
         pass_filenames: false

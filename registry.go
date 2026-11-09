@@ -8,6 +8,13 @@ import (
 	"sync"
 )
 
+// Style names, as used in release labels.
+const (
+	styleSoft    = "soft"
+	styleCrisp   = "crisp"
+	styleFlowing = "flowing"
+)
+
 var (
 	// semverWithBuild is semver 2.0 (semver.org) with build metadata required.
 	semverWithBuild = regexp.MustCompile(
@@ -16,33 +23,41 @@ var (
 			`\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)$`)
 
 	// Released styles. Never edit one: add a new style and a new release instead.
+	// The shared lists below are never modified; a change needs a new list.
+	softEndings    = []string{"a", "i", "el", "an", "il"}
+	crispEndings   = []string{"is", "os", "ar", "on", "ir", "o"}
+	flowingEndings = []string{"a", "o", "i"}
+	softCodas      = []string{"", "n", "l"}
+	crispCodas     = []string{"", "n", "r", "s"}
+	flowingCodas   = []string{""}
+
 	soft10 = &Style{
-		rules: rules1, Name: "soft", Onsets: "blmnrvdg", Codas: []string{"", "n", "l"},
-		EndSuffixes: []string{"a", "i", "el", "an", "il"}, Harmony: true,
+		rules: rules1, Name: styleSoft, Onsets: "blmnrvdg", Codas: softCodas,
+		EndSuffixes: softEndings, Harmony: true,
 	}
 	crisp10 = &Style{
-		rules: rules1, Name: "crisp", Onsets: "bdfgkpstz", Codas: []string{"", "n", "r", "s"},
-		EndSuffixes: []string{"is", "os", "ar", "on", "ir", "o"}, Harmony: false,
+		rules: rules1, Name: styleCrisp, Onsets: "bdfgkpstz", Codas: crispCodas,
+		EndSuffixes: crispEndings, Harmony: false,
 	}
 	flowing10 = &Style{
-		rules: rules1, Name: "flowing", Onsets: "lmnrvsdt", Codas: []string{""},
-		EndSuffixes: []string{"a", "o", "i"}, Harmony: true,
+		rules: rules1, Name: styleFlowing, Onsets: "lmnrvsdt", Codas: flowingCodas,
+		EndSuffixes: flowingEndings, Harmony: true,
 	}
 	soft11 = &Style{
-		rules: rules1, Name: "soft", Onsets: "blmnrvdgjw", Codas: []string{"", "n", "l"},
-		EndSuffixes: []string{"a", "i", "el", "an", "il"}, Harmony: true,
+		rules: rules1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		EndSuffixes: softEndings, Harmony: true,
 	}
 	crisp11 = &Style{
-		rules: rules1, Name: "crisp", Onsets: "bdfgkpstzh", Codas: []string{"", "n", "r", "s"},
-		EndSuffixes: []string{"is", "os", "ar", "on", "ir", "o"}, Harmony: false,
+		rules: rules1, Name: styleCrisp, Onsets: "bdfgkpstzh", Codas: crispCodas,
+		EndSuffixes: crispEndings, Harmony: false,
 	}
 	flowing11 = &Style{
-		rules: rules1, Name: "flowing", Onsets: "lmnrvsdtjw", Codas: []string{""},
-		EndSuffixes: []string{"a", "o", "i"}, Harmony: true,
+		rules: rules1, Name: styleFlowing, Onsets: "lmnrvsdtjw", Codas: flowingCodas,
+		EndSuffixes: flowingEndings, Harmony: true,
 	}
 	soft12 = &Style{
-		rules: rules1, Name: "soft", Onsets: "blmnrvdgjw", Codas: []string{"", "n", "l"},
-		EndSuffixes: []string{"a", "i", "el", "an", "il"}, Harmony: true, Split: []int{2, 2},
+		rules: rules1, Name: styleSoft, Onsets: "blmnrvdgjw", Codas: softCodas,
+		EndSuffixes: softEndings, Harmony: true, Split: []int{2, 2},
 	}
 
 	// registry is frozen and append-only: the index is what names store. Entries may
@@ -77,9 +92,9 @@ type (
 
 	// lazyCode builds a release's automaton on first use.
 	lazyCode struct {
-		once sync.Once
 		code *code
 		err  error
+		once sync.Once
 	}
 )
 

@@ -20,7 +20,7 @@ linters:
     - gomoddirectives      # Manages the use of 'replace', 'retract', and 'excludes' directives in go.mod
     - goprintffuncname     # Checks that printf-like functions are named with f at the end
     - gosec                # Inspects source code for security problems
-    - govet                # Reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
+    - govet                # Reports suspicious constructs, such as Printf calls with mismatched arguments
     - iface                # Checks the incorrect use of interfaces, helping developers avoid interface pollution
     - ineffassign          # Detects when assignments to existing variables are not used
     - intrange             # Finds places where for loops could make use of an integer range
@@ -63,13 +63,12 @@ linters:
     - usetesting           # Reports uses of functions with replacement inside the testing package
     - wastedassign         # Finds wasted assignment statements
     - whitespace           # Detects leading and trailing whitespace
-
   settings:
     dupl:
       threshold: 100
     goconst:
       min-len: 2
-      min-occurrences: 2
+      min-occurrences: 3
     gocritic:
       enabled-tags:
         - diagnostic
@@ -77,6 +76,9 @@ linters:
         - opinionated
         - performance
         - style
+      # nonamedreturns enforces the opposite policy for multi-result functions.
+      disabled-checks:
+        - unnamedResult
       # Settings passed to gocritic.
       # The settings key is the name of a supported gocritic checker.
       # The list of supported checkers can be found at https://go-critic.com/overview.
@@ -99,6 +101,7 @@ linters:
         - buildtag
         - nilfunc
         - printf
+        - fieldalignment  # checks that struct fields are ordered to minimise padding
     misspell:
       locale: US
     nolintlint:
@@ -113,12 +116,14 @@ linters:
         - func
       disable-dec-order-check: false
       disable-init-func-first-check: false
-      disable-dec-num-check: false        # Allow multiple declarations of same type
+      disable-dec-num-check: true         # Allow multiple declarations of same type
     gocognit:
       min-complexity: 25                  # Minimal code complexity to report (default: 30)
     revive:
       rules:
         - name: package-comments
+          severity: warning
+        - name: exported
           severity: warning
   exclusions:
     rules:
@@ -126,7 +131,49 @@ linters:
         linters:
           - errcheck
           - unparam
-        text: "always nil"
+      - path: '_test\.go'
+        linters:
+          # These catch real bugs in production code, but are low-value noise in
+          # tests: table-driven fixtures naturally repeat literals (goconst),
+          # tests commonly use weak/fixed values and permissive file modes on
+          # purpose (gosec), keeping tests in-package (testpackage) is this
+          # repo's convention so they can exercise unexported helpers, os.Setenv
+          # /os.Chdir over t.Setenv/t.Chdir (usetesting) is a style preference,
+          # and duplicated setup boilerplate (dupl) or bytes/strings mirror
+          # suggestions (mirror) are not worth the churn in test code.
+          - goconst
+          - gosec
+          - testpackage
+          - usetesting
+          - dupl
+          - mirror
+          - dupword
+          # Tests assert on the concrete error type returned by the code under
+          # test (not a wrapped error from a chain), so a direct type assertion
+          # is correct here; errors.As adds no value over err.(*ExitCodeError).
+          - errorlint
+          # Expected values in test tables are literal on purpose (mnd), failure
+          # messages favour readable fmt.Sprintf over micro-optimised concatenation
+          # (perfsprint), and table/golden runners branch per case kind, which
+          # inflates complexity scores without making the tests harder to read
+          # (gocognit, gocyclo, nestif).
+          - mnd
+          - perfsprint
+          - gocognit
+          - gocyclo
+          - nestif
+      # Table-driven tests define ad-hoc case structs and range over them by
+      # value; memory layout (fieldalignment) and per-iteration copies
+      # (rangeValCopy, hugeParam) are irrelevant there. Other govet and gocritic
+      # checks stay active in tests.
+      - path: '_test\.go'
+        linters:
+          - govet
+        text: 'fieldalignment'
+      - path: '_test\.go'
+        linters:
+          - gocritic
+        text: '(rangeValCopy|hugeParam)'
       - path: 'cmd/'
         linters:
           - errcheck
@@ -152,13 +199,15 @@ formatters:
         - standard
         - default
         - prefix(github.com/iilei/phonym)
-    gofumpt:
-      extra-rules: true
     goimports:
       local-prefixes:
         - github.com/iilei/phonym
     golines:
       max-len: 120
+    # gofumpt's "extra rules" (ExtraRules) is a single all-or-nothing switch,
+    # not the fine-grained group-params/clothe-returns/balance-calls toggles
+    # previously listed here; enabling it produced incorrect double-indented
+    # struct literals in multi-value returns. Left disabled (the default).
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0

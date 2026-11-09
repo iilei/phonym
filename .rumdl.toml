@@ -1,0 +1,18 @@
+[global]
+extend-enable = [
+  "MD060",
+  "MD001",  # Heading increment
+  "MD003",  # Heading style
+  "MD022",  # Blanks around headings
+  "MD025",  # Single title
+  "MD032",  # Blanks around lists
+]
+
+[MD013]
+line-length = 127
+
+# Tables aligned in the source, so they read well without rendering.
+[MD060]
+enabled = true
+style = "aligned"
+column-align = "auto"

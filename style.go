@@ -24,12 +24,12 @@ type Style struct {
 	Codas []string
 	// EndSuffixes are the vowel+coda suffixes allowed on the last syllable of a word.
 	EndSuffixes []string
-	// Harmony enables vowel harmony (e i front, o u back, a neutral).
-	Harmony bool
 	// Split is the shape of the given name in syllables per word. Empty means one
 	// word of variable length; [2 2] means two words of exactly 2 syllables each,
 	// combined like digits: value = word1 * capacity(2) + word2.
 	Split []int
+	// Harmony enables vowel harmony (e i front, o u back, a neutral).
+	Harmony bool
 	// Joinable makes decoding ignore separators inside the given name (JOIN RULE).
 	Joinable bool
 }

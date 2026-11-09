@@ -1,18 +1,134 @@
 [tools]
-go = "1.25"
+# Keep the linter before Go so an older copy in Go's bin directory cannot shadow it.
+golangci-lint = "2.15.0"
+go = "1.27.3"
+# Builds, signs and publishes releases (.goreleaser.yml); CI uses the same version.
+goreleaser = "2.19.0"
+# Markdown style (.rumdl.toml): README, SPEC and the reference notes.
+rumdl = "0.3.0"
+# Git hooks (.pre-commit-config.yaml); mise run hooks installs them.
+pre-commit = "4.7.0"
+# The Go library's API against the last release (api:diff). x/exp has no tags: a pseudo-version at least two weeks old.
+"go:golang.org/x/exp/cmd/apidiff" = "0.0.0-20261014143641-f0251eb4aa3e"
 
-[tasks.test]
-description = "Run Go tests (including the golden snapshots)"
-run = "go test ./..."
+[tasks.fmt]
+description = "Format Go code using the configured golangci-lint formatters"
+run = "golangci-lint fmt"
 
-[tasks.reference]
-description = "Check that the Python reference reproduces testdata"
-run = "python3 reference/python/snapshot.py --check"
+[tasks."fmt:check"]
+description = "Check Go formatting without changing files"
+run = "golangci-lint fmt --diff"
+
+[tasks.vet]
+description = "Run Go vet on all packages"
+run = "go vet ./..."
 
 [tasks.lint]
-description = "Run golangci-lint"
-run = "golangci-lint run ./..."
+description = "Run golangci-lint with .golangci.yml"
+run = "golangci-lint run"
 
-[tasks.bump]
-description = "Bump Go module dependencies and verify"
-run = "go get -u ./... && go mod tidy && mise run test"
+[tasks.test]
+description = "Run all tests with the race detector, including the golden snapshots"
+run = "go test -race ./..."
+
+[tasks.coverage]
+description = "Run tests and report coverage"
+run = [
+  "mkdir -p coverage",
+  "go test -race -coverpkg=./... -coverprofile=coverage/coverage.out ./...",
+  "go tool cover -func=coverage/coverage.out",
+]
+
+[tasks."lint:md"]
+description = "Check Markdown style with rumdl (.rumdl.toml); mise run fmt:md fixes what it can"
+run = "rumdl check ."
+
+[tasks."fmt:md"]
+description = "Fix Markdown style issues rumdl can fix"
+run = "rumdl fmt ."
+
+[tasks.build]
+description = "Compile all packages, including the CLI"
+run = "go build ./..."
+
+[tasks.tidy]
+description = "Tidy Go module dependencies"
+run = "go mod tidy"
+
+[tasks.check]
+description = "Run all non-mutating quality checks"
+depends = ["fmt:check", "vet", "lint", "lint:md", "golden:check", "test", "build"]
+
+[tasks.hooks]
+description = "Install the git hooks from .pre-commit-config.yaml"
+run = "pre-commit install"
+
+[tasks."golden:check"]
+description = "Regenerate testdata/ from the Python reference and fail if anything changed or appeared"
+run = '''
+set -eu
+python3 reference/python/snapshot.py > /dev/null
+rm -rf reference/python/__pycache__
+if [ -n "$(git status --porcelain -- testdata)" ]; then
+  git status --short -- testdata
+  echo "testdata/ differs from the Python reference: run mise run golden:update and commit the result" >&2
+  exit 1
+fi
+'''
+
+[tasks."golden:update"]
+description = "Regenerate testdata/ from the Python reference, then check that the Go implementation agrees"
+run = [
+  "python3 reference/python/snapshot.py",
+  "rm -rf reference/python/__pycache__",
+  "go test -run Snapshot ./...",
+]
+
+[tasks."release:snapshot"]
+description = "Build the release archives locally (no signing, no publishing) into dist/release"
+run = "goreleaser release --snapshot --clean --skip=sign,publish"
+
+[tasks."api:diff"]
+description = "Compare the Go library's exported API with the last release; with --release, fail on a too small bump"
+usage = '''
+flag "--release <tag>" help="The tag being released (checked out); incompatible changes need a minor (< 1.0) or major bump"
+flag "--base <ref>" help="Compare with this ref instead of the newest regular release before HEAD or the tag"
+'''
+run = '''
+set -eu
+pkg=github.com/iilei/phonym
+release=${usage_release:-}
+head=HEAD
+if [ -n "$release" ]; then
+  case $release in
+  v[0-9]*.[0-9]*.[0-9]*) ;;
+  *) echo "api:diff: --release $release: want vMAJOR.MINOR.PATCH, optionally with -pre" >&2; exit 2 ;;
+  esac
+  [ "$(git rev-parse -q --verify "$release^{commit}" || true)" = "$(git rev-parse HEAD)" ] ||
+    { echo "api:diff: --release $release: check out that tag first" >&2; exit 2; }
+  head="$release^"
+fi
+# The newest regular release (no pre-release suffix) that the compared code contains.
+base=${usage_base:-$(git tag --list 'v*' --merged "$head" --sort=-v:refname | grep -v -- - | head -n 1 || true)}
+if [ -z "$base" ]; then
+  echo "api:diff: no earlier release to compare with"
+  exit 0
+fi
+tmp=$(mktemp -d)
+trap 'git worktree remove --force "$tmp/base" >/dev/null 2>&1 || true; rm -rf "$tmp"' EXIT
+git worktree add --quiet --detach "$tmp/base" "$base"
+(cd "$tmp/base" && apidiff -w "$tmp/base.api" "$pkg")
+apidiff "$tmp/base.api" "$pkg" >"$tmp/all"
+apidiff -incompatible "$tmp/base.api" "$pkg" >"$tmp/incompatible"
+echo "API of $pkg compared with $base:"
+if [ -s "$tmp/all" ]; then cat "$tmp/all"; else echo "no changes"; fi
+[ -n "$release" ] && [ -s "$tmp/incompatible" ] || exit 0
+# Incompatible changes: before 1.0 the minor must rise (0.2.x -> 0.3.0), from 1.0 on the major.
+core() { v=${1#v}; echo "${v%%-*}" | tr . ' '; }
+set -- $(core "$base") $(core "$release")
+if [ "$1" -eq 0 ] && { [ "$4" -gt 0 ] || [ "$5" -gt "$2" ]; }; then exit 0; fi
+if [ "$1" -gt 0 ] && [ "$4" -gt "$1" ]; then exit 0; fi
+kind=$([ "$1" -eq 0 ] && echo minor || echo major)
+echo "api:diff: $release has incompatible API changes since $base; it needs a new $kind version" >&2
+exit 1
+'''

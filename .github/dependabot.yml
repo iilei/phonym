@@ -1,0 +1,29 @@
+# Updates for every pinned dependency except the tools in mise.toml (Dependabot doesn't read mise; bump those by hand,
+# with versions at least two weeks old). The cooldown applies the same two-week rule: a release is proposed only once
+# it is 14 days old. One grouped pull request per ecosystem and week; "chore(deps)" keeps them out of the changelog.
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(deps)
+
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      go:
+        patterns: ["*"]
+    commit-message:
+      prefix: chore(deps)

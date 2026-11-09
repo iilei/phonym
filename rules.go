@@ -1,9 +1,17 @@
 package phonym
 
+// Vowel harmony classes; a neutral vowel has the class "".
+const (
+	harmonyFront = "front"
+	harmonyBack  = "back"
+)
+
 // rules1 are the rules of generation 1.
 var rules1 = &rules{
-	nuclei:            "aeiou",
-	harmony:           map[string]string{"e": "front", "i": "front", "o": "back", "u": "back", "a": ""},
+	nuclei: "aeiou",
+	harmony: map[string]string{
+		"e": harmonyFront, "i": harmonyFront, "o": harmonyBack, "u": harmonyBack, "a": "",
+	},
 	voiced:            "bdgvz",
 	voiceless:         "ptkfsh",
 	voicingExceptions: map[pair]bool{{"s", "b"}: true, {"s", "d"}: true, {"s", "g"}: true},
@@ -21,19 +29,19 @@ type (
 
 	// syllableSet is an ordered syllable inventory with each syllable's parts.
 	syllableSet struct {
-		names []string
 		parts map[string]parts
+		names []string
 	}
 
 	// rules are the generation-1 phonotactic tables shared by the released styles.
 	// They are frozen: a change would rename every name of every release using them.
 	rules struct {
-		nuclei            string
 		harmony           map[string]string // vowel -> class; "" is neutral
+		voicingExceptions map[pair]bool     // voiceless coda + voiced onset, allowed anyway
+		clusterBans       map[pair]bool
+		nuclei            string
 		voiced            string
 		voiceless         string
-		voicingExceptions map[pair]bool // voiceless coda + voiced onset, allowed anyway
-		clusterBans       map[pair]bool
 	}
 )
 

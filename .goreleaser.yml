@@ -1,22 +1,49 @@
 version: 2
 
+# Release builds go to dist/release (mise run release:snapshot builds the same locally).
+dist: dist/release
+
 before:
   hooks:
-    - go mod tidy
     - go test ./...
 
 builds:
-  - id: phonym-unix
+  - id: phonym-linux
     main: ./cmd/phonym
     binary: phonym
     env:
       - CGO_ENABLED=0
     goos:
       - linux
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "7"  # ARMv7
+    # Reproducible: no local paths in the binary, file times from the commit.
+    flags:
+      - -trimpath
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+
+  - id: phonym-darwin
+    main: ./cmd/phonym
+    binary: phonym
+    env:
+      - CGO_ENABLED=0
+    goos:
       - darwin
     goarch:
       - amd64
       - arm64
+    flags:
+      - -trimpath
+    mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
@@ -33,6 +60,9 @@ builds:
     goarch:
       - amd64
       - arm64
+    flags:
+      - -trimpath
+    mod_timestamp: "{{ .CommitTimestamp }}"
     ldflags:
       - -s -w
       - -X main.version={{.Version}}
@@ -42,12 +72,23 @@ builds:
 archives:
   - id: unix-archives
     ids:
-      - phonym-unix
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+      - phonym-linux
+      - phonym-darwin
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_
+      {{- if and (eq .Os "darwin") (eq .Arch "all") -}}
+      universal2
+      {{- else if eq .Arch "amd64" -}}
+      x86_64
+      {{- else -}}
+      {{ .Arch }}
+      {{- end -}}
+      {{- if eq .Arch "arm" }}v{{ .Arm }}{{ end }}
     formats:
       - tar.gz
     files:
       - README.md
+      - SPEC.md
       - LICENSE
 
   - id: windows-archives
@@ -58,7 +99,14 @@ archives:
       - zip
     files:
       - README.md
+      - SPEC.md
       - LICENSE
+
+universal_binaries:
+  - id: phonym-darwin
+    ids:
+      - phonym-darwin
+    replace: true
 
 checksum:
   name_template: 'checksums.txt'
@@ -72,7 +120,7 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
-      - '^chore:'
+      - '^chore(\(.+\))?:'
       - Merge pull request
       - Merge branch
   groups:
@@ -85,38 +133,49 @@ changelog:
     - title: Others
       order: 999
 
+# Every archive and checksums.txt get a detached GPG signature (<file>.sig). The key comes from the release workflow
+# (GPG_FINGERPRINT); mise run release:snapshot skips signing.
 signs:
-  - cmd: gpg
-    args:
-      - "--batch"
-      - "--local-user"
-      - "{{ .Env.GPG_FINGERPRINT }}"
-      - "--output"
-      - "${signature}"
-      - "--detach-sign"
-      - "${artifact}"
+  - id: archives
+    cmd: gpg
+    args: ["--batch", "--local-user", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}"]
+    artifacts: archive
+    output: true
+  - id: checksums
+    cmd: gpg
+    args: ["--batch", "--local-user", "{{ .Env.GPG_FINGERPRINT }}", "--output", "${signature}", "--detach-sign", "${artifact}"]
     artifacts: checksum
     output: true
 
 release:
   prerelease: auto
   draft: false
-  replace_existing_draft: true
-  make_latest: true
   mode: replace
   header: |
     ## phonym {{ .Tag }} ({{ .Date }})
 
-    Pronounceable, versioned names for integers - and back.
+    Pronounceable, versioned names for integers, and back.
   footer: |
     **Full Changelog**: https://github.com/iilei/phonym/compare/{{ .PreviousTag }}...{{ .Tag }}
 
     ## Installation
 
     ### Binary Download
-    Download the appropriate binary for your platform from the assets below.
+    Download the archive for your platform from the assets below. Each archive has a detached GPG signature (`.sig`);
+    `checksums.txt` lists them and is signed too:
+
+    ```bash
+    gpg --verify checksums.txt.sig checksums.txt
+    sha256sum --check --ignore-missing checksums.txt
+    ```
+
+    Every file in `checksums.txt` also has a GitHub build provenance attestation:
+
+    ```bash
+    gh attestation verify <archive> --repo iilei/phonym
+    ```
 
     ### Using Go
     ```bash
-    go install github.com/iilei/phoni./cmd/phonym@{{ .Tag }}
+    go install github.com/iilei/phonym/cmd/phonym@{{ .Tag }}
     ```

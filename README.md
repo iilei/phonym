@@ -2,7 +2,7 @@
 
 Pronounceable, versioned names for integers, and back.
 
-```
+```text
 4711        → badil-durjav            (1.1.0+soft)
 0x62e6b43   → manwudoma-durmav
 0x62e6b43   → besanzoso-vorjas        (1.1.0+crisp)
@@ -77,11 +77,11 @@ Feistel network or `(a·x + c) mod n`).
 
 ## Releases
 
-| Slot | Release | Given name |
-|---|---|---|
-| 0–2 | `1.0.0+soft`, `1.0.0+crisp`, `1.0.0+flowing` | one word, variable length |
-| 3–5 | `1.1.0+soft`, `1.1.0+crisp`, `1.1.0+flowing` | one word, variable length |
-| 6 | `1.2.0+soft` | two words of 2 syllables (`bala-bema`) |
+| Slot | Release                                      | Given name                             |
+| ---- | -------------------------------------------- | -------------------------------------- |
+| 0–2  | `1.0.0+soft`, `1.0.0+crisp`, `1.0.0+flowing` | one word, variable length              |
+| 3–5  | `1.1.0+soft`, `1.1.0+crisp`, `1.1.0+flowing` | one word, variable length              |
+| 6    | `1.2.0+soft`                                 | two words of 2 syllables (`bala-bema`) |
 
 The semver major equals the family-name *generation* (the shape CVC-CVC is
 generation 1). The registry is append-only.
@@ -96,6 +96,19 @@ the same.
 ```sh
 go test ./...                                  # includes the golden files
 python3 reference/python/snapshot.py --check   # the reference agrees
+```
+
+## Development
+
+Tool versions are pinned in `mise.toml`, and CI runs the same mise tasks, so a failure reproduces locally with the
+same command.
+
+```sh
+mise install          # Go, golangci-lint, rumdl, goreleaser, pre-commit
+mise run hooks        # install the git hooks (.pre-commit-config.yaml)
+mise run check        # fmt:check, vet, lint, lint:md, golden:check, test (race), build
+mise run golden:update  # after a format change: regenerate testdata/ from the reference, check Go agrees
+mise run release:snapshot  # build the release archives locally into dist/release
 ```
 
 ## Prior art

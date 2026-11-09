@@ -34,15 +34,17 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 - Position rules use the remaining length: the last syllable must be in END;
   `START` selects the initial inventory.
 
-| Rule | Detail |
-|---|---|
-| Vowel harmony | `e i` front, `o u` back, `a` neutral; first non-neutral vowel fixes the class (per style) |
-| Stutter | no two consecutive syllables with the same onset |
-| Doubling | coda ≠ next onset |
-| Closed syllables | no two closed syllables in a row (given names only) |
-| Banned clusters | `s‑z`, `n‑m`, `r‑l`, `l‑r` |
-| Voicing | voiced coda (`bdgvz`) before voiceless onset (`ptkfsh`) banned; voiceless before voiced banned except `sb sd sg` |
-| END | only listed vowel+coda endings may close a word |
+| Rule             | Detail                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| Vowel harmony    | `e i` front, `o u` back, `a` neutral; first non-neutral vowel fixes the class (per style)   |
+| Stutter          | no two consecutive syllables with the same onset                                            |
+| Doubling         | coda ≠ next onset                                                                           |
+| Closed syllables | no two closed syllables in a row (given names only)                                         |
+| Banned clusters  | `s‑z`, `n‑m`, `r‑l`, `l‑r`                                                                  |
+| Voicing          | voiced coda before voiceless onset banned; voiceless before voiced banned except `sb sd sg` |
+| END              | only listed vowel+coda endings may close a word                                             |
+
+Voiced consonants are `bdgvz`, voiceless ones `ptkfsh`.
 
 ## 4. Name structure: given name(s) + family name
 
@@ -92,11 +94,11 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
   decodes names of releases retired since. An encoder with an older registry
   could still issue names in a release retired since; keep encoders current.
 
-| # | Label | Notes |
-|---|---|---|
-| 0–2 | `1.0.0+soft/crisp/flowing` | original styles |
+| #   | Label                      | Notes                                       |
+| --- | -------------------------- | ------------------------------------------- |
+| 0–2 | `1.0.0+soft/crisp/flowing` | original styles                             |
 | 3–5 | `1.1.0+soft/crisp/flowing` | extra onsets: soft/flowing `j w`, crisp `h` |
-| 6 | `1.2.0+soft` | `split = (2, 2)` |
+| 6   | `1.2.0+soft`               | `split = (2, 2)`                            |
 
 ## 6. Styles
 
@@ -170,12 +172,12 @@ in. Both reproduce `testdata/` exactly. A pure Python port is planned.
 - Length, IDs uniform in Babbler's range 0 to 1,643,523 (Babbler: always 9
   characters):
 
-  | Release | Full | Short |
-  |---|---|---|
-  | `1.1.0+flowing` | 12.9 | 9.0 |
-  | `1.1.0+crisp` | 14.1 | 9.0 |
-  | `1.1.0+soft` | 13.8 | 9.1 |
-  | `1.2.0+soft` | 17.2 | 10.4 |
+  | Release         | Full | Short |
+  | --------------- | ---- | ----- |
+  | `1.1.0+flowing` | 12.9 | 9.0   |
+  | `1.1.0+crisp`   | 14.1 | 9.0   |
+  | `1.1.0+soft`    | 13.8 | 9.1   |
+  | `1.2.0+soft`    | 17.2 | 10.4  |
 
   Short forms are about as long as Babbler's names on that range; shorter for
   small IDs, and they keep going past 1.6M.
