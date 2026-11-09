@@ -1,0 +1,56 @@
+# phonym names: 1.2.0+soft (slot 6)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=a0ac0ea72594fc44
+#
+# IDs up to 64 bits
+#             id  short        full
+               0  bala-bala    bala-bala-woltav
+               1  bala-balan   bala-bala-woltov
+               3  bala-bama    bala-bala-woltul
+              3f  bala-baldi   bala-bala-wovjov
+              40  bala-balga   bala-balan-woltav
+              41  bala-balgi   bala-balan-woltov
+              5a  bala-bevi    bala-balan-wovbul
+              8d  bala-bilan   bala-bali-wolhav
+             335  bala-nalja   bala-bara-wovrov
+             ae7  balan-bigil  bala-banli-wovlov
+            6f11  bani-jira    bala-linwa-woljas
+            7c95  bara-lova    bala-mali-woljul
+           1216f  bagan-molga  bala-rigan-wovnav
+           3eaed  bega-wunva   balan-velba-wovmul
+          873b20  <overflow>   banja-jiri-wovgas
+          eecf63  <overflow>   bedan-nelwi-wovgus
+          ffffff  <overflow>   begi-bima-wovjov
+         1000000  <overflow>   begi-biman-woltav
+         286a22a  <overflow>   buga-gejil-wovmav
+         f07b2f6  <overflow>   volga-jewa-wovrus
+         fffffff  <overflow>   dalvi-jonba-wovjov
+        10000000  <overflow>   dalvi-jonla-woltav
+        4481567b  <overflow>   <overflow>
+        8e3cf6de  <overflow>   <overflow>
+        ffffffff  <overflow>   <overflow>
+       636bc30c1  <overflow>   <overflow>
+       ef9bd1895  <overflow>   <overflow>
+      61294d2956  <overflow>   <overflow>
+      fed78a925f  <overflow>   <overflow>
+      ffffffffff  <overflow>   <overflow>
+     395eb6099c5  <overflow>   <overflow>
+     dd84d70b56c  <overflow>   <overflow>
+    47b06665a016  <overflow>   <overflow>
+    7c7a5edd8d84  <overflow>   <overflow>
+    ffffffffffff  <overflow>   <overflow>
+   ae1af9435f19c  <overflow>   <overflow>
+   ec5386b509570  <overflow>   <overflow>
+  2639dff89fa6f2  <overflow>   <overflow>
+  d67ad7b358491f  <overflow>   <overflow>
+  ffffffffffffff  <overflow>   <overflow>
+ 3f4efbb3009e56b  <overflow>   <overflow>
+ 50d5843b27fc656  <overflow>   <overflow>
+844313d2d875c424  <overflow>   <overflow>
+a172317228b05ded  <overflow>   <overflow>
+ffffffffffffffff  <overflow>   <overflow>
+#
+# IDs beyond 64 bits
+#                                                             id  short       full
+                                               10000000000000000  <overflow>  <overflow>
+                                ffffffffffffffffffffffffffffffff  <overflow>  <overflow>
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  <overflow>  <overflow>

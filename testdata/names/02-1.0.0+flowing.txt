@@ -1,0 +1,56 @@
+# phonym names: 1.0.0+flowing (slot 2)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=aec8e3cc6c584a5c
+#
+# IDs up to 64 bits
+#             id  short                           full
+               0  la                              la-pelvas
+               1  li                              la-pelven
+               3  ma                              la-pelzas
+              3f  lira                            la-pinden
+              40  liri                            li-pelvas
+              41  liva                            li-pelven
+              5a  lura                            li-pevdin
+              8d  miva                            lo-peljen
+             335  laresa                          va-pevwas
+             ae7  madova                          lati-pevnas
+            6f11  lerelina                        sima-pelwen
+            7c95  letadana                        davo-pevben
+           1216f  midevami                        latosa-pevzen
+           3eaed  divesiva                        mudumo-pevzas
+          873b20  lavalitelira                    renatela-pevlav
+          eecf63  liresatavasa                    dasulamo-pevmas
+          ffffff  lidenarenita                    dorulata-pinden
+         1000000  lidenareniti                    dorulato-pelvas
+         286a22a  nasarenesera                    ledasatedi-pevrav
+         f07b2f6  lemarasadelari                  volunotola-pevwav
+         fffffff  leranalivamava                  saladanasi-pinden
+        10000000  leranalivamavi                  saladanaso-pelvas
+        4481567b  nusutolunamala                  lonorusorona-pinben
+        8e3cf6de  dineridelenimi                  murasolarolo-pevgin
+        ffffffff  lasaniseradelasa                romutasalamo-pinden
+       636bc30c1  rateramavasenadi                lotasutuvonuda-pelven
+       ef9bd1895  laminasedivimadama              nimatadamevasi-pevben
+      61294d2956  nemanavasaminirini              limasilimetedana-pevbin
+      fed78a925f  dulanomudotorutala              mudusadutaradoso-pevlas
+      ffffffffff  dumoromuvusotavura              mutolurumutoloto-pinden
+     395eb6099c5  lumatulonalavalumana            lamavarulotadatana-pelzen
+     dd84d70b56c  venerasivilitivesini            mavisidinavasilida-pevrin
+    47b06665a016  losurasomunoradunalodo          toranosulanuratosa-pevbin
+    7c7a5edd8d84  mitelevesenelemalesara          ladonusurusunodalona-pelzav
+    ffffffffffff  rotomavurutuvasatorano          lutolavorunuturatada-pinden
+   ae1af9435f19c  modalatasuluvusonodovota        latidivarelasaveseleri-pevgav
+   ec5386b509570  nirivelenesenadaseralisi        livamitarenavitileneda-pevzin
+  2639dff89fa6f2  tasumoradunasamutulavolo        narilimaditeneviredala-pevjav
+  d67ad7b358491f  mitelisetevitasanevetimiti      ladoralarulumanotumutosa-pevlas
+  ffffffffffffff  namalisevesimaretinidiveli      leriditaneranitametedeva-pinden
+ 3f4efbb3009e56b  lanatamudasamadomutulamunola    nosumodoronovomonasamava-pevren
+ 50d5843b27fc656  lavudurusonulonaluronatorola    ritilideranalavalivereti-pevbin
+844313d2d875c424  lemanalenasinetevimeseteledesi  vitinametanarimatidatilini-pevmav
+a172317228b05ded  letiritavasenelamavemarevaresa  sovulamutomavorotorumalaro-pevzas
+ffffffffffffffff  maledamivaravatanasetimediriti  laneretasedaramivatisetiseti-pinden
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                                   full
+                                               10000000000000000  maledamivaravatanasetimedivala                                                                                          laneretasedaramivatisetisila-pelvas
+                                ffffffffffffffffffffffffffffffff  tolunovorolutuvasatadovutolaradanoludurovadovomusanudatolo                                                              nadateremividariselemeretinemisemiramelanavasanalinadali-pinden
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  lasamalevemiretivedelitinevederasadateretesenavamivamedimelenarisidimalaraviremarineresaravedisedimaladenisaravanasati  rolunusulusunosuvolunosorusumolovonusonotarumatadanoduramaluvutavarotosolomodonumorusalavurutosamuvadalamotosomato-pinden

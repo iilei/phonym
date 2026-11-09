@@ -1,0 +1,56 @@
+# phonym names: 1.3.0+lyric (slot 7)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=c1bb73ad523f7ad9
+#
+# IDs up to 64 bits
+#             id  short                         full
+               0  ba                            ba-sirgin
+               1  ban                           ba-sirkas
+               3  bi                            ba-sirken
+              3f  wi                            ba-silnav
+              40  wil                           ban-sirgin
+              41  wai                           ban-sirkas
+              5a  banai                         ban-sirhas
+              8d  banroi                        bel-sirpen
+             335  marai                         ma-silgin
+             ae7  ganil                         dil-silbav
+            6f11  lawenel                       buda-sirten
+            7c95  leganbai                      lana-sirvin
+           1216f  nilvijai                      molda-silfav
+           3eaed  baminregan                    anel-sildin
+          873b20  jolbaluda                     dolgaman-sirjen
+          eecf63  bavobanjadan                  bamadejai-sirwav
+          ffffff  badolvojula                   bamuganda-silnav
+         1000000  badolvojulan                  bamugandoi-sirgin
+         286a22a  bigeljebilwi                  bejidenli-sildas
+         f07b2f6  vanwanegenwa                  ramonjoran-silkas
+         fffffff  vimangivadil                  raldomalda-silnav
+        10000000  vimangivadai                  raldomaldoi-sirgin
+        4481567b  banwijalengejel               bajalanbuvan-silmav
+        8e3cf6de  bomalomadunjoi                belgajingidan-sirjas
+        ffffffff  linveriljanerai               lagenrijabel-silnav
+       636bc30c1  balagolodunworan              jimelabalma-sirkas
+       ef9bd1895  balwenadiviwanrai             banrajolgaranva-sirvin
+      61294d2956  nilmabijinvidivai             mindajibedalba-sirzas
+      fed78a925f  wilenvaralemabai              galminilidajel-sirjav
+      ffffffffff  wivanebelmelami               galdejeldajegel-silnav
+     395eb6099c5  bendewedilnawemiwan           balgajoralmojolnoi-sirmas
+     dd84d70b56c  minrimiladawemewai            managaldemabeldai-silden
+    47b06665a016  barejeldirenbereladi          inbanivejenwiban-sirzas
+    7c7a5edd8d84  balnorabandamodolgaja         bajovanralungojulda-sirkin
+    ffffffffffff  bogojabunjoburanwojoi         bilimerinvagiljimil-silnav
+   ae1af9435f19c  balebinranilderawilberil      jiwenvaranbejelderi-sirhen
+   ec5386b509570  bavinbijanwivilgamenvibil     balindagalbidibilnigan-silfen
+  2639dff89fa6f2  birenjarijabenvibelwila       beviladiljewelmiwalma-silgas
+  d67ad7b358491f  rildivereveldaginbejabai      nelwivenbarimagalneda-sirjav
+  ffffffffffffff  vidirilnigivinlewemejel       ralgibelmilanraniwajai-silnav
+ 3f4efbb3009e56b  bandomalgobajunlonajogowoi    badilwidenbewenjawengavi-sildav
+ 50d5843b27fc656  bemalendabanimawereldeman     banvemenwagijaredebeman-sirzas
+844313d2d875c424  bavelabejegilbanivijedelnai   balevildewerilageneldenil-sirwen
+a172317228b05ded  bajigiliwilvilijilmalangawel  barangemalenwiminwabejeri-sildin
+ffffffffffffffff  beranwalamijinradalbegibera   bangadevidanelvenibalwevi-silnav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                         full
+                                               10000000000000000  beranwalamijinradalbegiberan                                                                                  bangadevidanelvenibalwevil-sirgin
+                                ffffffffffffffffffffffffffffffff  nalmedenagendalevijindinijelgerindilindagaldejarivalda                                                        mejilibiljegivenbagadabanawinbiwiginiwenvibilgawai-silnav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  lugonbovulmolanwarulvuluwujorunlurungubogunvojavajudulnobolnumajuldovalmuvamaraganrubagonlabogulwovodonalvoi  lanwinebanvarilbidijanlijanvarejengiliwiljevebidagewabelmanagenremevilwajadalinvawimerigarilnagilmalini-silnav

@@ -98,8 +98,8 @@ generation 1). The registry is append-only.
 
 ## Conformance
 
-`testdata/family_snapshot.txt` and `testdata/names_snapshot.txt` are golden
-files. The Go tests reproduce them byte for byte, and so does the Python
+`testdata/family.txt` (the frozen family code) and `testdata/names/` (one file
+per release) are golden files. The Go tests reproduce them byte for byte, and so does the Python
 prototype the design was developed in (`reference/python/`). Any port must do
 the same.
 

@@ -266,15 +266,20 @@ Also required:
 
 ## 10. Conformance
 
-- `family_snapshot.txt`: every family name with slot, low bits and spread index.
-  The header records the layout constants and a sha256 over the rows.
-- `names_snapshot.txt`: short and full form for 48 fixed IDs per release:
-  boundary values up to 2²⁵⁶ − 1 and seeded random IDs of 1–16 hex digits,
-  including `<overflow>` rows for fixed-shape releases.
-- The sample IDs are data: implementations read them from the file's id column,
-  so no port needs the Python random generator.
+- `testdata/family.txt`: the frozen family code, one line per release slot with its
+  64 family names (sibling 0 first). The header records the layout constants, the
+  blocklist digest and a sha256 over the rows.
+- `testdata/names/<slot>-<release>.txt`: one file per release, with the short and
+  full form of 48 fixed IDs (boundary values up to 2²⁵⁶ − 1 and seeded random IDs
+  of 1–16 hex digits), including `<overflow>` rows for fixed-shape releases. IDs
+  beyond 64 bits get a table of their own, so they don't set the column widths.
+- The registry is append-only, so a released names file never changes: a diff in
+  an existing file means a release was renamed. A new release adds a file; a file
+  that belongs to no release is an error.
+- The sample IDs are data: implementations read them from the id column, so no
+  port needs the Python random generator (its seed is recorded only as provenance).
 - Fixed-width tables, no trailing whitespace. Every implementation must reproduce
-  both files byte for byte. CI checks the Go implementation (`go test`) and the
+  all files byte for byte. CI checks the Go implementation (`go test`) and the
   Python reference (`reference/python/snapshot.py --check`) on every change.
 
 ## 11. Decided against

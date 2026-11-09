@@ -9,7 +9,7 @@ repos:
       - id: check-yaml
       - id: check-toml
       - id: check-added-large-files
-        args: ['--maxkb=2048']  # testdata/family_snapshot.txt is ~600 KB
+        args: ['--maxkb=512']  # testdata/family.txt is ~175 KB
       - id: mixed-line-ending
         args: ['--fix=lf']
 

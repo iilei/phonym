@@ -1,0 +1,56 @@
+# phonym names: 1.4.0+elfish (slot 10)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=6c65b9a3e9e96d32
+#
+# IDs up to 64 bits
+#             id  short                        full
+               0  la                           la-pardul
+               1  le                           la-parfas
+               3  lir                          la-parfen
+              3f  he                           la-parhus
+              40  hes                          le-pardul
+              41  hil                          le-parfas
+              5a  ael                          le-parmov
+              8d  lafir                        les-pargus
+             335  naves                        nis-parzen
+             ae7  raesil                       vion-partas
+            6f11  lensothis                    lomis-parken
+            7c95  lerfaeve                     lothes-parkul
+           1216f  laerfolir                    novael-parven
+           3eaed  reminir                      silme-partul
+          873b20  nehisefis                    niethirma-parnus
+          eecf63  melfalones                   rasorha-parsen
+          ffffff  minlisahir                   rensielis-parhus
+         1000000  minlisahis                   rensiena-pardul
+         286a22a  felmefaere                   thenisiel-partin
+         f07b2f6  lenhenioveres                lithirvile-parzin
+         fffffff  lersefelnieva                lirnohisthe-parhus
+        10000000  lersefelnieve                lirnohola-pardul
+        4481567b  niolthalermafa               mofehaele-parhav
+        8e3cf6de  vasielhofathil               silmelesma-parnav
+        ffffffff  helivofarna                  olvathorael-parhus
+       636bc30c1  limaesthihamihir             lonimosilion-parfas
+       ef9bd1895  nefosevariotha               nohiothonvothil-parkul
+      61294d2956  thisiemivesfivil             lanohionravoltha-parmas
+      fed78a925f  larsamifilsanemael           leralvimiovilna-parnov
+      ffffffffff  larsemonfimofone             lerehirfereme-parhus
+     395eb6099c5  laevihimirhiforha            nemalvohosmifiel-parfov
+     dd84d70b56c  rolhemironaerfisir           vosthelanhiothosa-partus
+    47b06665a016  lanfanerelarhenaethes        lasrenalmilirthonir-parmas
+    7c7a5edd8d84  lethesmalaervoferthave       linerolnafanliome-parfin
+    ffffffffffff  lonthofelafetholfothael      navishonalmiofavir-parhus
+   ae1af9435f19c  esleserfavolsihiosfe         lamovierofahaslime-parmul
+   ec5386b509570  laronfomiesleforsolaves      lafiormonaresthevalha-parvin
+  2639dff89fa6f2  lehorfoverthinofalthaeve     lesfathonofioshothisil-parvul
+  d67ad7b358491f  merniofinrimovarfaromes      miesrovasnathanhothines-parnov
+  ffffffffffffff  molfenashavasierasivir       rihanferaesehisare-parhus
+ 3f4efbb3009e56b  lamaselfahirotharelsaviel    lavomelthavislefalnore-partov
+ 50d5843b27fc656  lasathernohevaetholvahilfe   lathisavosfiemisfolorma-parmas
+844313d2d875c424  vonsanethaslemionrothinilfe  siervamolnirelnelonsires-parsin
+a172317228b05ded  siehanfenasmorominothisfa    harvohosnafirnorovarha-partul
+ffffffffffffffff  arfimaelvifasthelensifithir  lamarnilethinorathaervanis-parhus
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                full
+                                               10000000000000000  arfimaelvifasthelensifithis                                                                          lamarnilethinorathaervama-pardul
+                                ffffffffffffffffffffffffffffffff  lenasmovarnemanthiranelenermalonsalaerharinsethirsine                                                lesohiniliselishilinomerosfihisthenefosromithes-parhus
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  solnafelhethesmifismarilsavilhasefaelamavinthavohilvanelsoliravenohomolsirohasnefisinilmoholmorenfa  firhanefeserhefonrilirnemilsaethenalfolirsirasthihemenhefilohernefasminilfarominalarsivenalvareves-parhus

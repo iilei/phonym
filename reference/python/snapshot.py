@@ -1,9 +1,12 @@
 """Write the fixed-width snapshot tables (or verify them).
 
-  family_snapshot.txt  every family name: slot, low bits, spread index
-  names_snapshot.txt   full names (given + family) for fixed sample IDs per release
+  family.txt                 the frozen family code: one line per release slot, its 64 names
+  names/<slot>-<release>.txt short and full form of fixed sample IDs, one file per release
 
-usage: python3 snapshot.py           write both files into ../../testdata
+A released file never changes (the registry is append-only): a diff in an existing
+names file means a release was renamed, which is a breaking change.
+
+usage: python3 snapshot.py           write the files into ../../testdata
        python3 snapshot.py --check   compare against the files in ../../testdata
 """
 import hashlib
@@ -24,10 +27,14 @@ def is_proquint(name: str) -> bool:
 # last column unpadded everywhere: no trailing whitespace (the repo's pre-commit hook strips it)
 
 
-def _table(title: str, params: str, columns: str, rule: str, body: list[str]) -> str:
-    digest = hashlib.sha256("\n".join(body).encode()).hexdigest()[:16]
-    header = [f"# {title}", f"# {params} sha256={digest}", "#", f"# {columns}", f"# {rule}"]
-    return "\n".join(header + body) + "\n"
+HERE = os.path.dirname(os.path.abspath(__file__))
+TESTDATA = os.path.join(HERE, "..", "..", "testdata")
+BLOCKLIST1 = os.path.join(HERE, "..", "..", "blocklists", "1.txt")
+
+
+def blocklist_digest() -> str:
+    with open(BLOCKLIST1, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:16]
 
 
 # --- family code ------------------------------------------------------------
@@ -35,15 +42,18 @@ def _table(title: str, params: str, columns: str, rule: str, body: list[str]) ->
 def render_family() -> str:
     body = []
     for slot in range(fam.VERSIONS):
-        for lo in range(fam.K):
-            name = fam.family_name(slot, lo)
+        names = [fam.family_name(slot, lo) for lo in range(fam.K)]
+        for name in names:
             assert fam.FAMILY_SHAPE.match(name) and not PROQUINT.match(name), name
-            index = fam.FAMILY.rank(fam.FAMILY.parse(name))
-            body.append(f"{slot:>4}  {lo:>3}  {index:>5}  {name}")
-    params = (f"length={fam.FAMILY_LEN} K={fam.K} slots={fam.VERSIONS} capacity={fam.CAP}"
-              f" stride={fam.STRIDE} offset={fam.OFFSET} blocklist1={blocklist_digest()}")
-    return _table("phonym family code snapshot", params,
-                  "slot   lo  index  name", "----  ---  -----  --------", body)
+        body.append(f"{slot:>3}  " + " ".join(names))
+    digest = hashlib.sha256("\n".join(body).encode()).hexdigest()[:16]
+    header = [
+        "# phonym family code",
+        f"# length={fam.FAMILY_LEN} K={fam.K} slots={fam.VERSIONS} capacity={fam.CAP}"
+        f" stride={fam.STRIDE} offset={fam.OFFSET} blocklist1={blocklist_digest()} sha256={digest}",
+        "# one line per release slot: its 64 family names, sibling 0 (x mod K = 0) first",
+    ]
+    return "\n".join(header + body) + "\n"
 
 
 # --- full names -------------------------------------------------------------
@@ -61,66 +71,74 @@ def sample_ids() -> list[int]:
     return sorted(edges)
 
 
-def render_names() -> str:
+def render_names(index: int, release) -> str:
     rows = []
+    for x in sample_ids():
+        try:
+            full = st.encode(x, release.label, allow_retired=True)
+        except OverflowError:
+            full = "<overflow>"
+        else:
+            assert st.decode(full) == (release.label, x), (release.label, x, full)
+            assert not is_proquint(full), full
+        try:
+            short = st.encode_short(x, release.label, allow_retired=True)
+        except OverflowError:
+            short = "<overflow>"
+        else:
+            assert st.decode(short, release.label) == (release.label, x), (release.label, x, short)
+        rows.append((x, short, full))
+    digest = hashlib.sha256("\n".join(f"{x:x} {sh} {full}" for x, sh, full in rows).encode()).hexdigest()[:16]
+    status = " retired" if release.retired else ""
+    out = [
+        f"# phonym names: {release.label} (slot {index}){status}",
+        f"# ids={len(rows)} K={fam.K} seed=20261109 blocklist1={blocklist_digest()} sha256={digest}",
+    ]
+    # two tables, so the few huge IDs don't set the column widths for all the others
+    for title, part in [("IDs up to 64 bits", [r for r in rows if r[0].bit_length() <= 64]),
+                        ("IDs beyond 64 bits", [r for r in rows if r[0].bit_length() > 64])]:
+        id_w = max(2, max(len(f"{x:x}") for x, _, _ in part))
+        short_w = max(5, max(len(sh) for _, sh, _ in part))
+        out += ["#", f"# {title}", f"# {'id':>{id_w - 2}}  {'short':<{short_w}}  full"]
+        out += [f"{x:>{id_w}x}  {sh:<{short_w}}  {full}" for x, sh, full in part]
+    return "\n".join(out) + "\n"
+
+
+def names_path(index: int, release) -> str:
+    return os.path.join("names", f"{index:02d}-{release.label}.txt")
+
+
+def expected_files() -> dict[str, str]:
+    files = {"family.txt": render_family()}
     for index, release in enumerate(st.REGISTRY):
-        if release.style is None:                 # placeholder: never issued names
-            continue
-        for x in sample_ids():
-            try:
-                full = st.encode(x, release.label, allow_retired=True)
-            except OverflowError:
-                full = "<overflow>"
-            else:
-                assert st.decode(full) == (release.label, x), (release.label, x, full)
-                assert not is_proquint(full), full
-            try:
-                short = st.encode_short(x, release.label, allow_retired=True)
-            except OverflowError:
-                short = "<overflow>"
-            else:
-                assert st.decode(short, release.label) == (release.label, x), (release.label, x, short)
-            rows.append((index, release.label, x, short, full))
-    width = max(24, max(len(r[3]) for r in rows))          # short column padded, full last
-    body = [f"{i:>4}  {label:<14}  {x:064x}  {short:<{width}}  {full}"
-            for i, label, x, short, full in rows]
-    retired = [i for i, r in enumerate(st.REGISTRY) if r.retired and r.style is not None]
-    holes = [i for i, r in enumerate(st.REGISTRY) if r.style is None]
-    fmt = lambda xs: ",".join(map(str, xs)) or "none"
-    params = (f"releases={len(st.REGISTRY)} retired={fmt(retired)} placeholders={fmt(holes)}"
-              f" ids={len(sample_ids())} K={fam.K} seed=20261109 blocklist1={blocklist_digest()}")
-    return _table("phonym name snapshot (short and full form)", params,
-                  f"slot  release         id                                                                {'short':<{width}}  full",
-                  "----  --------------  ----------------------------------------------------------------  " + "-" * width + "  " + "-" * 24, body)
+        if release.style is not None:              # placeholders never issued names
+            files[names_path(index, release)] = render_names(index, release)
+    return files
 
-
-BLOCKLIST1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "blocklists", "1.txt")
-
-
-def blocklist_digest() -> str:
-    with open(BLOCKLIST1, "rb") as f:
-        return hashlib.sha256(f.read()).hexdigest()[:16]
-
-
-TESTDATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "testdata")
-FILES = {os.path.join(TESTDATA, "family_snapshot.txt"): render_family,
-         os.path.join(TESTDATA, "names_snapshot.txt"): render_names}
 
 if __name__ == "__main__":
-    failed = False
-    for path, render in FILES.items():
-        text = render()
-        if "--check" in sys.argv:
+    files = expected_files()
+    present = {os.path.relpath(os.path.join(d, f), TESTDATA)
+               for d, _, fs in os.walk(TESTDATA) for f in fs if f.endswith(".txt")}
+    if "--check" in sys.argv:
+        failed = False
+        for rel, text in files.items():
             try:
-                with open(path) as f:
-                    old = f.read()
+                with open(os.path.join(TESTDATA, rel), encoding="utf-8") as f:
+                    ok = f.read() == text
             except FileNotFoundError:
-                old = None
-            ok = old == text
+                ok = False
             failed |= not ok
-            print(f"{path} {'matches' if ok else 'DIFFERS'}")
-        else:
-            with open(path, "w") as f:
-                f.write(text)
-            print(f"wrote {path} ({text.count(chr(10))} lines)")
-    sys.exit(1 if failed else 0)
+            print(f"{rel} {'matches' if ok else 'DIFFERS'}")
+        for rel in sorted(present - set(files)):
+            failed = True
+            print(f"{rel} UNEXPECTED (no release writes it)")
+        sys.exit(1 if failed else 0)
+    for rel in sorted(present - set(files)):
+        os.remove(os.path.join(TESTDATA, rel))
+        print(f"removed {rel}")
+    os.makedirs(os.path.join(TESTDATA, "names"), exist_ok=True)
+    for rel, text in files.items():
+        with open(os.path.join(TESTDATA, rel), "w", encoding="utf-8") as f:
+            f.write(text)
+    print(f"wrote {len(files)} files into {os.path.normpath(TESTDATA)}")

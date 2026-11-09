@@ -10,7 +10,7 @@ planned Python port.
 | `syllable_automaton.py` | ranking over the automaton; the base syllable rules                                          |
 | `family_demo.py`        | the frozen family code (SHAPE and GENERATION rules)                                          |
 | `styles_demo.py`        | styles, the release registry, INPUT and JOIN rules, short form; running it prints its checks |
-| `snapshot.py`           | writes or checks `testdata/family_snapshot.txt` and `testdata/names_snapshot.txt`            |
+| `snapshot.py`           | writes or checks `testdata/family.txt` and `testdata/names/` (one file per release)          |
 
 ```sh
 python3 snapshot.py --check   # compare against ../../testdata

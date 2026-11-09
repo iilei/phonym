@@ -1,0 +1,56 @@
+# phonym names: 1.1.0+soft (slot 3)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=f396da0874a2812b
+#
+# IDs up to 64 bits
+#             id  short                          full
+               0  ba                             ba-dulkus
+               1  ban                            ba-dulkul
+               3  bi                             ba-dulmav
+              3f  baril                          ba-duvmav
+              40  bava                           ban-dulkus
+              41  bavan                          ban-dulkul
+              5a  banli                          ban-dulvus
+              8d  bedel                          bel-dulpav
+             335  nalan                          mil-duvgas
+             ae7  balimi                         wan-duljav
+            6f11  lujuna                         limil-dulsav
+            7c95  manvuban                       lora-dultav
+           1216f  vangida                        renji-dulwul
+           3eaed  bajulowan                      badalwi-dulwov
+          873b20  banorogolma                    welgijil-dulzul
+          eecf63  banjuvaguda                    bajarunba-dulhov
+          ffffff  balnobulwuban                  bawalvaja-duvmav
+         1000000  balnobulwula                   bawalvajan-dulkus
+         286a22a  buljulobaran                   bindeganwa-duljul
+         f07b2f6  galvojodulma                   vidanriwan-duvgav
+         fffffff  gilmelinwena                   vulnudaran-duvmav
+        10000000  gilmelinwenel                  vulnudava-dulkus
+        4481567b  benrajemijelva                 balgolujonda-duvlav
+        8e3cf6de  lanbirimarabel                 bowujonroma-dulzov
+        ffffffff  menwavajaldawel                lonjavulwagan-duvmav
+       636bc30c1  bagadiganilbeli                banagujonvadan-dulkul
+       ef9bd1895  bilevangelidelna               berinjevilbagi-dultav
+      61294d2956  vanliwilmarilbegan             rabenjawinimil-dultov
+      fed78a925f  barinwelavigenvada             balajilvamegemil-dulzus
+      ffffffffff  barilwamadinejedil             balanrolonbavulba-duvmav
+     395eb6099c5  bilgaralevadewimel             beldemenlabemawel-dulmus
+     dd84d70b56c  nulgurulbagalnabova            monbowalmowoguwa-dulwav
+    47b06665a016  banvarevajilbigilnadel         badenalberanwivendi-dultov
+    7c7a5edd8d84  benjenilvelawavabinwa          balwimaranedanirel-dulmov
+    ffffffffffff  lanjeginlawadajevinel          bolgoburudanvujuran-duvmav
+   ae1af9435f19c  bagalvejeraljedejanleman       banebiralnemeldebinva-dulzas
+   ec5386b509570  banjerejilvaganrejangedi       baginriwimenlebilgida-duvbas
+  2639dff89fa6f2  bugujolvuranjudanjarolba       biginjivibedanalanba-duvbov
+  d67ad7b358491f  dilejilvijenebijadewan         valadebinranalmidimi-dulzus
+  ffffffffffffff  govabovunrovongumandawa        vunrolongorujanovonja-duvmav
+ 3f4efbb3009e56b  begendibagibijengilenbigel     balnawadulnawongunurolva-dulwas
+ 50d5843b27fc656  binaldemanaremanvimendali      bedanelmaramijilvanela-dultov
+844313d2d875c424  bangilenelgeringeminbinilvala  bagemiveljemawenrewadijan-dulhus
+a172317228b05ded  balwavundanamalbanojavunava    banribiriwemilvebandiwilvi-dulwov
+ffffffffffffffff  bidabelvijevebidangiranbena    bejalindaweljinabinvidebi-duvmav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                           full
+                                               10000000000000000  bidabelvijevebidangiranbenel                                                                                    bejalindaweljinabinvidebil-dulkus
+                                ffffffffffffffffffffffffffffffff  rindevanwanalvegalbedewerilanbimelenwibinwijaldagimewi                                                          neldabalgajiramagenwirelweminrivajewelerenwiginjaran-duvmav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  minjirademandamanrebinvidenvanaregilvaregeranjibivenibalnejegindivalwalendijindelenriwinredinralanribinligenba  mavongabuwalbalonjuravonjanalwunolwuronwojavonlajunrubanovawuljovunrojodulbuwudolvanuganbudonbugandamabulja-duvmav

@@ -1,0 +1,56 @@
+# phonym names: 1.4.0+alien (slot 11)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=b7e2e4f3f1bc2a20
+#
+# IDs up to 64 bits
+#             id  short                               full
+               0  za                                  za-donfav
+               1  zi                                  za-donfov
+               3  zaan                                za-donful
+              3f  kta                                 za-dorbul
+              40  kti                                 zi-donfav
+              41  kton                                zi-donfov
+              5a  zataan                              zi-donrus
+              8d  zanvii                              zon-donkul
+             335  zoonjii                             kii-donjul
+             ae7  taazvuun                            zvii-donzas
+            6f11  zunvooton                           zonkvi-donlus
+            7c95  zovotluun                           zaakvaan-donpus
+           1216f  katinzva                            kozvi-donhus
+           3eaed  tuukiinjii                          zvinkii-donhav
+          873b20  kuutonkiizvi                        koontlaakuu-dontav
+          eecf63  tinvoziinva                         taankoktuun-dontul
+          ffffff  tonkajanza                          tuunjoza-dorbul
+         1000000  tonkajanzi                          tuunjozi-donfav
+         286a22a  zatuukuunktoovaan                   zajuktaanji-donzus
+         f07b2f6  ziinkoojaatovoon                    ziinkvokavii-donwas
+         fffffff  zuukuuntiijoozva                    zuujinviiza-dorbul
+        10000000  zuukuuntiijoozvi                    zuujinviizi-donfav
+        4481567b  taatlootaavonja                     tiinkakvozuun-dorbas
+        8e3cf6de  zaviikaazvojokoon                   zaviitloonvajii-donsul
+        ffffffff  zanktakanzajaaza                    zantlutiivita-dorbul
+       636bc30c1  kuzonktikuvunzii                    kinjiitajunka-donfov
+       ef9bd1895  tivaatankikvinjii                   tanjiitliivanzuu-donpus
+      61294d2956  zukaktiinvakozokoon                 zinjokojozvinzii-donpul
+      fed78a925f  zuujuuntlakiinjikanza               zuuvozuuntookvaanjii-dontas
+      ffffffffff  zuuzviijankiijuzuunka               zuuviiziinvajanza-dorbul
+     395eb6099c5  tijikvaakaanjuvazuun                takiintaazutinva-dongav
+     dd84d70b56c  zanjuuziintlokanjoozojuu            zantojookutoonzvuujuun-donhas
+    47b06665a016  kazanzvujotoovuunjuvoon             zoojituujuunktozuunki-donpul
+    7c7a5edd8d84  kuujaankujaktikavuunki              kiijunvuuktuunzookoonvuu-dongas
+    ffffffffffff  tuutliijoonzuvanzajaaza             taajozuunkiivizuka-dorbul
+   ae1af9435f19c  ziikovootlaavozoojoozaajuu          zaakvojuuzuvizunjazoon-donsav
+   ec5386b509570  zoovazanvuzukvankaavuuti            zuujaazuunjitlujookatuun-donhul
+  2639dff89fa6f2  vonzuujunkizvuunvatoonzitaan        vinkvajiivutinviijookii-donjav
+  d67ad7b358491f  zivaajaantiijaankaktiitozuka        zikijuunzizvokaatanzokuu-dontas
+  ffffffffffffff  zitlooviitoonkatiizaankajaaza       zitiinvoozitaziizvaavita-dorbul
+ 3f4efbb3009e56b  kaktonzuvuuzuukuutiijiinviikii      zoonkooktaanjivaajanzoovoozuun-donzul
+ 50d5843b27fc656  kovonjikoonviizvujuutunkaatoon      kuzunvaajavoonkazvaakaajon-donpul
+844313d2d875c424  zaanvajinzojizvoozokoojutaanki      zaakoojukizankvivijaavoozi-donvas
+a172317228b05ded  ziinjaaziikuuntazantiizintlotanjii  ziivaazookuunjazonkvajoozonta-donhav
+ffffffffffffffff  kintaajotaanzatuuvonzvookajaaza     kanvajozvakinjukanzajaaza-dorbul
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                                                         full
+                                               10000000000000000  kintaajotaanzatuuvonzvookajaazi                                                                                               kanvajozvakinjukanzajaazi-donfav
+                                ffffffffffffffffffffffffffffffff  kaanzavijoozivintijinvuujiikoonjutoojazatlaantikanviijuzuunka                                                                 kuzvajuuviijinzajuukanzajuvookaanvaazaatuunkiitunzikajaaza-dorbul
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  zakutuunziivoozakuntaavuunzvotinvozuukiviinjivazinkovaanjookontizonkuvaantajuukiivojovuuntaakovantikiiviikanzotoojaanzajaaza  jozvatuuzuunkuutiinzuutokiinzojavoozunkozikivoozaankutuunkuutinkiitonkujoontuujaakinzutankaajoonkaazankaavojikanviijuzuunka-dorbul

@@ -1,0 +1,56 @@
+# phonym names: 1.1.0+crisp (slot 4)
+# ids=48 K=64 seed=20261109 blocklist1=47b36c3522dbf44e sha256=4e453620285abf06
+#
+# IDs up to 64 bits
+#             id  short                      full
+               0  bar                        bar-vunfas
+               1  bir                        bar-vunfav
+               3  bo                         bar-vunfus
+              3f  bados                      bar-vurdav
+              40  bafar                      bir-vunfas
+              41  bafir                      bir-vunfav
+              5a  baso                       bir-vunrov
+              8d  befar                      bis-vunkus
+             335  dusgo                      far-vunwav
+             ae7  tekis                      to-vunzov
+            6f11  binpofos                   dabir-vunlov
+            7c95  birhukir                   danko-vunpov
+           1216f  difetir                    fusir-vunjas
+           3eaed  pandehar                   badifos-vunhus
+          873b20  dunpukuzon                 fontepo-vuntas
+          eecf63  gizapenho                  kupafo-vuntus
+          ffffff  gorbaguzar                 paskafar-vurdav
+         1000000  gorbaguzir                 paskafir-vunfas
+         286a22a  honpetizis                 bakesdebos-vunhas
+         f07b2f6  biporhoposdo               bospogipar-vunwov
+         fffffff  bihodesgobar               bupensuko-vurdav
+        10000000  bihodesgobir               bupensukon-vunfas
+        4481567b  fertigipibo                kabontekar-vurbov
+        8e3cf6de  kusputenbadir              zirtahirpo-vunsov
+        ffffffff  haspezondigar              basikerbodo-vurdav
+       636bc30c1  bihopohorkotar             boshaburgikir-vunfav
+       ef9bd1895  denzibasgusenbo            fasarpabotis-vunpov
+      61294d2956  hezebotikesir              bakurdokestezon-vunpus
+      fed78a925f  bargozirsakugenbo          bezigubashopo-vunsul
+      ffffffffff  barkabezordesefis          bezishebergatar-vurdav
+     395eb6099c5  bortugorsabustesir         detendupistuzos-vungas
+     dd84d70b56c  geburtizardubafis          pasdopinzetipon-vunhov
+    47b06665a016  bazengukufensizokos        basdeterzaterkados-vunpus
+    7c7a5edd8d84  bedagohagosbifebo          berhogiskigihorko-vunful
+    ffffffffffff  bintikongozukusgihir       butakonsuferguhar-vurdav
+   ae1af9435f19c  sonhisarzagirsokutis       badikadisadohifar-vunrul
+   ec5386b509570  hasdizonpudanpoderko       bapargufuzigertopo-vunjav
+  2639dff89fa6f2  barfotirfabedusuturbo      beturhuzartudigonso-vunjus
+  d67ad7b358491f  degaskehangofakusezon      dusfehesfazoposofis-vunsul
+  ffffffffffffff  dizunsehokesdeguskadar     fesdufasbozesputefar-vurdav
+ 3f4efbb3009e56b  sarfadonbupurseposbikos    hugapetesfagirtizon-vunhav
+ 50d5843b27fc656  zadisbitibizansizifar      bagirkihinzebisdapuson-vunpus
+844313d2d875c424  dustosinpobarsekobanfoson  gartubidestisangapanzo-vuntul
+a172317228b05ded  fisonhekantabestafokihar   guzurtuhefurdibesgefo-vunhus
+ffffffffffffffff  gursodikerpahirkuzudasir   segonhikurdihepesgobo-vurdav
+#
+# IDs beyond 64 bits
+#                                                             id  short                                                                                       full
+                                               10000000000000000  gursodikerpahirkuzudaso                                                                     segonhikurdihepesgobon-vunfas
+                                ffffffffffffffffffffffffffffffff  bosentegeberkibortegurfepifukipinhasuntisorhazar                                            dazotezensihondokodosposopendobirdatunkaguko-vurdav
+ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff  fingikerfetobusupitizespofuzihazurbudekengefahagobirkezosgezugashusebispazaberfekarpizekon  gurtosodakunfosurzibefirkedekonfesugorbezeputirfigerfogonkoburkodaskesingibispigosbudekusho-vurdav
